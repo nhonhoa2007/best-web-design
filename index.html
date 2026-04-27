@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VKU 360 Interactive Map</title>
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Pannellum CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pannellum@2.5.6/build/pannellum.css">
+    
+    <!-- Phosphor Icons -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- 360 Panorama Container -->
+    <div id="panorama"></div>
+
+    <!-- UI Overlay -->
+    <div class="ui-container">
+        
+        <!-- Header -->
+        <header class="glass-panel">
+            <div class="logo">
+                <i class="ph ph-graduation-cap"></i>
+                <h1>VKU 360</h1>
+            </div>
+            <div class="header-info">
+                <span id="current-location-name">Đang tải...</span>
+            </div>
+        </header>
+
+        <!-- Sidebar Menu -->
+        <aside class="sidebar glass-panel">
+            <h3>Khu vực</h3>
+            
+            <div class="menu-section">
+                <button class="section-toggle active" data-target="khu-v">
+                    <i class="ph ph-buildings"></i> Khu V
+                </button>
+                <ul id="khu-v-list" class="location-list">
+                    <!-- Dynamic list items will be injected here -->
+                </ul>
+            </div>
+
+            <div class="menu-section">
+                <button class="section-toggle" data-target="khu-k">
+                    <i class="ph ph-city"></i> Khu K
+                </button>
+                <ul id="khu-k-list" class="location-list" style="display: none;">
+                    <!-- Dynamic list items will be injected here -->
+                </ul>
+            </div>
+        </aside>
+
+        <!-- Minimap Toggle & Container -->
+        <div class="minimap-wrapper">
+            <div class="minimap-controls glass-panel">
+                <button id="toggle-minimap"><i class="ph ph-map-trifold"></i> Hiện/Ẩn Bản đồ</button>
+                <div class="minimap-switcher">
+                    <button id="btn-map-v" class="active">Khu V</button>
+                    <button id="btn-map-k">Khu K</button>
+                </div>
+            </div>
+            
+            <div id="minimap-container" class="glass-panel map-hidden">
+                <div class="map-inner">
+                    <!-- Use placeholder for now, will use the user's images if possible or a local path -->
+                    <img id="map-image-v" src="/image_web/fullmap_khuV.jpg" alt="Bản đồ Khu V">
+                    <img id="map-image-k" src="/image_web/fullmap_khuK.jpg" alt="Bản đồ Khu K" style="display: none;">
+                    
+                    <!-- Map Dots Container -->
+                    <div id="map-dots"></div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Pannellum JS -->
+    <script src="https://cdn.jsdelivr.net/npm/pannellum@2.5.6/build/pannellum.js"></script>
+    
+    <!-- Custom JS -->
+    <script src="script.js"></script>
+</body>
+</html>

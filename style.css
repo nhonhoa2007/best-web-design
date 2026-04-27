@@ -1,0 +1,452 @@
+:root {
+    --primary-yellow: #FFC107;
+    --primary-blue: #0D47A1;
+    --primary-red: #D32F2F;
+    
+    --bg-glass: rgba(255, 255, 255, 0.15);
+    --bg-glass-hover: rgba(255, 255, 255, 0.25);
+    --border-glass: rgba(255, 255, 255, 0.3);
+    --text-light: #F8FAFC;
+    --text-dark: #1E293B;
+    
+    --font-main: 'Inter', sans-serif;
+    
+    --shadow-soft: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: var(--font-main);
+    overflow: hidden;
+    color: var(--text-light);
+    background-color: #000; /* Fallback before panorama loads */
+}
+
+/* 360 Viewer */
+#panorama {
+    width: 100vw;
+    height: 100vh;
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 1;
+}
+
+/* Hide Pannellum custom controls default since we build UI over it if needed, or keep them */
+.pnlm-load-box {
+    color: var(--primary-yellow) !important;
+}
+
+/* UI Overlay */
+.ui-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 10;
+    pointer-events: none; /* Let clicks pass through to panorama by default */
+    display: flex;
+    flex-direction: column;
+}
+
+/* Re-enable pointer events for UI elements */
+.ui-container > * {
+    pointer-events: auto;
+}
+
+/* Glassmorphism utility */
+.glass-panel {
+    background: var(--bg-glass);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid var(--border-glass);
+    box-shadow: var(--shadow-soft);
+    border-radius: 12px;
+}
+
+/* Header */
+header {
+    margin: 20px;
+    padding: 15px 25px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    align-self: flex-start;
+    width: calc(100% - 40px);
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.logo i {
+    font-size: 2rem;
+    color: var(--primary-yellow);
+}
+
+.logo h1 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: #fff;
+}
+
+.header-info {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #fff;
+    text-shadow: 1px 1px 4px rgba(0,0,0,0.5);
+    background: rgba(13, 71, 161, 0.7); /* primary-blue with opacity */
+    padding: 8px 20px;
+    border-radius: 20px;
+    border: 1px solid rgba(255,255,255,0.2);
+}
+
+/* Sidebar */
+.sidebar {
+    margin: 0 20px;
+    width: 320px;
+    padding: 20px;
+    max-height: calc(100vh - 120px);
+    overflow-y: auto;
+    position: absolute;
+    top: 100px;
+    left: 0;
+    transition: transform 0.3s ease;
+}
+
+.sidebar h3 {
+    font-size: 1.2rem;
+    margin-bottom: 20px;
+    color: var(--primary-yellow);
+    border-bottom: 2px solid rgba(255, 193, 7, 0.3);
+    padding-bottom: 10px;
+}
+
+.menu-section {
+    margin-bottom: 15px;
+}
+
+.section-toggle {
+    width: 100%;
+    background: rgba(0,0,0,0.4);
+    color: #fff;
+    border: 1px solid rgba(255,255,255,0.1);
+    padding: 12px 15px;
+    font-size: 1.05rem;
+    font-weight: 600;
+    border-radius: 8px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    transition: all 0.2s ease;
+    font-family: var(--font-main);
+}
+
+.section-toggle:hover {
+    background: var(--primary-blue);
+}
+
+.section-toggle.active {
+    background: var(--primary-blue);
+    border-color: var(--primary-yellow);
+}
+
+.location-list {
+    list-style: none;
+    margin-top: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.location-list li {
+    padding: 10px 15px 10px 40px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.2s ease, color 0.2s ease;
+    font-size: 0.95rem;
+    position: relative;
+}
+
+.location-list li::before {
+    content: '';
+    position: absolute;
+    left: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 6px;
+    height: 6px;
+    background: var(--primary-yellow);
+    border-radius: 50%;
+    opacity: 0.5;
+    transition: all 0.2s ease;
+}
+
+.location-list li:hover {
+    background: rgba(255,255,255,0.1);
+    color: var(--primary-yellow);
+}
+
+.location-list li:hover::before {
+    opacity: 1;
+    box-shadow: 0 0 8px var(--primary-yellow);
+}
+
+.location-list li.active {
+    background: rgba(211, 47, 47, 0.7); /* primary-red */
+    color: #fff;
+    font-weight: 600;
+}
+.location-list li.active::before {
+    background: #fff;
+    opacity: 1;
+}
+
+/* Minimap */
+.minimap-wrapper {
+    position: absolute;
+    bottom: 30px;
+    right: 30px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 15px;
+}
+
+.minimap-controls {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 10px 20px;
+}
+
+#toggle-minimap {
+    background: transparent;
+    border: none;
+    color: #fff;
+    font-family: var(--font-main);
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: color 0.2s;
+}
+
+#toggle-minimap:hover {
+    color: var(--primary-yellow);
+}
+
+.minimap-switcher {
+    display: flex;
+    background: rgba(0,0,0,0.4);
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+.minimap-switcher button {
+    background: transparent;
+    border: none;
+    padding: 8px 15px;
+    color: rgba(255,255,255,0.7);
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.2s;
+    font-family: var(--font-main);
+}
+
+.minimap-switcher button.active {
+    background: var(--primary-blue);
+    color: #fff;
+}
+
+#minimap-container {
+    width: 600px;
+    height: auto;
+    padding: 15px;
+    transition: opacity 0.3s, transform 0.3s;
+    transform-origin: bottom right;
+}
+
+#minimap-container.map-hidden {
+    opacity: 0;
+    transform: scale(0.9) translateY(20px);
+    pointer-events: none;
+}
+
+.map-inner {
+    position: relative;
+    width: 100%;
+    background: #fff; /* For the image background */
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.map-inner img {
+    width: 100%;
+    height: auto;
+    display: block;
+    background: #f0f0f0;
+}
+
+#map-dots {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none; /* Let the map be clickable if we implement dragging */
+}
+
+.map-dot {
+    position: absolute;
+    width: 14px;
+    height: 14px;
+    background: var(--primary-blue);
+    border: 2px solid #fff;
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    cursor: pointer;
+    pointer-events: auto;
+    transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    box-shadow: 0 2px 5px rgba(0,0,0,0.5);
+}
+
+.map-dot:hover {
+    transform: translate(-50%, -50%) scale(1.5);
+    background: var(--primary-yellow);
+    z-index: 10;
+}
+
+.map-dot.active {
+    background: var(--primary-red);
+    transform: translate(-50%, -50%) scale(1.5);
+    box-shadow: 0 0 10px var(--primary-red);
+    z-index: 10;
+    animation: pulse 2s infinite;
+}
+
+.map-dot-label {
+    position: absolute;
+    top: -25px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0,0,0,0.8);
+    color: #fff;
+    padding: 4px 8px;
+    font-size: 0.75rem;
+    border-radius: 4px;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s;
+    font-weight: 500;
+}
+
+.map-dot:hover .map-dot-label {
+    opacity: 1;
+}
+
+@keyframes pulse {
+    0% { box-shadow: 0 0 0 0 rgba(211, 47, 47, 0.7); }
+    70% { box-shadow: 0 0 0 10px rgba(211, 47, 47, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(211, 47, 47, 0); }
+}
+
+/* Custom Hotspot style for Pannellum */
+.custom-hotspot {
+    height: 40px;
+    width: 40px;
+    background: rgba(211, 47, 47, 0.8); /* Red */
+    border: 3px solid #fff;
+    border-radius: 50%;
+    box-shadow: 0 0 15px rgba(0,0,0,0.5);
+    cursor: pointer;
+    transition: transform 0.2s ease, background 0.2s ease;
+    animation: bounce 2s infinite;
+}
+.custom-hotspot:hover {
+    background: var(--primary-yellow);
+    transform: scale(1.2);
+    animation: none;
+}
+@keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+}
+div.custom-tooltip span {
+    visibility: hidden;
+    position: absolute;
+    border-radius: 6px;
+    background-color: rgba(0,0,0,0.8);
+    color: #fff;
+    text-align: center;
+    padding: 8px 12px;
+    z-index: 1;
+    bottom: 120%;
+    left: 50%;
+    transform: translateX(-50%);
+    white-space: nowrap;
+    font-family: var(--font-main);
+    font-weight: 500;
+    font-size: 0.9rem;
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+div.custom-tooltip:hover span{
+    visibility: visible;
+    opacity: 1;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+    width: 6px;
+}
+::-webkit-scrollbar-track {
+    background: rgba(255,255,255,0.05);
+}
+::-webkit-scrollbar-thumb {
+    background: rgba(255,255,255,0.2);
+    border-radius: 10px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: var(--primary-yellow);
+}
+
+/* Responsive adjustments */
+@media (max-width: 1024px) {
+    #minimap-container {
+        width: 400px;
+        height: 250px;
+    }
+}
+@media (max-width: 768px) {
+    .sidebar {
+        width: 250px;
+        top: 80px;
+    }
+    #minimap-container {
+        display: none; /* Hide minimap on mobile */
+    }
+    .minimap-wrapper {
+        display: none;
+    }
+    .logo h1 {
+        font-size: 1.2rem;
+    }
+    .header-info {
+        font-size: 0.9rem;
+    }
+}
