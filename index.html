@@ -3,89 +3,230 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>VKU 360 Interactive Map</title>
-    
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
-    
-    <!-- Pannellum CSS -->
+    <meta name="description" content="VKU 360 Quest - hành trình khám phá khu V và khu K theo từng chặng.">
+    <title>VKU 360 Quest</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pannellum@2.5.6/build/pannellum.css">
-    
-    <!-- Phosphor Icons -->
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
 
-    <!-- Custom CSS -->
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <!-- 360 Panorama Container -->
-    <div id="panorama"></div>
+    <div id="panorama" aria-hidden="true"></div>
+    <div class="scene-vignette" aria-hidden="true"></div>
 
-    <!-- UI Overlay -->
-    <div class="ui-container">
-        
-        <!-- Header -->
-        <header class="glass-panel">
-            <div class="logo">
-                <i class="ph ph-graduation-cap"></i>
-                <h1>VKU 360</h1>
+    <section id="auth-screen" class="auth-screen">
+        <div class="auth-container glass-panel">
+            <div class="brand-lockup auth-brand">
+                <span class="brand-icon"><i class="ph ph-compass"></i></span>
+                <span>VKU 360 Quest</span>
             </div>
-            <div class="header-info">
-                <span id="current-location-name">Đang tải...</span>
+            
+            <div class="auth-header">
+                <h2 id="auth-title">Đăng nhập</h2>
+                <p id="auth-subtitle">Bắt đầu hành trình khám phá VKU của bạn</p>
+            </div>
+
+            <form id="auth-form" class="auth-form">
+                <div class="input-group">
+                    <label for="email">Email</label>
+                    <div class="input-wrapper">
+                        <i class="ph ph-envelope"></i>
+                        <input type="email" id="email" placeholder="Nhập email của bạn" required>
+                    </div>
+                </div>
+                
+                <div class="input-group" id="password-group">
+                    <label for="password">Mật khẩu</label>
+                    <div class="input-wrapper">
+                        <i class="ph ph-lock-key"></i>
+                        <input type="password" id="password" placeholder="Nhập mật khẩu" required>
+                    </div>
+                </div>
+
+                <button type="submit" class="primary-button auth-submit" id="auth-submit-btn">Đăng nhập</button>
+            </form>
+
+            <div class="auth-toggle">
+                <span id="auth-toggle-text">Chưa có tài khoản? <a href="#" id="auth-toggle-link">Đăng ký ngay</a></span>
+            </div>
+        </div>
+    </section>
+
+    <section id="avatar-screen" class="avatar-screen hidden">
+        <div class="avatar-stage">
+            <div class="brand-lockup">
+                <span class="brand-icon"><i class="ph ph-compass"></i></span>
+                <span>VKU 360 Quest</span>
+            </div>
+
+            <div class="intro-copy">
+                <p class="eyebrow">Hành trình nhập vai</p>
+                <h1>Chọn người đại diện để bắt đầu khám phá VKU</h1>
+                <p>Đi từng khu, mở khóa từng địa điểm và thu thập ghi chú về những nơi quan trọng trong khuôn viên.</p>
+            </div>
+
+            <div class="custom-avatar-section">
+                <div class="input-group">
+                    <label for="custom-avatar-name">Tên nhân vật của bạn</label>
+                    <div class="input-wrapper">
+                        <i class="ph ph-user-circle"></i>
+                        <input type="text" id="custom-avatar-name" placeholder="Nhập tên bạn muốn (ví dụ: Sói cô độc, Imposter...)" autocomplete="off">
+                    </div>
+                </div>
+            </div>
+
+            <div id="avatar-options" class="avatar-options" aria-label="Chọn màu sắc/vai trò đại diện"></div>
+
+            <div class="avatar-actions">
+                <button id="start-new-tour-btn" class="primary-button" type="button" disabled>
+                    Bắt đầu hành trình <i class="ph ph-arrow-right"></i>
+                </button>
+                <button id="resume-tour" class="resume-button hidden" type="button">
+                    <i class="ph ph-play-circle"></i> Tiếp tục hành trình trước
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <main id="tour-app" class="tour-app hidden" aria-live="polite">
+        <header class="topbar glass-panel">
+            <div class="topbar-brand">
+                <span class="brand-icon compact"><i class="ph ph-compass"></i></span>
+                <div>
+                    <strong>VKU 360 Quest</strong>
+                    <span id="current-zone-label">Khu V</span>
+                </div>
+            </div>
+
+            <div class="topbar-status">
+                <div>
+                    <span>Tiến độ</span>
+                    <strong id="progress-label">1/17</strong>
+                </div>
+                <div class="progress-meter" aria-hidden="true">
+                    <span id="progress-bar"></span>
+                </div>
+            </div>
+
+            <div class="topbar-actions">
+                <button id="change-avatar" class="icon-button" type="button" aria-label="Đổi avatar">
+                    <i class="ph ph-user-switch"></i>
+                </button>
+                <button id="restart-tour" class="icon-button" type="button" aria-label="Chơi lại từ đầu">
+                    <i class="ph ph-arrow-counter-clockwise"></i>
+                </button>
+                <button id="logout-btn" class="icon-button" type="button" aria-label="Đăng xuất">
+                    <i class="ph ph-sign-out"></i>
+                </button>
             </div>
         </header>
 
-        <!-- Sidebar Menu -->
-        <aside class="sidebar glass-panel">
-            <h3>Khu vực</h3>
-            
-            <div class="menu-section">
-                <button class="section-toggle active" data-target="khu-v">
-                    <i class="ph ph-buildings"></i> Khu V
-                </button>
-                <ul id="khu-v-list" class="location-list">
-                    <!-- Dynamic list items will be injected here -->
-                </ul>
+        <aside class="quest-panel glass-panel" aria-label="Lộ trình khám phá">
+            <div class="profile-card">
+                <div id="profile-avatar" class="profile-avatar"></div>
+                <div>
+                    <span>Người đại diện</span>
+                    <strong id="profile-name">Explorer</strong>
+                    <p id="profile-role">Tân sinh viên</p>
+                </div>
             </div>
 
-            <div class="menu-section">
-                <button class="section-toggle" data-target="khu-k">
-                    <i class="ph ph-city"></i> Khu K
-                </button>
-                <ul id="khu-k-list" class="location-list" style="display: none;">
-                    <!-- Dynamic list items will be injected here -->
-                </ul>
+            <div class="chapter-tabs" aria-label="Khu đang khám phá">
+                <button id="tab-khu-v" class="chapter-tab active" type="button">Khu V</button>
+                <button id="tab-khu-k" class="chapter-tab" type="button">Khu K</button>
             </div>
+
+            <div id="route-list" class="route-list"></div>
         </aside>
 
-        <!-- Minimap Toggle & Container -->
-        <div class="minimap-wrapper">
-            <div class="minimap-controls glass-panel">
-                <button id="toggle-minimap"><i class="ph ph-map-trifold"></i> Hiện/Ẩn Bản đồ</button>
-                <div class="minimap-switcher">
-                    <button id="btn-map-v" class="active">Khu V</button>
-                    <button id="btn-map-k">Khu K</button>
+        <aside class="right-sidebar">
+            <section class="story-panel glass-panel" aria-label="Nội dung địa điểm">
+            <div class="scene-meta">
+                <span id="scene-chapter">Chặng 1</span>
+                <span id="scene-reward">+10 hiểu biết</span>
+            </div>
+
+            <div class="dialog-row">
+                <div id="dialog-avatar" class="dialog-avatar"></div>
+                <div class="dialog-copy">
+                    <p id="avatar-line">Sẵn sàng khám phá chưa?</p>
                 </div>
             </div>
-            
-            <div id="minimap-container" class="glass-panel map-hidden">
-                <div class="map-inner">
-                    <!-- Use placeholder for now, will use the user's images if possible or a local path -->
-                    <img id="map-image-v" src="/image_web/fullmap_khuV.jpg" alt="Bản đồ Khu V">
-                    <img id="map-image-k" src="/image_web/fullmap_khuK.jpg" alt="Bản đồ Khu K" style="display: none;">
-                    
-                    <!-- Map Dots Container -->
-                    <div id="map-dots"></div>
+
+            <h2 id="scene-title">Cổng chính Khu V</h2>
+            <p id="scene-body">Bắt đầu hành trình tại điểm vào chính của khu V.</p>
+
+            <div class="intel-block">
+                <h3>Ghi chú khám phá</h3>
+                <ul id="scene-notes"></ul>
+            </div>
+
+            <div class="mission-block">
+                <span>Nhiệm vụ nhỏ</span>
+                <p id="scene-mission">Quan sát hướng di chuyển đến các giảng đường.</p>
+            </div>
+
+            <div class="story-actions">
+                <button id="prev-step" class="secondary-button" type="button">
+                    <i class="ph ph-arrow-left"></i>
+                    Quay lại
+                </button>
+                <button id="next-step" class="primary-button" type="button">
+                    Đi tiếp
+                    <i class="ph ph-arrow-right"></i>
+                </button>
+            </div>
+        </section>
+
+        <section class="minimap-panel glass-panel" aria-label="Bản đồ khu vực">
+            <div class="minimap-head">
+                <strong id="map-title">Bản đồ Khu V</strong>
+                <span id="unlock-label">1 điểm đã mở</span>
+            </div>
+            <div class="map-inner">
+                <img id="map-image-v" src="image_web/fullmap_khuV.jpg" alt="Bản đồ Khu V">
+                <img id="map-image-k" src="image_web/fullmap_khuK.jpg" alt="Bản đồ Khu K" hidden>
+                <div id="map-dots"></div>
+            </div>
+        </section>
+        </aside>
+    </main>
+
+    <section id="congrats-screen" class="congrats-screen hidden">
+        <div class="congrats-card glass-panel">
+            <div class="congrats-icon">
+                <i class="ph ph-trophy"></i>
+            </div>
+            <h2>Chúc mừng!</h2>
+            <p>Bạn đã hoàn thành xuất sắc toàn bộ hành trình khám phá VKU 360 Quest.</p>
+            <div class="congrats-stats">
+                <div class="stat-item">
+                    <span class="stat-value">17/17</span>
+                    <span class="stat-label">Chặng đã qua</span>
                 </div>
+                <div class="stat-item">
+                    <span class="stat-value" id="congrats-avatar-name">Minh</span>
+                    <span class="stat-label">Người đồng hành</span>
+                </div>
+            </div>
+            <div class="congrats-actions">
+                <button id="review-tour-btn" class="secondary-button" type="button">
+                    <i class="ph ph-map-trifold"></i> Xem lại hành trình
+                </button>
+                <button id="restart-tour-btn-congrats" class="primary-button" type="button">
+                    <i class="ph ph-arrow-counter-clockwise"></i> Chơi lại từ đầu
+                </button>
             </div>
         </div>
+    </section>
 
-    </div>
+    <div id="toast" class="toast hidden" role="status"></div>
 
-    <!-- Pannellum JS -->
     <script src="https://cdn.jsdelivr.net/npm/pannellum@2.5.6/build/pannellum.js"></script>
-    
-    <!-- Custom JS -->
-    <script src="script.js"></script>
+    <script type="module" src="script.js"></script>
 </body>
 </html>
