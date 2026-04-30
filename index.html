@@ -170,6 +170,66 @@
                 <p id="scene-mission">Quan sát hướng di chuyển đến các giảng đường.</p>
             </div>
 
+            <section class="moments-panel" aria-label="Khoảnh khắc tại địa điểm">
+                <div class="moments-head">
+                    <div>
+                        <span>Khoảnh khắc</span>
+                        <strong id="moment-count-label">0 bài đăng</strong>
+                    </div>
+                    <button id="open-moment-form" class="secondary-button moment-toggle" type="button">
+                        <i class="ph ph-camera"></i>
+                        Đăng khoảnh khắc
+                    </button>
+                </div>
+
+                <form id="moment-form" class="moment-form hidden">
+                    <input id="moment-edit-id" type="hidden">
+                    <input id="moment-edit-image-path" type="hidden">
+
+                    <div class="moment-field">
+                        <label for="moment-caption">Bạn muốn lưu lại điều gì?</label>
+                        <textarea id="moment-caption" maxlength="180" rows="3" placeholder="Viết một dòng ngắn về khoảnh khắc này..." required></textarea>
+                    </div>
+
+                    <div class="moment-form-grid">
+                        <div class="moment-field">
+                            <label for="moment-mood">Cảm xúc</label>
+                            <select id="moment-mood">
+                                <option value="Háo hức">Háo hức</option>
+                                <option value="Ấn tượng">Ấn tượng</option>
+                                <option value="Bình yên">Bình yên</option>
+                                <option value="Tự hào">Tự hào</option>
+                            </select>
+                        </div>
+                        <div class="moment-field">
+                            <label for="moment-visibility">Hiển thị</label>
+                            <select id="moment-visibility">
+                                <option value="private">Chỉ mình tôi</option>
+                                <option value="public">Công khai trong tour</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="moment-field">
+                        <label for="moment-photo">Ảnh khoảnh khắc</label>
+                        <input id="moment-photo" type="file" accept="image/*">
+                        <small>Ảnh tối đa 5MB. Khi sửa bài, chọn ảnh mới để thay ảnh cũ.</small>
+                    </div>
+
+                    <div id="moment-preview" class="moment-preview hidden"></div>
+
+                    <div class="moment-form-actions">
+                        <button id="cancel-moment" class="secondary-button" type="button">Hủy</button>
+                        <button id="save-moment" class="primary-button" type="submit">
+                            <i class="ph ph-floppy-disk"></i>
+                            Lưu khoảnh khắc
+                        </button>
+                    </div>
+                </form>
+
+                <div id="moments-list" class="moments-list"></div>
+            </section>
+
             <div class="story-actions">
                 <button id="prev-step" class="secondary-button" type="button">
                     <i class="ph ph-arrow-left"></i>
@@ -184,8 +244,13 @@
 
         <section class="minimap-panel glass-panel" aria-label="Bản đồ khu vực">
             <div class="minimap-head">
-                <strong id="map-title">Bản đồ Khu V</strong>
-                <span id="unlock-label">1 điểm đã mở</span>
+                <div class="minimap-title-wrap">
+                    <strong id="map-title">Bản đồ Khu V</strong>
+                    <span id="unlock-label">1 điểm đã mở</span>
+                </div>
+                <button id="close-minimap-btn" class="icon-button hidden-desktop" type="button" aria-label="Đóng bản đồ">
+                    <i class="ph ph-x"></i>
+                </button>
             </div>
             <div class="map-inner">
                 <img id="map-image-v" src="image_web/fullmap_khuV.jpg" alt="Bản đồ Khu V">
@@ -194,6 +259,11 @@
             </div>
         </section>
         </aside>
+
+        <!-- Nút mở bản đồ trên mobile -->
+        <button id="mobile-minimap-btn" class="fab-button hidden-desktop" type="button" aria-label="Mở bản đồ">
+            <i class="ph ph-map-trifold"></i>
+        </button>
     </main>
 
     <section id="congrats-screen" class="congrats-screen hidden">
@@ -227,6 +297,6 @@
     <div id="toast" class="toast hidden" role="status"></div>
 
     <script src="https://cdn.jsdelivr.net/npm/pannellum@2.5.6/build/pannellum.js"></script>
-    <script type="module" src="script.js"></script>
+    <script type="module" src="js/main.js"></script>
 </body>
 </html>
