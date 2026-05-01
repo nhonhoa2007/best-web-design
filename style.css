@@ -1529,8 +1529,104 @@ section.congrats-screen.hidden {
     font-weight: 800;
 }
 
-/* Bottom Sheet for Story Panel on Mobile */
-@media (max-width: 768px) {
+/* Bottom Sheet & Mobile Layout Optimization */
+@media (max-width: 880px) {
+    .tour-app {
+        display: flex;
+        flex-direction: column;
+        padding: 12px;
+        pointer-events: none;
+    }
+    
+    .tour-app > * {
+        pointer-events: auto;
+    }
+
+    .topbar {
+        border-radius: 12px;
+        padding: 8px 12px;
+        margin-bottom: 12px;
+        flex-wrap: nowrap;
+    }
+
+    .topbar-brand {
+        flex: 1;
+        overflow: hidden;
+    }
+    
+    .topbar-brand strong {
+        font-size: 0.9rem;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        overflow: hidden;
+    }
+    
+    .topbar-brand span:last-child {
+        font-size: 0.75rem;
+    }
+
+    .quest-panel {
+        position: absolute;
+        top: 76px;
+        left: 12px;
+        width: 240px;
+        max-height: calc(100vh - 80px - 50vh); /* Leave space for bottom sheet */
+        z-index: 20;
+        padding: 10px;
+        border-radius: 16px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    }
+    
+    .profile-card {
+        grid-template-columns: 46px 1fr;
+        gap: 10px;
+    }
+
+    .profile-avatar-wrapper {
+        width: 46px;
+        height: 46px;
+    }
+
+    .profile-avatar-wrapper .profile-avatar {
+        width: 36px;
+        height: 36px;
+    }
+
+    .profile-avatar-wrapper .profile-avatar i {
+        font-size: 1.2rem;
+    }
+    
+    .profile-card strong {
+        font-size: 0.9rem;
+    }
+    
+    .profile-card p {
+        font-size: 0.75rem;
+    }
+
+    .chapter-tab {
+        padding: 8px;
+        font-size: 0.85rem;
+    }
+
+    .route-step {
+        padding: 8px;
+        gap: 8px;
+    }
+
+    .route-icon {
+        width: 28px;
+        height: 28px;
+    }
+    
+    .route-icon i {
+        font-size: 1rem;
+    }
+
+    .route-copy strong {
+        font-size: 0.8rem;
+    }
+
     .right-sidebar {
         position: fixed;
         bottom: 0;
@@ -1541,18 +1637,50 @@ section.congrats-screen.hidden {
         padding: 0;
         pointer-events: none;
     }
+    
     .story-panel {
-        background: rgba(9, 19, 31, 0.85);
+        background: rgba(9, 19, 31, 0.92);
         backdrop-filter: blur(24px);
         -webkit-backdrop-filter: blur(24px);
         border-radius: 24px 24px 0 0;
         border-bottom: none;
-        max-height: 50vh;
+        max-height: 45vh;
         overflow-y: auto;
-        padding: 24px 16px;
+        padding: 20px 16px;
         box-shadow: 0 -10px 40px rgba(0,0,0,0.5);
         pointer-events: auto;
     }
+
+    .story-panel h2 {
+        font-size: 1.35rem;
+        margin-bottom: 8px;
+    }
+
+    .story-actions {
+        position: sticky;
+        bottom: 0;
+        background: rgba(9, 19, 31, 0.95);
+        padding-top: 12px;
+        padding-bottom: 12px;
+        z-index: 10;
+        margin-left: -16px;
+        margin-right: -16px;
+        padding-left: 16px;
+        padding-right: 16px;
+        border-top: 1px solid rgba(255, 255, 255, 0.05);
+    }
+    
+    .fab-button {
+        bottom: calc(45vh + 16px); /* Float above the bottom sheet */
+        right: 16px;
+        width: 48px;
+        height: 48px;
+    }
+    
+    .fab-button i {
+        font-size: 1.4rem;
+    }
+
     .minimap-panel {
         display: none !important;
     }
