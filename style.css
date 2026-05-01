@@ -1435,3 +1435,125 @@ section.congrats-screen.hidden {
         width: 100%;
     }
 }
+
+/* --- UI/UX Upgrades --- */
+
+/* Pulse Glow Keyframes */
+@keyframes pulse-glow {
+    0% { box-shadow: 0 0 0 0 rgba(255, 200, 77, 0.4); }
+    70% { box-shadow: 0 0 0 10px rgba(255, 200, 77, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(255, 200, 77, 0); }
+}
+
+.primary-button {
+    animation: pulse-glow 2s infinite;
+}
+
+/* Radar ping for current map dot */
+@keyframes radar-ping {
+    0% { transform: scale(1); opacity: 0.8; }
+    100% { transform: scale(2.5); opacity: 0; }
+}
+.map-dot.current::before {
+    content: '';
+    position: absolute;
+    inset: -4px;
+    border-radius: 50%;
+    background: var(--gold);
+    z-index: -1;
+    animation: radar-ping 1.5s cubic-bezier(0, 0, 0.2, 1) infinite;
+}
+
+/* Cinematic Mode Fade */
+.ui-hidden {
+    opacity: 0;
+    pointer-events: none;
+}
+.tour-app > * {
+    transition: opacity 0.8s ease-in-out;
+}
+
+/* 3D Tilt for avatar card */
+.avatar-card {
+    transition: transform 0.1s ease-out, border-color 160ms ease, background 160ms ease;
+    transform-style: preserve-3d;
+    will-change: transform;
+}
+.avatar-card:hover {
+    z-index: 10;
+}
+.avatar-card.selected {
+    transform: translateY(-4px) scale(1.02);
+}
+
+/* Circular Progress */
+.profile-avatar-wrapper {
+    position: relative;
+    width: 76px;
+    height: 76px;
+    display: grid;
+    place-items: center;
+}
+.profile-avatar-wrapper .profile-avatar {
+    position: relative;
+    z-index: 2;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%; 
+}
+.circular-progress {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    transform: rotate(-90deg);
+}
+.circular-progress circle {
+    fill: none;
+    stroke-width: 4;
+}
+.circular-progress .bg {
+    stroke: rgba(255, 255, 255, 0.1);
+}
+.circular-progress .fg {
+    stroke: var(--gold);
+    stroke-linecap: round;
+    transition: stroke-dashoffset 0.6s ease;
+}
+
+.profile-progress {
+    display: inline-block;
+    margin-top: 4px;
+    color: var(--gold);
+    font-size: 0.72rem;
+    font-weight: 800;
+}
+
+/* Bottom Sheet for Story Panel on Mobile */
+@media (max-width: 768px) {
+    .right-sidebar {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        z-index: 100;
+        margin: 0;
+        padding: 0;
+        pointer-events: none;
+    }
+    .story-panel {
+        background: rgba(9, 19, 31, 0.85);
+        backdrop-filter: blur(24px);
+        -webkit-backdrop-filter: blur(24px);
+        border-radius: 24px 24px 0 0;
+        border-bottom: none;
+        max-height: 50vh;
+        overflow-y: auto;
+        padding: 24px 16px;
+        box-shadow: 0 -10px 40px rgba(0,0,0,0.5);
+        pointer-events: auto;
+    }
+    .minimap-panel {
+        display: none !important;
+    }
+}

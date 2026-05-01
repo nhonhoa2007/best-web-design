@@ -102,17 +102,12 @@
                 </div>
             </div>
 
-            <div class="topbar-status">
-                <div>
-                    <span>Tiến độ</span>
-                    <strong id="progress-label">1/17</strong>
-                </div>
-                <div class="progress-meter" aria-hidden="true">
-                    <span id="progress-bar"></span>
-                </div>
-            </div>
+
 
             <div class="topbar-actions">
+                <button id="toggle-audio" class="icon-button" type="button" aria-label="Bật/tắt âm thanh">
+                    <i class="ph ph-speaker-high"></i>
+                </button>
                 <button id="change-avatar" class="icon-button" type="button" aria-label="Đổi avatar">
                     <i class="ph ph-user-switch"></i>
                 </button>
@@ -127,11 +122,18 @@
 
         <aside class="quest-panel glass-panel" aria-label="Lộ trình khám phá">
             <div class="profile-card">
-                <div id="profile-avatar" class="profile-avatar"></div>
+                <div class="profile-avatar-wrapper">
+                    <svg class="circular-progress" viewBox="0 0 76 76">
+                        <circle class="bg" cx="38" cy="38" r="34"></circle>
+                        <circle class="fg" id="progress-circle" cx="38" cy="38" r="34" stroke-dasharray="213" stroke-dashoffset="213"></circle>
+                    </svg>
+                    <div id="profile-avatar" class="profile-avatar"></div>
+                </div>
                 <div>
                     <span>Người đại diện</span>
                     <strong id="profile-name">Explorer</strong>
                     <p id="profile-role">Tân sinh viên</p>
+                    <span id="progress-label" class="profile-progress">1/17 Chặng</span>
                 </div>
             </div>
 
@@ -294,9 +296,11 @@
         </div>
     </section>
 
+    <audio id="ambient-audio" loop></audio>
     <div id="toast" class="toast hidden" role="status"></div>
 
     <script src="https://cdn.jsdelivr.net/npm/pannellum@2.5.6/build/pannellum.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <script type="module" src="js/main.js"></script>
 </body>
 </html>

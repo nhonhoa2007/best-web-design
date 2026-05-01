@@ -18,6 +18,37 @@ import { showToast } from "./ui.js";
 let viewer;
 let controlsBound = false;
 
+// Cinematic & Audio States
+let idleTimer = null;
+let isCinematic = false;
+let isAudioPlaying = false;
+
+function resetIdleTimer() {
+    if (isCinematic) {
+        isCinematic = false;
+        document.querySelector(".topbar")?.classList.remove("ui-hidden");
+        document.querySelector(".quest-panel")?.classList.remove("ui-hidden");
+        document.querySelector(".right-sidebar")?.classList.remove("ui-hidden");
+    }
+    clearTimeout(idleTimer);
+    idleTimer = setTimeout(() => {
+        isCinematic = true;
+        document.querySelector(".topbar")?.classList.add("ui-hidden");
+        document.querySelector(".quest-panel")?.classList.add("ui-hidden");
+        document.querySelector(".right-sidebar")?.classList.add("ui-hidden");
+    }, 10000); // 10s idle
+}
+
+['mousemove', 'mousedown', 'keydown', 'touchstart'].forEach(evt => {
+    document.addEventListener(evt, resetIdleTimer);
+});
+
+setInterval(() => {
+    if (isCinematic && viewer && typeof viewer.getYaw === 'function') {
+        viewer.setYaw(viewer.getYaw() + 0.05);
+    }
+}, 30);
+
 setMapNavigator((stepIndex) => loadStep(stepIndex));
 setMomentsChangeHandler(() => renderMap());
 
@@ -46,8 +77,30 @@ export function renderAvatarOptions() {
     nameInput.oninput = checkReady;
 
     container.querySelectorAll(".avatar-card").forEach((button) => {
+        button.addEventListener("mousemove", (e) => {
+            const rect = button.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            const centerX = rect.width / 2;
+            const centerY = rect.height / 2;
+            const rotateX = ((y - centerY) / centerY) * -15;
+            const rotateY = ((x - centerX) / centerX) * 15;
+            button.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateY(-4px) scale(1.02)`;
+        });
+        
+        button.addEventListener("mouseleave", () => {
+            if (!button.classList.contains("selected")) {
+                button.style.transform = "";
+            } else {
+                button.style.transform = "translateY(-4px) scale(1.02)";
+            }
+        });
+
         button.addEventListener("click", () => {
-            container.querySelectorAll(".avatar-card").forEach((card) => card.classList.remove("selected"));
+            container.querySelectorAll(".avatar-card").forEach((card) => {
+                card.classList.remove("selected");
+                card.style.transform = "";
+            });
             button.classList.add("selected");
             tempSelectedId = button.dataset.avatar;
             checkReady();
@@ -78,6 +131,8 @@ export function bindControls() {
 
     document.getElementById("resume-tour")?.addEventListener("click", startTour);
     document.getElementById("change-avatar")?.addEventListener("click", showAvatarScreen);
+    document.getElementById("restart-tour")?.addEventListener("click", restartTour);
+    document.getElementById("toggle-audio")?.addEventListener("click", toggleAudio);
     document.getElementById("restart-tour")?.addEventListener("click", restartTour);
     document.getElementById("prev-step")?.addEventListener("click", () => loadStep(state.currentStep - 1));
     document.getElementById("next-step")?.addEventListener("click", goNext);
@@ -164,8 +219,21 @@ function initViewer() {
 
 function createHotspots(index) {
     const hotSpots = [];
+    const current = route[index];
     const next = route[index + 1];
     const previous = route[index - 1];
+
+    if (current.easterEggs) {
+        current.easterEggs.forEach(egg => {
+            hotSpots.push({
+                pitch: egg.pitch,
+                yaw: egg.yaw,
+                type: "info",
+                text: egg.text,
+                cssClass: "custom-tooltip"
+            });
+        });
+    }
 
     if (next) {
         hotSpots.push({
@@ -198,9 +266,44 @@ function createHotspots(index) {
 
 function customHotspot(hotSpotDiv, label) {
     hotSpotDiv.classList.add("custom-tooltip");
+    
+    hotSpotDiv.style.display = "flex";
+    hotSpotDiv.style.flexDirection = "column";
+    hotSpotDiv.style.alignItems = "center";
+    hotSpotDiv.style.animation = "float 2s ease-in-out infinite";
+
+    const icon = document.createElement("i");
+    icon.className = "ph ph-arrow-circle-up";
+    icon.style.fontSize = "32px";
+    icon.style.color = "var(--gold)";
+    icon.style.textShadow = "0 2px 10px rgba(0,0,0,0.5)";
+    icon.style.marginBottom = "4px";
+
     const span = document.createElement("span");
     span.textContent = label;
+    span.style.background = "rgba(0,0,0,0.7)";
+    span.style.padding = "4px 8px";
+    span.style.borderRadius = "4px";
+    span.style.fontSize = "12px";
+
+    hotSpotDiv.appendChild(icon);
     hotSpotDiv.appendChild(span);
+}
+
+function toggleAudio() {
+    const audio = document.getElementById("ambient-audio");
+    if (!audio) return;
+    
+    const icon = document.querySelector("#toggle-audio i");
+    if (isAudioPlaying) {
+        audio.pause();
+        isAudioPlaying = false;
+        if (icon) icon.className = "ph ph-speaker-slash";
+    } else {
+        audio.play().catch(e => console.log("Audio play blocked", e));
+        isAudioPlaying = true;
+        if (icon) icon.className = "ph ph-speaker-high";
+    }
 }
 
 function goNext() {
@@ -241,7 +344,12 @@ export function loadStep(index, options = {}) {
         return;
     }
 
+    const isNewStep = index > state.unlockedStep;
     setCurrentStep(index);
+
+    if (isNewStep && window.confetti) {
+        window.confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
+    }
 
     if (viewer) {
         const sceneId = route[index].id;
@@ -256,11 +364,18 @@ export function loadStep(index, options = {}) {
 
 function renderExperience() {
     const scene = route[state.currentStep];
-    const progress = Math.round(((state.unlockedStep + 1) / route.length) * 100);
+    const progressPercent = (state.unlockedStep + 1) / route.length;
 
     document.getElementById("current-zone-label").textContent = scene.zoneName;
-    document.getElementById("progress-label").textContent = `${state.unlockedStep + 1}/${route.length}`;
-    document.getElementById("progress-bar").style.width = `${progress}%`;
+    const progressLabel = document.getElementById("progress-label");
+    if (progressLabel) progressLabel.textContent = `${state.unlockedStep + 1}/${route.length} Chặng`;
+
+    const progressCircle = document.getElementById("progress-circle");
+    if (progressCircle) {
+        const circumference = 213; // 2 * pi * 34
+        const offset = circumference - (progressPercent * circumference);
+        progressCircle.style.strokeDashoffset = offset;
+    }
 
     renderProfile();
     renderStory(scene);

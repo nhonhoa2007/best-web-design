@@ -22,7 +22,14 @@ export const route = [
             "Từ đây có thể dẫn tiếp đến các giảng đường chính."
         ],
         mission: "Xác định hướng đi đến giảng đường A và B trước khi sang điểm tiếp theo.",
-        dialog: "Mình đã vào khu V. Trước mắt cứ nắm cổng, trục di chuyển chính và các giảng đường gần nhất."
+        dialog: "Mình đã vào khu V. Trước mắt cứ nắm cổng, trục di chuyển chính và các giảng đường gần nhất.",
+        easterEggs: [
+            {
+                pitch: 15,
+                yaw: 120,
+                text: "✨ Bí mật: Check-in tại đài phun nước mini khu V!"
+            }
+        ]
     },
     {
         id: "v-va",
