@@ -1,0 +1,186 @@
+<section id="home-screen" class="home-screen hidden">
+        <nav class="home-nav">
+            <a class="home-logo" href="#home-hero" aria-label="UniQuest">
+                <span>UniQuest</span>
+            </a>
+            <div class="home-nav-links" aria-label="Điều hướng trang chủ">
+                <a class="active" href="#home-hero">Dashboard</a>
+                <a href="#home-quests">Quests</a>
+                <a href="#home-leaderboard">Leaderboard</a>
+                <a href="#home-library">Library</a>
+                <a href="#home-events">Events</a>
+            </div>
+            <div class="home-nav-actions">
+                <button class="home-login-button" type="button" data-start-tour>Map 360</button>
+                <button class="home-icon-button" type="button" aria-label="Thông báo"><i class="ph ph-bell"></i></button>
+                <button class="home-icon-button" type="button" aria-label="Tài khoản"><i class="ph ph-user-circle"></i></button>
+            </div>
+        </nav>
+
+        <div class="home-shell">
+            <section id="home-hero" class="home-hero">
+                <div class="home-hero-copy">
+                    <div class="live-pill">
+                        <span></span>
+                        VKU 360 Quest Now Live
+                    </div>
+                    <h1>Explore the VKU Campus <span>Like Never Before</span></h1>
+                    <p>Embark on a digital journey through the university. Discover hidden landmarks, complete academic quests, and climb the leaderboard in this immersive 360 experience.</p>
+                    <div class="home-hero-actions">
+                        <button class="home-primary" type="button" data-start-tour>
+                            Get Started <i class="ph ph-arrow-right"></i>
+                        </button>
+                        <a class="home-secondary" href="#home-leaderboard">
+                            View Leaderboard <i class="ph ph-trophy"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <div class="home-hero-visual" aria-label="VKU campus preview">
+                    <img src="image_web/fullmap_khuV.jpg" alt="Bản đồ khu V VKU">
+                    <div class="campus-pin one"><i class="ph ph-map-pin"></i></div>
+                    <div class="campus-pin two"><i class="ph ph-flag"></i></div>
+                    <div class="campus-card card-one">
+                        <span>Active quest</span>
+                        <strong>Main Gate Discovery</strong>
+                    </div>
+                    <div class="campus-card card-two">
+                        <span>Progress</span>
+                        <strong>17 campus stops</strong>
+                    </div>
+                </div>
+            </section>
+
+            <section id="home-quests" class="home-dashboard-section">
+                <div class="section-heading align-left">
+                    <h2>Quest theo từng chặng</h2>
+                    <p>Mỗi điểm dừng mở một nhiệm vụ nhỏ để người học quan sát, ghi nhớ và tiếp tục hành trình đúng tuyến.</p>
+                </div>
+                <div id="home-quest-list" class="quest-stage-grid">
+                    <article class="quest-stage-card">
+                        <span>Chặng 1</span>
+                        <h3>Cổng chính Khu V</h3>
+                        <p>Xác định hướng di chuyển và điểm bắt đầu của tuyến khám phá.</p>
+                    </article>
+                    <article class="quest-stage-card">
+                        <span>Chặng 2</span>
+                        <h3>Giảng đường A</h3>
+                        <p>Ghi nhớ ký hiệu khu học và cách tìm phòng theo tầng.</p>
+                    </article>
+                    <article class="quest-stage-card">
+                        <span>Chặng 3</span>
+                        <h3>Giảng đường B</h3>
+                        <p>So sánh vị trí với VA và hoàn thành ghi chú định vị.</p>
+                    </article>
+                    <article class="quest-stage-card">
+                        <span>Chặng 4+</span>
+                        <h3>Khu K mở rộng</h3>
+                        <p>Mở khóa hành chính, hội trường, thư viện và các mốc tiện ích.</p>
+                    </article>
+                </div>
+            </section>
+
+            <section id="home-leaderboard" class="home-dashboard-section leaderboard-section">
+                <div class="section-heading align-left">
+                    <h2>Bảng xếp hạng</h2>
+                    <p>Theo dõi người chơi nổi bật dựa trên số chặng đã hoàn thành và khoảnh khắc đã lưu.</p>
+                </div>
+                <div id="home-leaderboard-table" class="leaderboard-table" aria-label="Bảng xếp hạng VKU 360 Quest">
+                    <div class="leaderboard-row head">
+                        <span>Rank</span>
+                        <span>Người chơi</span>
+                        <span>Tiến độ</span>
+                        <span>Điểm</span>
+                    </div>
+                    <div class="leaderboard-row">
+                        <span>#1</span>
+                        <strong>Explorer Minh</strong>
+                        <span>17/17 chặng</span>
+                        <span>1,940</span>
+                    </div>
+                    <div class="leaderboard-row">
+                        <span>#2</span>
+                        <strong>VKU Navigator</strong>
+                        <span>15/17 chặng</span>
+                        <span>1,720</span>
+                    </div>
+                    <div class="leaderboard-row">
+                        <span>#3</span>
+                        <strong>Campus Hunter</strong>
+                        <span>12/17 chặng</span>
+                        <span>1,380</span>
+                    </div>
+                </div>
+            </section>
+
+            <section id="home-library" class="home-dashboard-section library-section">
+                <div class="section-heading align-left">
+                    <h2>Nhật ký hành trình</h2>
+                    <p>Library lưu lại các mốc đã đi qua, ghi chú quan sát và khoảnh khắc được đăng trong tour.</p>
+                </div>
+                <div id="home-library-grid" class="library-grid">
+                    <article class="library-card">
+                        <i class="ph ph-book-open-text"></i>
+                        <strong>Ghi chú chặng</strong>
+                        <span>Tổng hợp các ghi chú khám phá tại từng địa điểm.</span>
+                    </article>
+                    <article class="library-card">
+                        <i class="ph ph-images"></i>
+                        <strong>Khoảnh khắc</strong>
+                        <span>Lưu ảnh, caption và cảm xúc trong hành trình cá nhân.</span>
+                    </article>
+                    <article class="library-card">
+                        <i class="ph ph-map-pin-line"></i>
+                        <strong>Mốc đã mở khóa</strong>
+                        <span>Xem lại các điểm đã hoàn thành trên bản đồ khu V và khu K.</span>
+                    </article>
+                </div>
+            </section>
+
+            <section id="home-features" class="home-features">
+                <div class="section-heading">
+                    <h2>Key Features</h2>
+                    <p>Master the campus through interactive challenges and real-time tracking.</p>
+                </div>
+
+                <div class="feature-grid">
+                    <article class="feature-card feature-wide">
+                        <span class="feature-icon blue"><i class="ph ph-map-trifold"></i></span>
+                        <h3>Interactive 3D Map</h3>
+                        <p>Navigate the campus with a fully interactive 360 model. Find classrooms, labs, and hidden quest locations with pinpoint accuracy.</p>
+                    </article>
+                    <article class="feature-card feature-achievement">
+                        <span class="feature-icon red"><i class="ph ph-medal"></i></span>
+                        <h3>Achievements</h3>
+                        <p>Earn badges and unlock rewards as you progress through academic milestones.</p>
+                    </article>
+                    <article class="feature-card">
+                        <span class="feature-icon yellow"><i class="ph ph-chart-bar"></i></span>
+                        <h3>Live Rankings</h3>
+                        <p>Compete with peers in real-time. Track your faculty standing and overall campus dominance.</p>
+                    </article>
+                    <article class="feature-card feature-wide feature-quest">
+                        <div>
+                            <span class="feature-icon blue"><i class="ph ph-sparkle"></i></span>
+                            <h3>Dynamic Quests</h3>
+                            <p>Engage in weekly challenges tied to real-world campus events and academic schedules.</p>
+                        </div>
+                        <div class="quest-preview">
+                            <span><i class="ph ph-check-circle"></i> Library Tour Complete</span>
+                        </div>
+                    </article>
+                </div>
+            </section>
+
+            <section id="home-events" class="home-footer">
+                <strong>UniQuest</strong>
+                <span>© 2026 VKU 360 Quest Platform. All rights reserved.</span>
+                <div>
+                    <a href="#home-hero">Privacy Policy</a>
+                    <a href="#home-hero">Terms of Service</a>
+                    <a href="#home-hero">Campus Directory</a>
+                    <a href="#home-hero">Contact Security</a>
+                </div>
+            </section>
+        </div>
+    </section>

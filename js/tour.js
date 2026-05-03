@@ -140,6 +140,7 @@ export function bindControls() {
     document.getElementById("tab-khu-k")?.addEventListener("click", () => focusZone("khu-k"));
     document.getElementById("logout-btn")?.addEventListener("click", handleLogout);
     bindMomentControls();
+    bindSidebarControls();
 
     document.getElementById("mobile-minimap-btn")?.addEventListener("click", () => {
         document.getElementById("tour-app")?.classList.add("show-mobile-map");
@@ -148,6 +149,45 @@ export function bindControls() {
     document.getElementById("close-minimap-btn")?.addEventListener("click", () => {
         document.getElementById("tour-app")?.classList.remove("show-mobile-map");
     });
+}
+
+function bindSidebarControls() {
+    const app = document.getElementById("tour-app");
+    const questButton = document.getElementById("toggle-quest-sidebar");
+    const storyButton = document.getElementById("toggle-story-sidebar");
+    if (!app) return;
+
+    const applyState = () => {
+        const questCollapsed = app.classList.contains("quest-sidebar-collapsed");
+        const storyCollapsed = app.classList.contains("story-sidebar-collapsed");
+
+        questButton?.classList.toggle("is-collapsed", questCollapsed);
+        storyButton?.classList.toggle("is-collapsed", storyCollapsed);
+        questButton?.setAttribute("aria-pressed", String(questCollapsed));
+        storyButton?.setAttribute("aria-pressed", String(storyCollapsed));
+    };
+
+    const toggleSidebar = (className, storageKey) => {
+        app.classList.toggle(className);
+        localStorage.setItem(storageKey, String(app.classList.contains(className)));
+        applyState();
+    };
+
+    if (localStorage.getItem("vkuQuestSidebarCollapsed") === "true") {
+        app.classList.add("quest-sidebar-collapsed");
+    }
+    if (localStorage.getItem("vkuStorySidebarCollapsed") === "true") {
+        app.classList.add("story-sidebar-collapsed");
+    }
+
+    questButton?.addEventListener("click", () => {
+        toggleSidebar("quest-sidebar-collapsed", "vkuQuestSidebarCollapsed");
+    });
+    storyButton?.addEventListener("click", () => {
+        toggleSidebar("story-sidebar-collapsed", "vkuStorySidebarCollapsed");
+    });
+
+    applyState();
 }
 
 export function startTour() {

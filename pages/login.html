@@ -1,0 +1,42 @@
+<section id="auth-screen" class="auth-screen">
+        <div class="video-background">
+            <video autoplay muted loop playsinline id="bg-video">
+                <source src="YOUR_DRIVE_VIDEO_LINK_HERE" type="video/mp4">
+            </video>
+        </div>
+        <div class="auth-container glass-panel">
+            <div class="brand-lockup auth-brand">
+                <span class="brand-icon"><i class="ph ph-compass"></i></span>
+                <span>VKU 360 Quest</span>
+            </div>
+            
+            <div class="auth-header">
+                <h2 id="auth-title">Đăng nhập</h2>
+                <p id="auth-subtitle">Bắt đầu hành trình khám phá VKU của bạn</p>
+            </div>
+
+            <form id="auth-form" class="auth-form">
+                <div class="input-group">
+                    <label for="email">Email</label>
+                    <div class="input-wrapper">
+                        <i class="ph ph-envelope"></i>
+                        <input type="email" id="email" placeholder="Nhập email của bạn" required>
+                    </div>
+                </div>
+                
+                <div class="input-group" id="password-group">
+                    <label for="password">Mật khẩu</label>
+                    <div class="input-wrapper">
+                        <i class="ph ph-lock-key"></i>
+                        <input type="password" id="password" placeholder="Nhập mật khẩu" required>
+                    </div>
+                </div>
+
+                <button type="submit" class="primary-button auth-submit" id="auth-submit-btn">Đăng nhập</button>
+            </form>
+
+            <div class="auth-toggle">
+                <span id="auth-toggle-text">Chưa có tài khoản? <a href="#" id="auth-toggle-link">Đăng ký ngay</a></span>
+            </div>
+        </div>
+    </section>

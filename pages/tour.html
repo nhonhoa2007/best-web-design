@@ -1,0 +1,181 @@
+<main id="tour-app" class="tour-app hidden" aria-live="polite">
+        <header class="topbar glass-panel">
+            <div class="topbar-brand">
+                <span class="brand-icon compact"><i class="ph ph-compass"></i></span>
+                <div>
+                    <strong>VKU 360 Quest</strong>
+                    <span id="current-zone-label">Khu V</span>
+                </div>
+            </div>
+
+
+
+            <div class="topbar-actions">
+                <button id="toggle-quest-sidebar" class="icon-button sidebar-control" type="button" aria-label="Thu gọn hoặc mở lộ trình" aria-pressed="false">
+                    <i class="ph ph-list-checks"></i>
+                </button>
+                <button id="toggle-story-sidebar" class="icon-button sidebar-control" type="button" aria-label="Thu gọn hoặc mở nội dung chặng" aria-pressed="false">
+                    <i class="ph ph-sidebar-simple"></i>
+                </button>
+                <button id="toggle-audio" class="icon-button" type="button" aria-label="Bật/tắt âm thanh">
+                    <i class="ph ph-speaker-high"></i>
+                </button>
+                <button id="change-avatar" class="icon-button" type="button" aria-label="Đổi avatar">
+                    <i class="ph ph-user-switch"></i>
+                </button>
+                <button id="restart-tour" class="icon-button" type="button" aria-label="Chơi lại từ đầu">
+                    <i class="ph ph-arrow-counter-clockwise"></i>
+                </button>
+                <button id="logout-btn" class="icon-button" type="button" aria-label="Đăng xuất">
+                    <i class="ph ph-sign-out"></i>
+                </button>
+            </div>
+        </header>
+
+        <aside class="quest-panel glass-panel" aria-label="Lộ trình khám phá">
+            <div class="profile-card">
+                <div class="profile-avatar-wrapper">
+                    <svg class="circular-progress" viewBox="0 0 76 76">
+                        <circle class="bg" cx="38" cy="38" r="34"></circle>
+                        <circle class="fg" id="progress-circle" cx="38" cy="38" r="34" stroke-dasharray="213" stroke-dashoffset="213"></circle>
+                    </svg>
+                    <div id="profile-avatar" class="profile-avatar"></div>
+                </div>
+                <div>
+                    <span>Người đại diện</span>
+                    <strong id="profile-name">Explorer</strong>
+                    <p id="profile-role">Tân sinh viên</p>
+                    <span id="progress-label" class="profile-progress">1/17 Chặng</span>
+                </div>
+            </div>
+
+            <div class="chapter-tabs" aria-label="Khu đang khám phá">
+                <button id="tab-khu-v" class="chapter-tab active" type="button">Khu V</button>
+                <button id="tab-khu-k" class="chapter-tab" type="button">Khu K</button>
+            </div>
+
+            <div id="route-list" class="route-list"></div>
+        </aside>
+
+        <aside class="right-sidebar">
+            <section class="story-panel glass-panel" aria-label="Nội dung địa điểm">
+            <div class="scene-meta">
+                <span id="scene-chapter">Chặng 1</span>
+                <span id="scene-reward">+10 hiểu biết</span>
+            </div>
+
+            <div class="dialog-row">
+                <div id="dialog-avatar" class="dialog-avatar"></div>
+                <div class="dialog-copy">
+                    <p id="avatar-line">Sẵn sàng khám phá chưa?</p>
+                </div>
+            </div>
+
+            <h2 id="scene-title">Cổng chính Khu V</h2>
+            <p id="scene-body">Bắt đầu hành trình tại điểm vào chính của khu V.</p>
+
+            <div class="intel-block">
+                <h3>Ghi chú khám phá</h3>
+                <ul id="scene-notes"></ul>
+            </div>
+
+            <div class="mission-block">
+                <span>Nhiệm vụ nhỏ</span>
+                <p id="scene-mission">Quan sát hướng di chuyển đến các giảng đường.</p>
+            </div>
+
+            <section class="moments-panel" aria-label="Khoảnh khắc tại địa điểm">
+                <div class="moments-head">
+                    <div>
+                        <span>Khoảnh khắc</span>
+                        <strong id="moment-count-label">0 bài đăng</strong>
+                    </div>
+                    <button id="open-moment-form" class="secondary-button moment-toggle" type="button">
+                        <i class="ph ph-camera"></i>
+                        Đăng khoảnh khắc
+                    </button>
+                </div>
+
+                <form id="moment-form" class="moment-form hidden">
+                    <input id="moment-edit-id" type="hidden">
+                    <input id="moment-edit-image-path" type="hidden">
+
+                    <div class="moment-field">
+                        <label for="moment-caption">Bạn muốn lưu lại điều gì?</label>
+                        <textarea id="moment-caption" maxlength="180" rows="3" placeholder="Viết một dòng ngắn về khoảnh khắc này..." required></textarea>
+                    </div>
+
+                    <div class="moment-form-grid">
+                        <div class="moment-field">
+                            <label for="moment-mood">Cảm xúc</label>
+                            <select id="moment-mood">
+                                <option value="Háo hức">Háo hức</option>
+                                <option value="Ấn tượng">Ấn tượng</option>
+                                <option value="Bình yên">Bình yên</option>
+                                <option value="Tự hào">Tự hào</option>
+                            </select>
+                        </div>
+                        <div class="moment-field">
+                            <label for="moment-visibility">Hiển thị</label>
+                            <select id="moment-visibility">
+                                <option value="private">Chỉ mình tôi</option>
+                                <option value="public">Công khai trong tour</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="moment-field">
+                        <label for="moment-photo">Ảnh khoảnh khắc</label>
+                        <input id="moment-photo" type="file" accept="image/*">
+                        <small>Ảnh tối đa 5MB. Khi sửa bài, chọn ảnh mới để thay ảnh cũ.</small>
+                    </div>
+
+                    <div id="moment-preview" class="moment-preview hidden"></div>
+
+                    <div class="moment-form-actions">
+                        <button id="cancel-moment" class="secondary-button" type="button">Hủy</button>
+                        <button id="save-moment" class="primary-button" type="submit">
+                            <i class="ph ph-floppy-disk"></i>
+                            Lưu khoảnh khắc
+                        </button>
+                    </div>
+                </form>
+
+                <div id="moments-list" class="moments-list"></div>
+            </section>
+
+            <div class="story-actions">
+                <button id="prev-step" class="secondary-button" type="button">
+                    <i class="ph ph-arrow-left"></i>
+                    Quay lại
+                </button>
+                <button id="next-step" class="primary-button" type="button">
+                    Đi tiếp
+                    <i class="ph ph-arrow-right"></i>
+                </button>
+            </div>
+        </section>
+
+        <section class="minimap-panel glass-panel" aria-label="Bản đồ khu vực">
+            <div class="minimap-head">
+                <div class="minimap-title-wrap">
+                    <strong id="map-title">Bản đồ Khu V</strong>
+                    <span id="unlock-label">1 điểm đã mở</span>
+                </div>
+                <button id="close-minimap-btn" class="icon-button hidden-desktop" type="button" aria-label="Đóng bản đồ">
+                    <i class="ph ph-x"></i>
+                </button>
+            </div>
+            <div class="map-inner">
+                <img id="map-image-v" src="image_web/fullmap_khuV.jpg" alt="Bản đồ Khu V">
+                <img id="map-image-k" src="image_web/fullmap_khuK.jpg" alt="Bản đồ Khu K" hidden>
+                <div id="map-dots"></div>
+            </div>
+        </section>
+        </aside>
+
+        <!-- Nút mở bản đồ trên mobile -->
+        <button id="mobile-minimap-btn" class="fab-button hidden-desktop" type="button" aria-label="Mở bản đồ">
+            <i class="ph ph-map-trifold"></i>
+        </button>
+    </main>
