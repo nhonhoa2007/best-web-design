@@ -6,6 +6,7 @@ import { bindControls, preloadPanoramas, renderAvatarOptions, renderResumeButton
 
 const PAGE_PARTIALS = [
     "pages/homepage.html",
+    "pages/profile.html",
     "pages/login.html",
     "pages/avatar.html",
     "pages/tour.html",
@@ -28,6 +29,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         onAuthStateChanged(auth, async (user) => {
             if (user) {
                 document.getElementById("home-screen")?.classList.remove("hidden");
+                document.getElementById("profile-screen")?.classList.add("hidden");
                 document.getElementById("auth-screen")?.classList.add("hidden");
                 document.getElementById("avatar-screen")?.classList.add("hidden");
                 document.getElementById("tour-app")?.classList.add("hidden");
@@ -36,6 +38,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                 await renderHomeDashboard();
             } else {
                 document.getElementById("home-screen")?.classList.add("hidden");
+                document.getElementById("profile-screen")?.classList.add("hidden");
                 document.getElementById("auth-screen")?.classList.remove("hidden");
                 document.getElementById("avatar-screen")?.classList.add("hidden");
                 document.getElementById("tour-app")?.classList.add("hidden");
@@ -43,6 +46,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         });
     } else {
         document.getElementById("home-screen")?.classList.add("hidden");
+        document.getElementById("profile-screen")?.classList.add("hidden");
         document.getElementById("auth-screen")?.classList.remove("hidden");
         bootTourShell();
         void renderHomeDashboard();
@@ -97,20 +101,41 @@ async function bootTourShell(user = null) {
 
 function setupHomeUI() {
     const homeScreen = document.getElementById("home-screen");
+    const profileScreen = document.getElementById("profile-screen");
     const authScreen = document.getElementById("auth-screen");
 
     document.querySelectorAll("[data-start-tour]").forEach((button) => {
         button.addEventListener("click", () => {
             homeScreen?.classList.add("hidden");
+            profileScreen?.classList.add("hidden");
             authScreen?.classList.add("hidden");
             startTour();
         });
     });
 
-    document.getElementById("back-home")?.addEventListener("click", () => {
-        if (auth?.currentUser) {
+    document.querySelectorAll("[data-open-profile]").forEach((button) => {
+        button.addEventListener("click", async (event) => {
+            event.preventDefault();
+            if (!auth?.currentUser) return;
+
+            homeScreen?.classList.add("hidden");
             authScreen?.classList.add("hidden");
-            homeScreen?.classList.remove("hidden");
-        }
+            document.getElementById("avatar-screen")?.classList.add("hidden");
+            document.getElementById("tour-app")?.classList.add("hidden");
+            profileScreen?.classList.remove("hidden");
+            await renderHomeDashboard();
+        });
+    });
+
+    document.querySelectorAll("[data-back-home], #back-home").forEach((button) => {
+        button.addEventListener("click", () => {
+            if (auth?.currentUser) {
+                authScreen?.classList.add("hidden");
+                profileScreen?.classList.add("hidden");
+                document.getElementById("tour-app")?.classList.add("hidden");
+                document.getElementById("avatar-screen")?.classList.add("hidden");
+                homeScreen?.classList.remove("hidden");
+            }
+        });
     });
 }

@@ -6,6 +6,7 @@ import {
     deleteDoc,
     deleteObject,
     doc,
+    getDoc,
     getDocs,
     getDownloadURL,
     query,
@@ -176,9 +177,25 @@ async function handleMomentSubmit(event) {
     try {
         if (editId) {
             await updateMoment(editId, { caption, mood, visibility, file, oldImagePath });
+            await createNotification({
+                uid: auth.currentUser.uid,
+                type: "moment_updated",
+                title: "Bạn đã chỉnh sửa bài viết",
+                body: `Khoảnh khắc tại ${scene.title} đã được cập nhật.`,
+                momentId: editId,
+                sceneId: scene.id
+            });
             showToast("Đã cập nhật khoảnh khắc.");
         } else {
-            await createMoment(scene, { caption, mood, visibility, file });
+            const momentId = await createMoment(scene, { caption, mood, visibility, file });
+            await createNotification({
+                uid: auth.currentUser.uid,
+                type: "moment_created",
+                title: "Bạn đã đăng khoảnh khắc",
+                body: `Bài viết mới tại ${scene.title} đã được lưu vào nhật ký.`,
+                momentId,
+                sceneId: scene.id
+            });
             showToast("Đã lưu khoảnh khắc.");
         }
 
@@ -220,6 +237,7 @@ async function createMoment(scene, { caption, mood, visibility, file }) {
     }
 
     await setDoc(momentRef, payload);
+    return momentRef.id;
 }
 
 async function updateMoment(momentId, { caption, mood, visibility, file, oldImagePath }) {
@@ -246,8 +264,14 @@ async function updateMoment(momentId, { caption, mood, visibility, file, oldImag
 }
 
 async function handleMomentAction(event) {
+    const reactionButton = event.target.closest("[data-moment-react]");
     const editButton = event.target.closest("[data-moment-edit]");
     const deleteButton = event.target.closest("[data-moment-delete]");
+
+    if (reactionButton) {
+        await reactToMoment(reactionButton);
+        return;
+    }
 
     if (editButton) {
         openMomentForm(editButton.dataset.momentEdit);
@@ -258,6 +282,73 @@ async function handleMomentAction(event) {
         const momentId = deleteButton.dataset.momentDelete;
         const imagePath = deleteButton.dataset.imagePath || "";
         await deleteMoment(momentId, imagePath);
+    }
+}
+
+async function reactToMoment(button) {
+    if (!auth?.currentUser || !db) {
+        showToast("Bạn cần đăng nhập để thả cảm xúc.");
+        return;
+    }
+
+    const momentId = button.dataset.momentId;
+    const reaction = button.dataset.momentReact;
+    const ownerUid = button.dataset.ownerUid;
+    if (!momentId || !reaction || !ownerUid) return;
+
+    const user = auth.currentUser;
+    const reactionRef = doc(db, "momentReactions", `${momentId}_${user.uid}`);
+
+    try {
+        await setDoc(reactionRef, {
+            momentId,
+            ownerUid,
+            actorUid: user.uid,
+            actorName: state.customName,
+            reaction,
+            createdAt: serverTimestamp(),
+            updatedAt: serverTimestamp()
+        }, { merge: true });
+
+        if (ownerUid !== user.uid) {
+            const momentSnapshot = await getDoc(doc(db, "moments", momentId));
+            const moment = momentSnapshot.exists() ? momentSnapshot.data() : {};
+            await createNotification({
+                uid: ownerUid,
+                type: "reaction_received",
+                title: `${state.customName} đã thả cảm xúc ${reaction}`,
+                body: `Khoảnh khắc "${moment.caption || button.dataset.caption || "của bạn"}" vừa nhận tương tác mới.`,
+                momentId,
+                sceneId: moment.sceneId || button.dataset.sceneId || ""
+            });
+        }
+
+        showToast("Đã thả cảm xúc cho khoảnh khắc.");
+    } catch (error) {
+        console.error("Reaction save error:", error);
+        showToast("Không thả được cảm xúc. Vui lòng thử lại.");
+    }
+}
+
+async function createNotification({ uid, type, title, body, momentId = "", sceneId = "" }) {
+    if (!uid || !auth?.currentUser || !db) return;
+
+    try {
+        const notificationRef = doc(collection(db, "notifications"));
+        await setDoc(notificationRef, {
+            uid,
+            type,
+            title,
+            body,
+            momentId,
+            sceneId,
+            actorUid: auth.currentUser.uid,
+            actorName: state.customName,
+            read: false,
+            createdAt: serverTimestamp()
+        });
+    } catch (error) {
+        console.warn("Notification create skipped:", error);
     }
 }
 
@@ -387,7 +478,7 @@ function renderMomentCard(moment) {
         : "";
 
     return `
-        <article class="moment-card" data-moment-id="${moment.id}" data-caption="${escapeAttribute(moment.caption)}" data-mood="${escapeAttribute(moment.mood)}" data-visibility="${escapeAttribute(moment.visibility)}" data-image-path="${escapeAttribute(moment.imagePath)}">
+        <article class="moment-card" data-moment-id="${moment.id}" data-caption="${escapeAttribute(moment.caption)}" data-mood="${escapeAttribute(moment.mood)}" data-visibility="${escapeAttribute(moment.visibility)}" data-image-path="${escapeAttribute(moment.imagePath)}" data-owner-uid="${escapeAttribute(moment.uid)}">
             ${image}
             <div class="moment-card-body">
                 <div class="moment-card-meta">
@@ -398,6 +489,11 @@ function renderMomentCard(moment) {
                 <div class="moment-card-foot">
                     <span>${escapeHtml(moment.authorName || "Explorer")}</span>
                     <span>${formatMomentDate(moment.createdAt)}</span>
+                </div>
+                <div class="moment-reactions" aria-label="Thả cảm xúc cho khoảnh khắc">
+                    ${renderReactionButton(moment, "👍", "Thích")}
+                    ${renderReactionButton(moment, "💛", "Yêu thích")}
+                    ${renderReactionButton(moment, "🎉", "Chúc mừng")}
                 </div>
                 ${isOwner ? `
                     <div class="moment-card-actions">
@@ -411,6 +507,15 @@ function renderMomentCard(moment) {
                 ` : ""}
             </div>
         </article>
+    `;
+}
+
+function renderReactionButton(moment, reaction, label) {
+    return `
+        <button class="reaction-button" type="button" data-moment-react="${escapeAttribute(reaction)}" data-moment-id="${escapeAttribute(moment.id)}" data-owner-uid="${escapeAttribute(moment.uid)}" data-scene-id="${escapeAttribute(moment.sceneId)}" data-caption="${escapeAttribute(moment.caption)}">
+            <span>${reaction}</span>
+            ${escapeHtml(label)}
+        </button>
     `;
 }
 

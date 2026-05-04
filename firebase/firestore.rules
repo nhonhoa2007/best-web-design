@@ -29,5 +29,29 @@ service cloud.firestore {
       allow delete: if request.auth != null
                     && resource.data.uid == request.auth.uid;
     }
+
+    match /momentReactions/{reactionId} {
+      allow read: if request.auth != null;
+      allow create, update: if request.auth != null
+                            && request.resource.data.actorUid == request.auth.uid
+                            && request.resource.data.ownerUid is string
+                            && request.resource.data.momentId is string
+                            && request.resource.data.reaction is string;
+      allow delete: if request.auth != null
+                    && resource.data.actorUid == request.auth.uid;
+    }
+
+    match /notifications/{notificationId} {
+      allow read: if request.auth != null
+                  && resource.data.uid == request.auth.uid;
+      allow create: if request.auth != null
+                    && request.resource.data.actorUid == request.auth.uid
+                    && request.resource.data.uid is string
+                    && request.resource.data.type in ["moment_created", "moment_updated", "reaction_received"]
+                    && request.resource.data.title is string
+                    && request.resource.data.body is string;
+      allow update, delete: if request.auth != null
+                            && resource.data.uid == request.auth.uid;
+    }
   }
 }
