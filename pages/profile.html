@@ -1,57 +1,115 @@
 <section id="profile-screen" class="profile-screen hidden">
-    <header class="profile-page-nav glass-panel">
-        <button class="icon-button" type="button" data-back-home aria-label="Quay lại homepage">
-            <i class="ph ph-arrow-left"></i>
-        </button>
-        <div>
-            <strong>Profile</strong>
-            <span>Hồ sơ cá nhân và thông báo</span>
+    <nav class="profile-topbar" aria-label="Profile navigation">
+        <button class="profile-brand" type="button" data-back-home>UniQuest</button>
+        <div class="profile-nav-links">
+            <button type="button" data-back-home>Dashboard</button>
+            <button type="button" data-start-tour>Quests</button>
+            <button type="button" data-back-home>Leaderboard</button>
+            <button type="button" data-back-home>Library</button>
+            <span>Profile</span>
+            <button type="button" data-back-home>Events</button>
         </div>
-        <button class="home-login-button" type="button" data-start-tour>Map 360</button>
-    </header>
+        <div class="profile-nav-actions">
+            <button class="profile-icon-button" type="button" aria-label="Notifications">
+                <i class="ph ph-bell"></i>
+            </button>
+            <button class="profile-icon-button" type="button" aria-label="Settings">
+                <i class="ph ph-gear-six"></i>
+            </button>
+            <button id="profile-home-avatar" class="profile-mini-avatar" type="button" data-start-tour aria-label="Avatar">
+                <i class="ph ph-user-circle"></i>
+            </button>
+        </div>
+    </nav>
 
     <div class="profile-page-shell">
-        <section class="profile-page-hero">
-            <article class="profile-overview-card profile-page-card">
-                <div id="profile-home-avatar" class="profile-home-avatar">
+        <section class="profile-hero-card">
+            <div class="profile-avatar-stage" aria-hidden="true">
+                <div class="profile-portrait">
                     <i class="ph ph-user-circle"></i>
                 </div>
-                <div>
-                    <span>Hồ sơ cá nhân</span>
-                    <h2 id="profile-home-name">Explorer</h2>
-                    <p id="profile-home-email">Đang đồng bộ tài khoản</p>
+                <span>LVL <strong id="profile-level">1</strong></span>
+            </div>
+            <div class="profile-hero-copy">
+                <h1 id="profile-home-name">Explorer</h1>
+                <div class="profile-badges">
+                    <span>VKU Explorer</span>
+                    <span id="profile-home-email">Virtual Hub Alpha</span>
                 </div>
-            </article>
-
-            <div class="profile-stat-grid">
-                <article>
-                    <span>Tiến độ</span>
-                    <strong id="profile-home-progress">0/17</strong>
-                </article>
-                <article>
-                    <span>Khoảnh khắc</span>
-                    <strong id="profile-home-moments">0</strong>
-                </article>
-                <article>
-                    <span>Cảm xúc nhận được</span>
-                    <strong id="profile-home-reactions">0</strong>
-                </article>
+                <div class="profile-progress-row">
+                    <div>
+                        <span>XP Progress</span>
+                        <strong><span id="profile-xp-current">0</span> / <span id="profile-xp-total">0</span></strong>
+                    </div>
+                    <div class="profile-progress-track" aria-label="XP Progress">
+                        <span id="profile-xp-progress"></span>
+                    </div>
+                </div>
             </div>
         </section>
 
-        <section id="profile-notifications" class="notification-section">
-            <div class="section-heading align-left">
-                <h2>Notifications</h2>
-                <p>Thông báo khi có người thả cảm xúc vào khoảnh khắc của bạn, hoặc khi bạn đăng/chỉnh sửa bài viết.</p>
+        <section class="profile-stat-grid" aria-label="Player stats">
+            <article>
+                <i class="ph ph-sparkle"></i>
+                <strong id="profile-home-progress">0</strong>
+                <span>Quests Done</span>
+            </article>
+            <article>
+                <i class="ph ph-medal"></i>
+                <strong id="profile-total-xp">0</strong>
+                <span>Total XP</span>
+            </article>
+            <article>
+                <i class="ph ph-chart-bar"></i>
+                <strong id="profile-ranking">--</strong>
+                <span>Ranking</span>
+            </article>
+            <article>
+                <i class="ph ph-images"></i>
+                <strong id="profile-home-moments">0</strong>
+                <span>Moments</span>
+            </article>
+        </section>
+
+        <section class="profile-content-grid">
+            <div class="profile-achievements-wrap">
+                <div class="profile-section-title">
+                    <h2>My Achievements</h2>
+                    <button type="button">View All <i class="ph ph-arrow-right"></i></button>
+                </div>
+                <div class="profile-achievement-grid">
+                    <article class="profile-achievement-card rare">
+                        <i class="ph ph-rocket-launch"></i>
+                        <strong>Crystal Voyager</strong>
+                        <span>Rare</span>
+                    </article>
+                    <article class="profile-achievement-card epic">
+                        <i class="ph ph-terminal-window"></i>
+                        <strong>Launch Protocol</strong>
+                        <span>Epic</span>
+                    </article>
+                    <article class="profile-achievement-card legendary">
+                        <i class="ph ph-circuitry"></i>
+                        <strong>Neural Link</strong>
+                        <span>Legendary</span>
+                    </article>
+                </div>
             </div>
-            <div id="notification-list" class="notification-list">
-                <article class="notification-item">
-                    <i class="ph ph-bell"></i>
-                    <div>
-                        <strong>Đang tải thông báo</strong>
-                        <span>Hệ thống đang đồng bộ hoạt động mới nhất.</span>
-                    </div>
-                </article>
+
+            <div id="profile-notifications" class="profile-activity-wrap">
+                <div class="profile-section-title">
+                    <h2>Recent Activity</h2>
+                </div>
+                <div id="notification-list" class="profile-activity-list">
+                    <article class="profile-activity-item is-highlight">
+                        <span></span>
+                        <div>
+                            <strong>Đang tải hoạt động</strong>
+                            <time>Firebase</time>
+                        </div>
+                    </article>
+                </div>
+                <span id="profile-home-reactions" class="profile-hidden-stat">0</span>
             </div>
         </section>
     </div>

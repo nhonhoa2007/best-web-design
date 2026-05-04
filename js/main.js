@@ -3,6 +3,8 @@ import { setupAuthUI } from "./auth.js";
 import { renderHomeDashboard } from "./home.js";
 import { hydrateProgressFromFirebase, hydrateState } from "./state.js";
 import { bindControls, preloadPanoramas, renderAvatarOptions, renderResumeButton, startTour } from "./tour.js";
+import { showSkeleton, hideSkeleton } from "./ui-utils.js";
+
 
 const PAGE_PARTIALS = [
     "pages/homepage.html",

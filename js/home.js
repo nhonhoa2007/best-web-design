@@ -1,6 +1,8 @@
 import { route } from "../data/route.js";
 import { auth, collection, db, getDocs, query, where } from "./firebase.js";
 import { state } from "./state.js";
+import { showSkeleton } from "./ui-utils.js";
+
 
 const TOTAL_STEPS = route.length;
 const NOTIFICATION_TYPES = {
@@ -23,6 +25,11 @@ function renderQuestSummary() {
     const list = document.getElementById("home-quest-list");
     if (!list) return;
 
+    if (!route || route.length === 0) {
+        showSkeleton("home-quest-list", 4);
+        return;
+    }
+
     const visibleScenes = route.slice(0, 4);
     list.innerHTML = visibleScenes.map((scene, index) => {
         const isUnlocked = index <= state.unlockedStep;
@@ -40,6 +47,8 @@ async function renderLeaderboard() {
     const table = document.getElementById("home-leaderboard-table");
     if (!table) return;
 
+    showSkeleton("home-leaderboard-table", 1);
+
     table.innerHTML = `
         <div class="leaderboard-row head">
             <span>Rank</span>
@@ -55,21 +64,8 @@ async function renderLeaderboard() {
         </div>
     `;
 
-    if (!auth?.currentUser || !db) {
-        renderLeaderboardRows(table, [currentUserRank()]);
-        return;
-    }
-
     try {
-        const snapshot = await getDocs(collection(db, "tourProgress"));
-        const rows = [];
-        snapshot.forEach((item) => rows.push(normalizeProgress(item.data())));
-
-        if (!rows.some((row) => row.uid === auth.currentUser.uid)) {
-            rows.push(currentUserRank());
-        }
-
-        rows.sort((a, b) => b.score - a.score || b.unlockedStep - a.unlockedStep);
+        const { rows } = await fetchLeaderboardData();
         renderLeaderboardRows(table, rows.slice(0, 8));
     } catch (error) {
         console.warn("Leaderboard load error:", error);
@@ -99,9 +95,38 @@ function renderLeaderboardRows(table, rows, note = "") {
     `;
 }
 
+async function fetchLeaderboardData() {
+    const localRow = currentUserRank();
+    if (!auth?.currentUser || !db) {
+        return { rows: [localRow], currentRank: 1, currentProgress: localRow };
+    }
+
+    const snapshot = await getDocs(collection(db, "tourProgress"));
+    const rows = [];
+    snapshot.forEach((item) => {
+        const data = item.data();
+        rows.push(normalizeProgress({ ...data, uid: data.uid || item.id }));
+    });
+
+    if (!rows.some((row) => row.uid === auth.currentUser.uid)) {
+        rows.push(localRow);
+    }
+
+    rows.sort((a, b) => b.score - a.score || b.unlockedStep - a.unlockedStep);
+    const currentIndex = rows.findIndex((row) => row.uid === auth.currentUser.uid);
+
+    return {
+        rows,
+        currentRank: currentIndex >= 0 ? currentIndex + 1 : null,
+        currentProgress: currentIndex >= 0 ? rows[currentIndex] : localRow
+    };
+}
+
 async function renderLibrary() {
     const grid = document.getElementById("home-library-grid");
     if (!grid) return;
+
+    showSkeleton("home-library-grid", 3);
 
     grid.innerHTML = `
         <article class="library-card">
@@ -136,6 +161,7 @@ async function renderLibrary() {
 
 async function renderProfile() {
     const avatar = document.getElementById("profile-home-avatar");
+    const portrait = document.querySelector(".profile-portrait");
     const name = document.getElementById("profile-home-name");
     const email = document.getElementById("profile-home-email");
     const progress = document.getElementById("profile-home-progress");
@@ -143,17 +169,38 @@ async function renderProfile() {
     const reactions = document.getElementById("profile-home-reactions");
     if (!avatar || !name || !email || !progress || !moments || !reactions) return;
 
-    const ownMoments = await fetchOwnMoments();
-    const notifications = await fetchNotifications();
-    const reactionCount = notifications.filter((item) => item.type === "reaction_received").length;
+    const [ownMoments, notifications, reactionCount, leaderboardData] = await Promise.all([
+        fetchOwnMoments(),
+        fetchNotifications(),
+        fetchReceivedReactionCount(),
+        fetchLeaderboardData()
+    ]);
+    const profile = leaderboardData.currentProgress || currentUserRank();
+    const completedQuests = profile.unlockedStep + 1;
+    const totalXp = profile.totalXp;
+    const xpTarget = profile.xpTarget || TOTAL_STEPS * 100;
+    const xpCurrent = Math.min(totalXp, xpTarget);
+    const xpPercent = Math.round((xpCurrent / xpTarget) * 1000) / 10;
+    const level = profile.level || Math.max(1, Math.floor(totalXp / 500) + 1);
 
     avatar.style.setProperty("--avatar-color", state.selectedAvatar.color);
     avatar.innerHTML = `<i class="ph ${state.selectedAvatar.icon || "ph-user-circle"}"></i>`;
-    name.textContent = state.customName || "Explorer";
+    if (portrait) {
+        portrait.style.setProperty("--avatar-color", state.selectedAvatar.color);
+        portrait.innerHTML = `<i class="ph ${state.selectedAvatar.icon || "ph-user-circle"}"></i>`;
+    }
+    name.textContent = profile.name || state.customName || "Explorer";
     email.textContent = auth?.currentUser?.email || "Tài khoản cục bộ";
-    progress.textContent = `${state.unlockedStep + 1}/${TOTAL_STEPS}`;
+    progress.textContent = String(completedQuests);
     moments.textContent = String(ownMoments.length);
     reactions.textContent = String(reactionCount);
+
+    setText("profile-level", String(level));
+    setText("profile-xp-current", xpCurrent.toLocaleString("vi-VN"));
+    setText("profile-xp-total", xpTarget.toLocaleString("vi-VN"));
+    setText("profile-total-xp", formatCompact(totalXp));
+    setText("profile-ranking", leaderboardData.currentRank ? `#${leaderboardData.currentRank}` : "--");
+    document.getElementById("profile-xp-progress")?.style.setProperty("--profile-progress", `${xpPercent}%`);
 }
 
 async function renderNotifications() {
@@ -169,20 +216,23 @@ async function renderNotifications() {
 
     if (!list) return;
 
-    if (!notifications.length) {
+    const ownMoments = await fetchOwnMoments();
+    const activity = buildProfileActivity(notifications, ownMoments);
+
+    if (!activity.length) {
         list.innerHTML = `
-            <article class="notification-item">
-                <i class="ph ph-bell-slash"></i>
+            <article class="profile-activity-item is-highlight">
+                <span></span>
                 <div>
-                    <strong>Chưa có thông báo</strong>
-                    <span>Khi có người thả cảm xúc hoặc bạn đăng/chỉnh sửa bài viết, thông báo sẽ xuất hiện tại đây.</span>
+                    <strong>Chưa có hoạt động</strong>
+                    <time>Firebase</time>
                 </div>
             </article>
         `;
         return;
     }
 
-    list.innerHTML = notifications.slice(0, 8).map(renderNotificationItem).join("");
+    list.innerHTML = activity.slice(0, 5).map(renderActivityItem).join("");
 }
 
 async function fetchNotifications() {
@@ -202,18 +252,48 @@ async function fetchNotifications() {
     }
 }
 
-function renderNotificationItem(notification) {
-    const meta = NOTIFICATION_TYPES[notification.type] || { icon: "ph-bell", title: "Thông báo" };
+async function fetchReceivedReactionCount() {
+    if (!auth?.currentUser || !db) return 0;
+
+    try {
+        const snapshot = await getDocs(query(
+            collection(db, "momentReactions"),
+            where("ownerUid", "==", auth.currentUser.uid)
+        ));
+        return snapshot.size;
+    } catch (error) {
+        console.warn("Reaction count load error:", error);
+        return 0;
+    }
+}
+
+function renderActivityItem(activity, index = 0) {
     return `
-        <article class="notification-item">
-            <i class="ph ${meta.icon}"></i>
+        <article class="profile-activity-item ${index === 0 ? "is-highlight" : ""}">
+            <span></span>
             <div>
-                <strong>${escapeHtml(notification.title || meta.title)}</strong>
-                <span>${escapeHtml(notification.body || "")}</span>
+                <strong>${escapeHtml(activity.title)}</strong>
+                <time>${formatDate(activity.createdAt)}</time>
             </div>
-            <time class="notification-time">${formatDate(notification.createdAt)}</time>
         </article>
     `;
+}
+
+function buildProfileActivity(notifications, moments) {
+    const notificationActivity = notifications.map((notification) => {
+        const meta = NOTIFICATION_TYPES[notification.type] || { title: "Thông báo" };
+        return {
+            title: notification.title || meta.title,
+            createdAt: notification.createdAt
+        };
+    });
+    const momentActivity = moments.map((moment) => ({
+        title: `Đăng khoảnh khắc: "${moment.caption || moment.sceneTitle || "VKU 360 Quest"}"`,
+        createdAt: moment.createdAt || moment.updatedAt
+    }));
+
+    return [...notificationActivity, ...momentActivity]
+        .sort((a, b) => getTime(b.createdAt) - getTime(a.createdAt));
 }
 
 async function fetchOwnMoments() {
@@ -243,12 +323,29 @@ function currentUserRank() {
 
 function normalizeProgress(progress) {
     const unlockedStep = clampStep(Number(progress.unlockedStep));
+    const currentStep = clampStep(Number(progress.currentStep));
+    const fallbackScore = (unlockedStep + 1) * 100 + Math.max(0, currentStep) * 10;
+    const score = firstFiniteNumber(progress.score, progress.totalXp, progress.xp, fallbackScore);
+    const totalXp = firstFiniteNumber(progress.totalXp, progress.xp, progress.score, score);
     return {
         uid: progress.uid || "",
         name: progress.customName || "Explorer",
+        currentStep,
         unlockedStep,
-        score: (unlockedStep + 1) * 100 + Math.max(0, Number(progress.currentStep) || 0) * 10
+        score,
+        totalXp,
+        level: firstFiniteNumber(progress.level, null),
+        xpTarget: firstFiniteNumber(progress.xpTarget, progress.nextLevelXp, null)
     };
+}
+
+function firstFiniteNumber(...values) {
+    for (const value of values) {
+        if (value === null || value === undefined || value === "") continue;
+        const number = Number(value);
+        if (Number.isFinite(number)) return Math.max(0, number);
+    }
+    return 0;
 }
 
 function clampStep(value) {
@@ -273,6 +370,18 @@ function formatDate(value) {
         hour: "2-digit",
         minute: "2-digit"
     }).format(new Date(time));
+}
+
+function formatCompact(value) {
+    if (value >= 1000) {
+        return `${Math.round(value / 100) / 10}k`;
+    }
+    return String(value);
+}
+
+function setText(id, value) {
+    const element = document.getElementById(id);
+    if (element) element.textContent = value;
 }
 
 function escapeHtml(value = "") {
