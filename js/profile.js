@@ -6,6 +6,7 @@ import {
     storage,
     uploadBytes
 } from "./firebase.js";
+import { t } from "./i18n.js";
 import { renderHomeDashboard } from "./home.js";
 import { saveProgressToFirebase, setProfileAvatarImage, state } from "./state.js";
 import { showToast } from "./ui.js";
@@ -31,7 +32,7 @@ async function handleAvatarUpload(event) {
     if (!file) return;
 
     if (!auth?.currentUser || !storage) {
-        showToast("Bạn cần đăng nhập để upload avatar.");
+        showToast(t("toast.needLoginAvatar"));
         input.value = "";
         return;
     }
@@ -57,10 +58,10 @@ async function handleAvatarUpload(event) {
         }
 
         await renderHomeDashboard();
-        showToast(saved ? "Đã cập nhật avatar." : "Đã upload ảnh, nhưng chưa đồng bộ được profile.");
+        showToast(saved ? t("toast.avatarUpdated") : t("toast.avatarUploadedUnsynced"));
     } catch (error) {
         console.error("Profile avatar upload error:", error);
-        showToast("Không upload được avatar. Vui lòng thử lại.");
+        showToast(t("toast.avatarUploadError"));
     } finally {
         input.value = "";
         setUploadState(button, status, false);
@@ -89,12 +90,12 @@ async function deletePreviousAvatar(imagePath, uid) {
 
 function validateAvatarFile(file) {
     if (!file.type.startsWith("image/")) {
-        showToast("Chỉ hỗ trợ file ảnh.");
+        showToast(t("toast.imageOnly"));
         return false;
     }
 
     if (file.size > MAX_AVATAR_SIZE) {
-        showToast("Avatar tối đa 5MB.");
+        showToast(t("toast.avatarMax"));
         return false;
     }
 
@@ -105,11 +106,11 @@ function setUploadState(button, status, isUploading) {
     if (button) {
         button.disabled = isUploading;
         button.innerHTML = isUploading
-            ? '<i class="ph ph-spinner-gap"></i> Đang upload...'
-            : '<i class="ph ph-camera"></i> Upload avatar';
+            ? `<i class="ph ph-spinner-gap"></i> ${t("action.uploading")}`
+            : `<i class="ph ph-camera"></i> ${t("action.uploadAvatar")}`;
     }
 
     if (status) {
-        status.textContent = isUploading ? "Đang đồng bộ ảnh" : "";
+        status.textContent = isUploading ? t("profile.avatarSyncing") : "";
     }
 }

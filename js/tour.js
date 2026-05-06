@@ -1,6 +1,7 @@
 import { avatars } from "../data/avatars.js";
 import { route } from "../data/route.js";
 import { handleLogout } from "./auth.js";
+import { getAvatarText, getSceneText, t } from "./i18n.js";
 import { renderMap, setMapNavigator } from "./map.js";
 import { bindMomentControls, renderMomentsForScene, setMomentsChangeHandler } from "./moments.js";
 import {
@@ -51,6 +52,16 @@ setInterval(() => {
 
 setMapNavigator((stepIndex) => loadStep(stepIndex));
 setMomentsChangeHandler(() => renderMap());
+window.addEventListener("vku-language-change", () => {
+    if (!document.getElementById("avatar-screen")?.classList.contains("hidden")) {
+        renderAvatarOptions();
+        renderResumeButton();
+    }
+
+    if (!document.getElementById("tour-app")?.classList.contains("hidden")) {
+        renderExperience();
+    }
+});
 
 export function renderAvatarOptions() {
     const container = document.getElementById("avatar-options");
@@ -62,9 +73,9 @@ export function renderAvatarOptions() {
         <button class="avatar-card" type="button" data-avatar="${avatar.id}" style="--avatar-color: ${avatar.color}">
             <span class="avatar-face"><i class="ph ${avatar.icon}"></i></span>
             <span>
-                <strong>${avatar.role}</strong>
+                <strong>${getAvatarText(avatar, "role")}</strong>
             </span>
-            <span>${avatar.line}</span>
+            <span>${getAvatarText(avatar, "line")}</span>
         </button>
     `).join("");
 
@@ -143,28 +154,41 @@ export function bindControls() {
     bindSidebarControls();
 
     document.getElementById("mobile-minimap-btn")?.addEventListener("click", () => {
-        document.getElementById("tour-app")?.classList.add("show-mobile-map");
+        const app = document.getElementById("tour-app");
+        app?.classList.add("show-minimap-page");
+        app?.classList.remove("show-route-page", "show-moments-page", "show-mobile-map");
+        document.getElementById("toggle-quest-sidebar")?.classList.remove("is-active");
+        document.getElementById("toggle-quest-sidebar")?.setAttribute("aria-pressed", "false");
+        document.getElementById("toggle-moments-page")?.classList.remove("is-active");
+        document.getElementById("toggle-moments-page")?.setAttribute("aria-pressed", "false");
     });
 
     document.getElementById("close-minimap-btn")?.addEventListener("click", () => {
-        document.getElementById("tour-app")?.classList.remove("show-mobile-map");
+        document.getElementById("tour-app")?.classList.remove("show-minimap-page", "show-mobile-map");
     });
 }
 
 function bindSidebarControls() {
     const app = document.getElementById("tour-app");
     const questButton = document.getElementById("toggle-quest-sidebar");
+    const momentsButton = document.getElementById("toggle-moments-page");
     const storyButton = document.getElementById("toggle-story-sidebar");
     if (!app) return;
+    const isMobileLayout = () => window.matchMedia("(max-width: 880px)").matches;
 
     const applyState = () => {
-        const questCollapsed = app.classList.contains("quest-sidebar-collapsed");
+        const routeOpen = app.classList.contains("show-route-page");
+        const momentsOpen = app.classList.contains("show-moments-page");
+        const storyHidden = app.classList.contains("story-panel-hidden");
         const storyCollapsed = app.classList.contains("story-sidebar-collapsed");
 
-        questButton?.classList.toggle("is-collapsed", questCollapsed);
-        storyButton?.classList.toggle("is-collapsed", storyCollapsed);
-        questButton?.setAttribute("aria-pressed", String(questCollapsed));
-        storyButton?.setAttribute("aria-pressed", String(storyCollapsed));
+        questButton?.classList.toggle("is-active", routeOpen);
+        momentsButton?.classList.toggle("is-active", momentsOpen);
+        storyButton?.classList.toggle("is-active", isMobileLayout() && !storyHidden);
+        storyButton?.classList.toggle("is-collapsed", !isMobileLayout() && storyCollapsed);
+        questButton?.setAttribute("aria-pressed", String(routeOpen));
+        momentsButton?.setAttribute("aria-pressed", String(momentsOpen));
+        storyButton?.setAttribute("aria-pressed", String(isMobileLayout() ? !storyHidden : storyCollapsed));
     };
 
     const toggleSidebar = (className, storageKey) => {
@@ -172,20 +196,43 @@ function bindSidebarControls() {
         localStorage.setItem(storageKey, String(app.classList.contains(className)));
         applyState();
     };
+    const closeTourPages = () => {
+        app.classList.remove("show-route-page", "show-moments-page", "show-minimap-page", "show-mobile-map");
+        applyState();
+    };
+    const openTourPage = (className) => {
+        app.classList.remove("show-route-page", "show-moments-page", "show-minimap-page", "show-mobile-map");
+        app.classList.add(className);
+        applyState();
+    };
 
-    if (localStorage.getItem("vkuQuestSidebarCollapsed") === "true") {
-        app.classList.add("quest-sidebar-collapsed");
-    }
     if (localStorage.getItem("vkuStorySidebarCollapsed") === "true") {
         app.classList.add("story-sidebar-collapsed");
     }
 
     questButton?.addEventListener("click", () => {
-        toggleSidebar("quest-sidebar-collapsed", "vkuQuestSidebarCollapsed");
+        if (app.classList.contains("show-route-page")) {
+            closeTourPages();
+            return;
+        }
+
+        openTourPage("show-route-page");
+    });
+    momentsButton?.addEventListener("click", () => {
+        openTourPage("show-moments-page");
     });
     storyButton?.addEventListener("click", () => {
+        if (isMobileLayout()) {
+            app.classList.toggle("story-panel-hidden");
+            app.classList.remove("show-route-page", "show-moments-page", "show-minimap-page", "show-mobile-map");
+            applyState();
+            return;
+        }
+
         toggleSidebar("story-sidebar-collapsed", "vkuStorySidebarCollapsed");
     });
+    document.getElementById("close-route-page-btn")?.addEventListener("click", closeTourPages);
+    document.getElementById("close-moments-page-btn")?.addEventListener("click", closeTourPages);
 
     applyState();
 }
@@ -210,12 +257,12 @@ export function showAvatarScreen() {
 export function restartTour() {
     resetProgress();
     loadStep(0, { forceViewer: true });
-    showToast("Hành trình đã bắt đầu lại từ cổng chính Khu V.");
+    showToast(t("toast.restart"));
 }
 
 function initViewer() {
     if (!window.pannellum) {
-        showToast("Không tải được trình xem 360. Nội dung tour vẫn dùng được.");
+        showToast(t("toast.viewerMissing"));
         renderExperience();
         return;
     }
@@ -223,7 +270,7 @@ function initViewer() {
     const pannellumScenes = {};
     route.forEach((scene, index) => {
         pannellumScenes[scene.id] = {
-            title: scene.title,
+            title: getSceneText(scene, "title"),
             type: "equirectangular",
             panorama: scene.panorama,
             autoLoad: true,
@@ -247,7 +294,7 @@ function initViewer() {
         if (typeof nextIndex !== "number") return;
 
         if (nextIndex > state.unlockedStep + 1) {
-            showToast("Điểm này chưa mở khóa. Hãy đi theo tuyến nhiệm vụ.");
+            showToast(t("toast.lockedRoute"));
             loadStep(state.currentStep, { forceViewer: true });
             return;
         }
@@ -280,11 +327,11 @@ function createHotspots(index) {
             pitch: -4,
             yaw: 32,
             type: "scene",
-            text: `Đi tiếp: ${next.shortTitle}`,
+            text: t("hotspot.next", { title: getSceneText(next, "shortTitle") }),
             sceneId: next.id,
             cssClass: "quest-hotspot next",
             createTooltipFunc: customHotspot,
-            createTooltipArgs: `Đi tiếp: ${next.shortTitle}`
+            createTooltipArgs: t("hotspot.next", { title: getSceneText(next, "shortTitle") })
         });
     }
 
@@ -293,11 +340,11 @@ function createHotspots(index) {
             pitch: -6,
             yaw: -34,
             type: "scene",
-            text: `Quay lại: ${previous.shortTitle}`,
+            text: t("hotspot.previous", { title: getSceneText(previous, "shortTitle") }),
             sceneId: previous.id,
             cssClass: "quest-hotspot previous",
             createTooltipFunc: customHotspot,
-            createTooltipArgs: `Quay lại: ${previous.shortTitle}`
+            createTooltipArgs: t("hotspot.previous", { title: getSceneText(previous, "shortTitle") })
         });
     }
 
@@ -380,7 +427,7 @@ export function loadStep(index, options = {}) {
     if (index < 0 || index >= route.length) return;
 
     if (index > state.unlockedStep + 1) {
-        showToast("Điểm này chưa mở khóa. Hãy hoàn thành các chặng trước.");
+        showToast(t("toast.lockedStep"));
         return;
     }
 
@@ -406,9 +453,9 @@ function renderExperience() {
     const scene = route[state.currentStep];
     const progressPercent = (state.unlockedStep + 1) / route.length;
 
-    document.getElementById("current-zone-label").textContent = scene.zoneName;
+    document.getElementById("current-zone-label").textContent = getSceneText(scene, "zoneName");
     const progressLabel = document.getElementById("progress-label");
-    if (progressLabel) progressLabel.textContent = `${state.unlockedStep + 1}/${route.length} Chặng`;
+    if (progressLabel) progressLabel.textContent = `${state.unlockedStep + 1}/${route.length} ${t("unit.stage")}`;
 
     const progressCircle = document.getElementById("progress-circle");
     if (progressCircle) {
@@ -437,19 +484,19 @@ function renderProfile() {
     profileAvatar.innerHTML = avatarMarkup;
     dialogAvatar.innerHTML = avatarMarkup;
     document.getElementById("profile-name").textContent = state.customName;
-    document.getElementById("profile-role").textContent = state.selectedAvatar.role;
+    document.getElementById("profile-role").textContent = getAvatarText(state.selectedAvatar, "role");
 }
 
 function renderStory(scene) {
-    document.getElementById("scene-chapter").textContent = scene.chapter;
-    document.getElementById("scene-reward").textContent = scene.reward;
-    document.getElementById("avatar-line").textContent = `${state.customName}: ${scene.dialog}`;
-    document.getElementById("scene-title").textContent = scene.title;
-    document.getElementById("scene-body").textContent = scene.body;
-    document.getElementById("scene-mission").textContent = scene.mission;
+    document.getElementById("scene-chapter").textContent = getSceneText(scene, "chapter");
+    document.getElementById("scene-reward").textContent = getSceneText(scene, "reward");
+    document.getElementById("avatar-line").textContent = `${state.customName}: ${getSceneText(scene, "dialog")}`;
+    document.getElementById("scene-title").textContent = getSceneText(scene, "title");
+    document.getElementById("scene-body").textContent = getSceneText(scene, "body");
+    document.getElementById("scene-mission").textContent = getSceneText(scene, "mission");
 
     const notes = document.getElementById("scene-notes");
-    notes.innerHTML = scene.notes.map((note) => `
+    notes.innerHTML = getSceneText(scene, "notes").map((note) => `
         <li><i class="ph ph-sparkle"></i><span>${note}</span></li>
     `).join("");
 
@@ -457,8 +504,8 @@ function renderStory(scene) {
     const nextButton = document.getElementById("next-step");
     prevButton.disabled = state.currentStep === 0;
     nextButton.innerHTML = state.currentStep === route.length - 1
-        ? 'Hoàn thành <i class="ph ph-flag-checkered"></i>'
-        : 'Đi tiếp <i class="ph ph-arrow-right"></i>';
+        ? `${t("action.finish")} <i class="ph ph-flag-checkered"></i>`
+        : `${t("action.next")} <i class="ph ph-arrow-right"></i>`;
 }
 
 function renderRouteList() {
@@ -483,20 +530,27 @@ function renderRouteList() {
             <button class="${classes}" type="button" data-step="${index}" ${isLocked ? "disabled" : ""}>
                 <span class="route-icon"><i class="ph ${icon}"></i></span>
                 <span class="route-copy">
-                    <strong>${scene.shortTitle}</strong>
-                    <span>${scene.chapter}</span>
+                    <strong>${getSceneText(scene, "shortTitle")}</strong>
+                    <span>${getSceneText(scene, "chapter")}</span>
                 </span>
-                <span class="route-zone">${scene.zoneName}</span>
+                <span class="route-zone">${getSceneText(scene, "zoneName")}</span>
             </button>
         `;
     }).join("");
 
     list.querySelectorAll(".route-step:not(.locked)").forEach((button) => {
-        button.addEventListener("click", () => loadStep(Number(button.dataset.step)));
+        button.addEventListener("click", () => {
+            loadStep(Number(button.dataset.step));
+            document.getElementById("tour-app")?.classList.remove("show-route-page");
+            document.getElementById("toggle-quest-sidebar")?.classList.remove("is-active");
+            document.getElementById("toggle-quest-sidebar")?.setAttribute("aria-pressed", "false");
+        });
     });
 
     document.getElementById("tab-khu-v").classList.toggle("active", state.activeMapZone === "khu-v");
     document.getElementById("tab-khu-k").classList.toggle("active", state.activeMapZone === "khu-k");
+    document.getElementById("tab-khu-v").textContent = t("route.zoneV");
+    document.getElementById("tab-khu-k").textContent = t("route.zoneK");
 }
 
 function focusZone(zone) {

@@ -1,6 +1,6 @@
 # Kế hoạch Nội dung Đa phương tiện (Media Plan) - VKU 360 Quest
 
-Dựa trên cấu trúc toàn bộ dự án `best-web-design` và dữ liệu lộ trình (`route.js`), hiện tại dự án đang tái sử dụng 3 ảnh 360 mẫu từ Pannellum cho toàn bộ 17 chặng. Để biến ứng dụng thành một sản phẩm thực tế, cao cấp và mang lại trải nghiệm "Wow", dưới đây là **Kế hoạch quy hoạch toàn diện về Ảnh tĩnh, Ảnh 360 và Video** cần được bổ sung.
+Dựa trên cấu trúc toàn bộ dự án `best-web-design` và dữ liệu lộ trình (`route.js`), hiện tại dự án đang tái sử dụng 3 ảnh 360 mẫu từ Pannellum cho toàn bộ 20 chặng. Để biến ứng dụng thành một sản phẩm thực tế, cao cấp và mang lại trải nghiệm "Wow", dưới đây là **Kế hoạch quy hoạch toàn diện về Ảnh tĩnh, Ảnh 360 và Video** cần được bổ sung.
 
 ---
 
@@ -78,7 +78,7 @@ Bạn đã có chức năng bật/tắt Âm thanh môi trường, đây là danh
 /best-web-design
 │
 ├── /assets
-│   ├── /panoramas         <-- Toàn bộ 17 ảnh 360 (ví dụ: v-cong.webp, k-ktx.webp)
+│   ├── /panoramas         <-- Toàn bộ 20 ảnh 360 (ví dụ: v-cong.webp, k-ktx.webp)
 │   ├── /images
 │   │   ├── /maps          <-- Các bản đồ minimap
 │   │   ├── /details       <-- Ảnh tĩnh cho story-panel

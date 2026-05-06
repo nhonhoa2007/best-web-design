@@ -9,10 +9,13 @@
                 <a href="#" data-open-page="leaderboard">Leaderboard</a>
                 <a href="#" data-open-page="library">Library</a>
                 <a href="#" data-open-page="profile">Profile</a>
-                <a href="#home-events">Events</a>
+                <a href="#" data-open-page="events">Events</a>
             </div>
             <div class="home-nav-actions">
                 <button class="home-login-button" type="button" data-start-tour>Map 360</button>
+                <button id="home-menu-toggle" class="home-menu-button" type="button" aria-label="Mở thanh điều khiển" aria-expanded="false">
+                    <i class="ph ph-list"></i>
+                </button>
                 <a class="home-icon-button" href="#" data-open-page="profile" aria-label="Thông báo">
                     <i class="ph ph-bell"></i>
                     <span id="notification-badge" class="notification-badge hidden">0</span>
@@ -20,6 +23,22 @@
                 <a class="home-icon-button" href="#" data-open-page="profile" aria-label="Tài khoản"><i class="ph ph-user-circle"></i></a>
             </div>
         </nav>
+
+        <div id="home-mobile-menu" class="home-mobile-menu" aria-label="Thanh điều khiển trang chủ" aria-hidden="true">
+            <div class="home-mobile-menu-head">
+                <strong>Điều khiển</strong>
+                <button id="home-menu-close" class="home-menu-button" type="button" aria-label="Đóng thanh điều khiển">
+                    <i class="ph ph-x"></i>
+                </button>
+            </div>
+            <a class="active" href="#home-hero" data-home-menu-link>Dashboard</a>
+            <a href="#" data-open-page="quest" data-home-menu-link>Quests</a>
+            <a href="#" data-open-page="leaderboard" data-home-menu-link>Leaderboard</a>
+            <a href="#" data-open-page="library" data-home-menu-link>Library</a>
+            <a href="#" data-open-page="profile" data-home-menu-link>Profile</a>
+            <a href="#" data-open-page="events" data-home-menu-link>Events</a>
+        </div>
+        <button id="home-menu-backdrop" class="home-menu-backdrop" type="button" aria-label="Đóng thanh điều khiển"></button>
 
         <div class="home-shell">
             <section id="home-hero" class="home-hero">
@@ -50,7 +69,7 @@
                     </div>
                     <div class="campus-card card-two">
                         <span>Progress</span>
-                        <strong>17 campus stops</strong>
+                        <strong>20 campus stops</strong>
                     </div>
                 </div>
             </section>

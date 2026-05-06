@@ -2,7 +2,7 @@
 
 ## Tổng quan hiện trạng
 
-Project hiện là web tĩnh cho trải nghiệm "VKU 360 Quest": người dùng đăng nhập bằng Firebase Auth, chọn avatar, đi qua 17 chặng trong Khu V và Khu K, xem panorama 360 bằng Pannellum, theo dõi tiến độ, mở khóa các điểm trên danh sách lộ trình và bản đồ nhỏ.
+Project hiện là web tĩnh cho trải nghiệm "VKU 360 Quest": người dùng đăng nhập bằng Firebase Auth, chọn avatar, đi qua 20 chặng trong Khu V và Khu K, xem panorama 360 bằng Pannellum, theo dõi tiến độ, mở khóa các điểm trên danh sách lộ trình và bản đồ nhỏ.
 
 Điểm mạnh hiện có:
 
@@ -232,7 +232,7 @@ Cho người dùng chọn mục tiêu trước khi bắt đầu để nội dung
 
 ### 2. Tour nhanh và tour đầy đủ
 
-Không phải người dùng nào cũng muốn đi hết 17 chặng.
+Không phải người dùng nào cũng muốn đi hết 20 chặng.
 
 - Tour nhanh 5 phút: chỉ đi qua các điểm quan trọng nhất.
 - Tour đầy đủ: giữ trải nghiệm mở khóa từng chặng như hiện tại.

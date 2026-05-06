@@ -1,6 +1,8 @@
 import { auth, onAuthStateChanged } from "./firebase.js";
 import { setupAuthUI } from "./auth.js";
+import { bindEventControls, renderEventGallery } from "./events.js";
 import { renderHomeDashboard } from "./home.js";
+import { applyTranslations, mountLanguageSwitchers, t } from "./i18n.js";
 import { bindProfileControls } from "./profile.js";
 import { hydrateProgressFromFirebase, hydrateState } from "./state.js";
 import { bindControls, preloadPanoramas, renderAvatarOptions, renderResumeButton, startTour } from "./tour.js";
@@ -11,6 +13,7 @@ const PAGE_PARTIALS = [
     "pages/quest.html",
     "pages/leaderboard.html",
     "pages/library.html",
+    "pages/events.html",
     "pages/profile.html",
     "pages/login.html",
     "pages/avatar.html",
@@ -23,6 +26,7 @@ const APP_SCREENS = [
     "quest-screen",
     "leaderboard-screen",
     "library-screen",
+    "events-screen",
     "profile-screen",
     "auth-screen",
     "avatar-screen",
@@ -39,7 +43,10 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 
     setupHomeUI();
+    mountLanguageSwitchers();
+    applyTranslations();
     setupAuthUI();
+    bindEventControls();
     bindProfileControls();
 
     if (auth) {
@@ -49,6 +56,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
                 await bootTourShell(user);
                 await renderHomeDashboard();
+                await renderEventGallery();
             } else {
                 showScreen("auth-screen");
             }
@@ -68,7 +76,7 @@ async function loadPagePartials() {
         PAGE_PARTIALS.map(async (partial) => {
             const response = await fetch(partial);
             if (!response.ok) {
-                throw new Error(`Không tải được ${partial}`);
+                throw new Error(t("partial.error", { partial }));
             }
             return response.text();
         })
@@ -85,8 +93,8 @@ function showPartialLoadError(error) {
         <section class="auth-screen">
             <div class="auth-container glass-panel">
                 <div class="auth-header">
-                    <h2>Không tải được giao diện</h2>
-                    <p>${error.message}. Hãy chạy trang qua local server thay vì mở trực tiếp file HTML.</p>
+                    <h2>${t("partial.title")}</h2>
+                    <p>${error.message}. ${t("partial.hint")}</p>
                 </div>
             </div>
         </section>
@@ -107,8 +115,51 @@ async function bootTourShell(user = null) {
 }
 
 function setupHomeUI() {
+    const homeScreen = document.getElementById("home-screen");
+    const menuToggle = document.getElementById("home-menu-toggle");
+    const menuClose = document.getElementById("home-menu-close");
+    const menuBackdrop = document.getElementById("home-menu-backdrop");
+    const mobileMenu = document.getElementById("home-mobile-menu");
+
+    const setHomeMenuOpen = (isOpen) => {
+        homeScreen?.classList.toggle("home-menu-open", isOpen);
+        menuToggle?.setAttribute("aria-expanded", String(isOpen));
+        mobileMenu?.setAttribute("aria-hidden", String(!isOpen));
+    };
+
+    menuToggle?.addEventListener("click", () => {
+        setHomeMenuOpen(!homeScreen?.classList.contains("home-menu-open"));
+    });
+    menuClose?.addEventListener("click", () => setHomeMenuOpen(false));
+    menuBackdrop?.addEventListener("click", () => setHomeMenuOpen(false));
+    document.querySelectorAll("[data-home-menu-link]").forEach((link) => {
+        link.addEventListener("click", () => setHomeMenuOpen(false));
+    });
+    const closeProfileMenus = () => {
+        document.querySelectorAll(".profile-screen.profile-menu-open").forEach((screen) => {
+            screen.classList.remove("profile-menu-open");
+            screen.querySelector("[data-profile-menu-toggle]")?.setAttribute("aria-expanded", "false");
+        });
+    };
+
+    document.querySelectorAll("[data-profile-menu-toggle]").forEach((button) => {
+        button.addEventListener("click", () => {
+            const screen = button.closest(".profile-screen");
+            const isOpen = !screen?.classList.contains("profile-menu-open");
+            closeProfileMenus();
+            screen?.classList.toggle("profile-menu-open", isOpen);
+            button.setAttribute("aria-expanded", String(isOpen));
+        });
+    });
+
+    document.querySelectorAll(".profile-nav-links button").forEach((button) => {
+        button.addEventListener("click", closeProfileMenus);
+    });
+
     document.querySelectorAll("[data-start-tour]").forEach((button) => {
         button.addEventListener("click", () => {
+            setHomeMenuOpen(false);
+            closeProfileMenus();
             showScreen("tour-app");
             startTour();
         });
@@ -123,14 +174,21 @@ function setupHomeUI() {
             const screenId = `${page}-screen`;
             if (!APP_SCREENS.includes(screenId)) return;
 
+            setHomeMenuOpen(false);
+            closeProfileMenus();
             showScreen(screenId);
             await renderHomeDashboard();
+            if (screenId === "events-screen") {
+                await renderEventGallery();
+            }
         });
     });
 
     document.querySelectorAll("[data-back-home], #back-home").forEach((button) => {
         button.addEventListener("click", () => {
             if (auth?.currentUser) {
+                setHomeMenuOpen(false);
+                closeProfileMenus();
                 showScreen("home-screen");
             }
         });

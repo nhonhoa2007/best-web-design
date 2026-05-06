@@ -1,0 +1,84 @@
+<section id="events-screen" class="profile-screen hidden">
+    <nav class="profile-topbar" aria-label="Events navigation">
+        <button class="profile-brand" type="button" data-back-home>UniQuest</button>
+        <div class="profile-nav-links">
+            <button type="button" data-back-home>Dashboard</button>
+            <button type="button" data-open-page="quest">Quests</button>
+            <button type="button" data-open-page="leaderboard">Leaderboard</button>
+            <button type="button" data-open-page="library">Library</button>
+            <button type="button" data-open-page="profile">Profile</button>
+            <span>Events</span>
+        </div>
+        <div class="profile-nav-actions">
+            <button class="profile-icon-button profile-menu-toggle" type="button" data-profile-menu-toggle aria-label="Mở thanh điều khiển" aria-expanded="false">
+                <i class="ph ph-list"></i>
+            </button>
+            <button class="profile-icon-button" type="button" data-open-page="profile" aria-label="Notifications">
+                <i class="ph ph-bell"></i>
+            </button>
+            <button class="profile-icon-button" type="button" data-start-tour aria-label="Map 360">
+                <i class="ph ph-map-trifold"></i>
+            </button>
+            <button class="profile-mini-avatar" type="button" data-open-page="profile" aria-label="Profile">
+                <i class="ph ph-user-circle"></i>
+            </button>
+        </div>
+    </nav>
+
+    <div class="profile-page-shell">
+        <section class="standalone-page-hero">
+            <span class="standalone-page-kicker">Campus Events</span>
+            <h1>Ảnh sự kiện campus</h1>
+            <p>Đăng và lưu lại những khoảnh khắc về trường trong các buổi campus, check-in, orientation, hội thảo và hoạt động sinh viên.</p>
+        </section>
+
+        <section class="events-compose-section">
+            <form id="event-photo-form" class="event-photo-form">
+                <div class="event-form-head">
+                    <div>
+                        <span>Campus Album</span>
+                        <h2>Đăng ảnh mới</h2>
+                    </div>
+                    <button id="event-photo-submit" class="home-primary" type="submit">
+                        <i class="ph ph-cloud-arrow-up"></i>
+                        Đăng ảnh
+                    </button>
+                </div>
+
+                <div class="event-form-grid">
+                    <div class="input-group">
+                        <label for="event-photo-title">Tên buổi campus</label>
+                        <div class="input-wrapper">
+                            <i class="ph ph-calendar-star"></i>
+                            <input id="event-photo-title" type="text" maxlength="80" placeholder="Ví dụ: Orientation Day, Open Campus..." required>
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <label for="event-photo-file">Ảnh sự kiện</label>
+                        <div class="event-file-control">
+                            <input id="event-photo-file" type="file" accept="image/*" required>
+                            <small>Ảnh tối đa 5MB.</small>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label for="event-photo-caption">Caption</label>
+                    <div class="input-wrapper event-caption-wrapper">
+                        <i class="ph ph-note-pencil"></i>
+                        <textarea id="event-photo-caption" maxlength="220" rows="3" placeholder="Viết vài dòng về khoảnh khắc này..." required></textarea>
+                    </div>
+                </div>
+
+                <div id="event-photo-preview" class="event-photo-preview hidden"></div>
+            </form>
+        </section>
+
+        <section class="events-gallery-section">
+            <div class="profile-section-title">
+                <h2>Album campus</h2>
+            </div>
+            <div id="event-photo-gallery" class="event-photo-gallery"></div>
+        </section>
+    </div>
+</section>

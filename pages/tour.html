@@ -11,10 +11,16 @@
 
 
             <div class="topbar-actions">
-                <button id="toggle-quest-sidebar" class="icon-button sidebar-control" type="button" aria-label="Thu gọn hoặc mở lộ trình" aria-pressed="false">
+                <button class="icon-button" type="button" aria-label="Về trang chủ" data-back-home>
+                    <i class="ph ph-house"></i>
+                </button>
+                <button id="toggle-quest-sidebar" class="icon-button sidebar-control" type="button" aria-label="Mở lộ trình" aria-pressed="false">
                     <i class="ph ph-list-checks"></i>
                 </button>
-                <button id="toggle-story-sidebar" class="icon-button sidebar-control" type="button" aria-label="Thu gọn hoặc mở nội dung chặng" aria-pressed="false">
+                <button id="toggle-moments-page" class="icon-button" type="button" aria-label="Mở khoảnh khắc" aria-pressed="false">
+                    <i class="ph ph-images"></i>
+                </button>
+                <button id="toggle-story-sidebar" class="icon-button sidebar-control" type="button" aria-label="Mở/tắt chặng" aria-pressed="true">
                     <i class="ph ph-sidebar-simple"></i>
                 </button>
                 <button id="toggle-audio" class="icon-button" type="button" aria-label="Bật/tắt âm thanh">
@@ -33,6 +39,16 @@
         </header>
 
         <aside class="quest-panel glass-panel" aria-label="Lộ trình khám phá">
+            <div class="route-panel-head">
+                <div>
+                    <strong>Lộ trình</strong>
+                    <span>Chọn chặng muốn xem</span>
+                </div>
+                <button id="close-route-page-btn" class="icon-button hidden-desktop" type="button" aria-label="Đóng lộ trình">
+                    <i class="ph ph-x"></i>
+                </button>
+            </div>
+
             <div class="profile-card">
                 <div class="profile-avatar-wrapper">
                     <svg class="circular-progress" viewBox="0 0 76 76">
@@ -45,7 +61,7 @@
                     <span>Người đại diện</span>
                     <strong id="profile-name">Explorer</strong>
                     <p id="profile-role">Tân sinh viên</p>
-                    <span id="progress-label" class="profile-progress">1/17 Chặng</span>
+                    <span id="progress-label" class="profile-progress">1/20 Chặng</span>
                 </div>
             </div>
 
@@ -84,7 +100,31 @@
                 <p id="scene-mission">Quan sát hướng di chuyển đến các giảng đường.</p>
             </div>
 
-            <section class="moments-panel" aria-label="Khoảnh khắc tại địa điểm">
+            <div class="story-actions">
+                <button id="prev-step" class="secondary-button" type="button">
+                    <i class="ph ph-arrow-left"></i>
+                    Quay lại
+                </button>
+                <button id="next-step" class="primary-button" type="button">
+                    Đi tiếp
+                    <i class="ph ph-arrow-right"></i>
+                </button>
+            </div>
+        </section>
+        </aside>
+
+        <section class="moments-panel glass-panel" aria-label="Khoảnh khắc tại địa điểm">
+            <div class="moments-panel-head">
+                <div>
+                    <strong>Khoảnh khắc</strong>
+                    <span>Ảnh và cảm nhận ở chặng hiện tại</span>
+                </div>
+                <button id="close-moments-page-btn" class="icon-button" type="button" aria-label="Đóng khoảnh khắc">
+                    <i class="ph ph-x"></i>
+                </button>
+            </div>
+
+            <div class="moments-panel-body">
                 <div class="moments-head">
                     <div>
                         <span>Khoảnh khắc</span>
@@ -142,17 +182,6 @@
                 </form>
 
                 <div id="moments-list" class="moments-list"></div>
-            </section>
-
-            <div class="story-actions">
-                <button id="prev-step" class="secondary-button" type="button">
-                    <i class="ph ph-arrow-left"></i>
-                    Quay lại
-                </button>
-                <button id="next-step" class="primary-button" type="button">
-                    Đi tiếp
-                    <i class="ph ph-arrow-right"></i>
-                </button>
             </div>
         </section>
 
@@ -162,9 +191,11 @@
                     <strong id="map-title">Bản đồ Khu V</strong>
                     <span id="unlock-label">1 điểm đã mở</span>
                 </div>
-                <button id="close-minimap-btn" class="icon-button hidden-desktop" type="button" aria-label="Đóng bản đồ">
-                    <i class="ph ph-x"></i>
-                </button>
+                <div class="minimap-actions">
+                    <button id="close-minimap-btn" class="icon-button hidden-desktop" type="button" aria-label="Đóng bản đồ">
+                        <i class="ph ph-x"></i>
+                    </button>
+                </div>
             </div>
             <div class="map-inner">
                 <img id="map-image-v" src="assets/images/maps/fullmap_khuV.jpg" alt="Bản đồ Khu V">
@@ -172,7 +203,6 @@
                 <div id="map-dots"></div>
             </div>
         </section>
-        </aside>
 
         <!-- Nút mở bản đồ trên mobile -->
         <button id="mobile-minimap-btn" class="fab-button hidden-desktop" type="button" aria-label="Mở bản đồ">

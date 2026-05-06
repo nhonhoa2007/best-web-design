@@ -1,15 +1,20 @@
 import { route } from "../data/route.js";
 import { auth, collection, db, getDocs, query, where } from "./firebase.js";
+import { formatNumber, getCurrentLocale, getSceneText, t } from "./i18n.js";
 import { state } from "./state.js";
 import { showSkeleton } from "./ui-utils.js";
 
 
 const TOTAL_STEPS = route.length;
 const NOTIFICATION_TYPES = {
-    moment_created: { icon: "ph-note-pencil", title: "Bạn đã đăng khoảnh khắc" },
-    moment_updated: { icon: "ph-pencil-simple", title: "Bạn đã chỉnh sửa bài viết" },
-    reaction_received: { icon: "ph-heart", title: "Có cảm xúc mới" }
+    moment_created: { icon: "ph-note-pencil", titleKey: "notification.momentCreated" },
+    moment_updated: { icon: "ph-pencil-simple", titleKey: "notification.momentUpdated" },
+    reaction_received: { icon: "ph-heart", titleKey: "notification.reactionReceived" }
 };
+
+window.addEventListener("vku-language-change", () => {
+    void renderHomeDashboard();
+});
 
 export async function renderHomeDashboard() {
     renderQuestSummary();
@@ -35,9 +40,9 @@ function renderQuestSummary() {
         const isUnlocked = index <= state.unlockedStep;
         return `
             <article class="quest-stage-card ${isUnlocked ? "is-unlocked" : ""}">
-                <span>${scene.chapter}</span>
-                <h3>${escapeHtml(scene.shortTitle || scene.title)}</h3>
-                <p>${escapeHtml(scene.mission || scene.body)}</p>
+                <span>${getSceneText(scene, "chapter")}</span>
+                <h3>${escapeHtml(getSceneText(scene, "shortTitle") || getSceneText(scene, "title"))}</h3>
+                <p>${escapeHtml(getSceneText(scene, "mission") || getSceneText(scene, "body"))}</p>
             </article>
         `;
     }).join("");
@@ -51,14 +56,14 @@ async function renderLeaderboard() {
 
     table.innerHTML = `
         <div class="leaderboard-row head">
-            <span>Rank</span>
-            <span>Người chơi</span>
-            <span>Tiến độ</span>
-            <span>Điểm</span>
+            <span>${t("leaderboard.rank")}</span>
+            <span>${t("leaderboard.player")}</span>
+            <span>${t("leaderboard.progress")}</span>
+            <span>${t("leaderboard.score")}</span>
         </div>
         <div class="leaderboard-row loading-row">
             <span>...</span>
-            <strong>Đang tải bảng xếp hạng</strong>
+            <strong>${t("leaderboard.loading")}</strong>
             <span></span>
             <span></span>
         </div>
@@ -69,7 +74,7 @@ async function renderLeaderboard() {
         renderLeaderboardRows(table, rows.slice(0, 8));
     } catch (error) {
         console.warn("Leaderboard load error:", error);
-        renderLeaderboardRows(table, [currentUserRank()], "Chỉ hiển thị tiến độ của bạn. Firestore rules hiện chưa cho đọc BXH toàn hệ thống.");
+        renderLeaderboardRows(table, [currentUserRank()], t("leaderboard.localOnly"));
     }
 }
 
@@ -78,17 +83,17 @@ function renderLeaderboardRows(table, rows, note = "") {
         <div class="leaderboard-row">
             <span>#${index + 1}</span>
             <strong>${escapeHtml(row.name)}</strong>
-            <span>${row.unlockedStep + 1}/${TOTAL_STEPS} chặng</span>
-            <span>${row.score.toLocaleString("vi-VN")}</span>
+            <span>${row.unlockedStep + 1}/${TOTAL_STEPS} ${t("unit.stage")}</span>
+            <span>${formatNumber(row.score)}</span>
         </div>
     `).join("");
 
     table.innerHTML = `
         <div class="leaderboard-row head">
-            <span>Rank</span>
-            <span>Người chơi</span>
-            <span>Tiến độ</span>
-            <span>Điểm</span>
+            <span>${t("leaderboard.rank")}</span>
+            <span>${t("leaderboard.player")}</span>
+            <span>${t("leaderboard.progress")}</span>
+            <span>${t("leaderboard.score")}</span>
         </div>
         ${body}
         ${note ? `<div class="leaderboard-note">${escapeHtml(note)}</div>` : ""}
@@ -131,8 +136,8 @@ async function renderLibrary() {
     grid.innerHTML = `
         <article class="library-card">
             <i class="ph ph-spinner-gap"></i>
-            <strong>Đang tải nhật ký</strong>
-            <span>Đang đồng bộ tiến độ, ghi chú và khoảnh khắc của bạn.</span>
+            <strong>${t("library.loadingTitle")}</strong>
+            <span>${t("library.loadingBody")}</span>
         </article>
     `;
 
@@ -143,18 +148,18 @@ async function renderLibrary() {
     grid.innerHTML = `
         <article class="library-card">
             <i class="ph ph-book-open-text"></i>
-            <strong>${unlockedScenes.length}/${TOTAL_STEPS} chặng đã mở</strong>
-            <span>Gần nhất: ${escapeHtml(currentScene.title)}.</span>
+            <strong>${unlockedScenes.length}/${TOTAL_STEPS} ${t("library.unlockedStages")}</strong>
+            <span>${t("library.latest")}: ${escapeHtml(getSceneText(currentScene, "title"))}.</span>
         </article>
         <article class="library-card">
             <i class="ph ph-images"></i>
-            <strong>${ownMoments.length} khoảnh khắc</strong>
-            <span>${ownMoments.length ? escapeHtml(ownMoments[0].caption) : "Bạn chưa lưu khoảnh khắc nào trong hành trình."}</span>
+            <strong>${ownMoments.length} ${t("tour.moments").toLowerCase()}</strong>
+            <span>${ownMoments.length ? escapeHtml(ownMoments[0].caption) : t("library.noMoments")}</span>
         </article>
         <article class="library-card">
             <i class="ph ph-map-pin-line"></i>
-            <strong>Mốc đã mở khóa</strong>
-            <span>${escapeHtml(unlockedScenes.map((scene) => scene.shortTitle || scene.title).join(", "))}</span>
+            <strong>${t("library.unlockedTitle")}</strong>
+            <span>${escapeHtml(unlockedScenes.map((scene) => getSceneText(scene, "shortTitle") || getSceneText(scene, "title")).join(", "))}</span>
         </article>
     `;
 }
@@ -190,15 +195,15 @@ async function renderProfile() {
         portrait.style.setProperty("--avatar-color", state.selectedAvatar.color);
         portrait.innerHTML = avatarMarkup;
     }
-    name.textContent = profile.name || state.customName || "Explorer";
-    email.textContent = auth?.currentUser?.email || "Tài khoản cục bộ";
+    name.textContent = profile.name || state.customName || t("fallback.explorer");
+    email.textContent = auth?.currentUser?.email || t("profile.localAccount");
     progress.textContent = String(completedQuests);
     moments.textContent = String(ownMoments.length);
     reactions.textContent = String(reactionCount);
 
     setText("profile-level", String(level));
-    setText("profile-xp-current", xpCurrent.toLocaleString("vi-VN"));
-    setText("profile-xp-total", xpTarget.toLocaleString("vi-VN"));
+    setText("profile-xp-current", formatNumber(xpCurrent));
+    setText("profile-xp-total", formatNumber(xpTarget));
     setText("profile-total-xp", formatCompact(totalXp));
     setText("profile-ranking", leaderboardData.currentRank ? `#${leaderboardData.currentRank}` : "--");
     document.getElementById("profile-xp-progress")?.style.setProperty("--profile-progress", `${xpPercent}%`);
@@ -225,8 +230,8 @@ async function renderNotifications() {
             <article class="profile-activity-item is-highlight">
                 <span></span>
                 <div>
-                    <strong>Chưa có hoạt động</strong>
-                    <time>Firebase</time>
+                    <strong>${t("profile.noActivity")}</strong>
+                    <time>${t("profile.firebase")}</time>
                 </div>
             </article>
         `;
@@ -241,15 +246,15 @@ async function renderAchievements() {
     if (!grid) return;
 
     if (!auth?.currentUser || !db) {
-        renderAchievementEmpty(grid, "Đăng nhập để đồng bộ achievements từ Firebase.");
+        renderAchievementEmpty(grid, t("achievement.loginSync"));
         return;
     }
 
     grid.innerHTML = `
         <article class="profile-achievement-card rare">
             <i class="ph ph-spinner-gap"></i>
-            <strong>Đang tải achievements</strong>
-            <span>Firebase</span>
+            <strong>${t("profile.loadingAchievements")}</strong>
+            <span>${t("profile.firebase")}</span>
         </article>
     `;
 
@@ -278,14 +283,14 @@ async function renderAchievements() {
         });
 
         if (!generatedAchievements.length) {
-            renderAchievementEmpty(grid, "Chưa có achievement nào được mở khóa.");
+            renderAchievementEmpty(grid, t("achievement.empty"));
             return;
         }
 
         grid.innerHTML = generatedAchievements.slice(0, 6).map(renderAchievementCard).join("");
     } catch (error) {
         console.warn("Achievements load error:", error);
-        renderAchievementEmpty(grid, "Không tải được achievements từ Firebase.");
+        renderAchievementEmpty(grid, t("achievement.loadError"));
     }
 }
 
@@ -311,7 +316,7 @@ function buildAchievementsFromFirebaseData({ moments, reactionCount, leaderboard
             title: "Quest Starter",
             rarity: "rare",
             icon: "ph-rocket-launch",
-            description: `${completedQuests}/${TOTAL_STEPS} chặng đã mở`,
+            description: `${completedQuests}/${TOTAL_STEPS} ${t("library.unlockedStages")}`,
             unlockedAt: progress.updatedAt
         }));
     }
@@ -321,7 +326,7 @@ function buildAchievementsFromFirebaseData({ moments, reactionCount, leaderboard
             title: "Campus Navigator",
             rarity: "epic",
             icon: "ph-map-trifold",
-            description: "Đã đi qua hơn nửa lộ trình",
+            description: t("achievement.navigator"),
             unlockedAt: progress.updatedAt
         }));
     }
@@ -331,7 +336,7 @@ function buildAchievementsFromFirebaseData({ moments, reactionCount, leaderboard
             title: "VKU 360 Finisher",
             rarity: "legendary",
             icon: "ph-trophy",
-            description: "Hoàn thành toàn bộ quest route",
+            description: t("achievement.finisher"),
             unlockedAt: progress.updatedAt
         }));
     }
@@ -341,7 +346,7 @@ function buildAchievementsFromFirebaseData({ moments, reactionCount, leaderboard
             title: "Moment Keeper",
             rarity: "rare",
             icon: "ph-images",
-            description: `${moments.length} khoảnh khắc đã lưu`,
+            description: t("achievement.momentKeeper", { count: moments.length }),
             unlockedAt: moments[0].createdAt || moments[0].updatedAt
         }));
     }
@@ -351,7 +356,7 @@ function buildAchievementsFromFirebaseData({ moments, reactionCount, leaderboard
             title: "Campus Signal",
             rarity: "epic",
             icon: "ph-heart",
-            description: `${reactionCount} cảm xúc đã nhận`,
+            description: t("achievement.campusSignal", { count: reactionCount }),
             unlockedAt: null
         }));
     }
@@ -361,7 +366,7 @@ function buildAchievementsFromFirebaseData({ moments, reactionCount, leaderboard
             title: "Top Explorer",
             rarity: "legendary",
             icon: "ph-medal",
-            description: `Hạng #${leaderboardData.currentRank} trên bảng xếp hạng`,
+            description: t("achievement.topExplorer", { rank: leaderboardData.currentRank }),
             unlockedAt: null
         }));
     }
@@ -384,7 +389,7 @@ function renderAchievementEmpty(grid, message) {
         <article class="profile-achievement-card profile-achievement-empty">
             <i class="ph ph-medal"></i>
             <strong>${escapeHtml(message)}</strong>
-            <span>Firebase</span>
+            <span>${t("profile.firebase")}</span>
         </article>
     `;
 }
@@ -468,14 +473,14 @@ function renderActivityItem(activity, index = 0) {
 
 function buildProfileActivity(notifications, moments) {
     const notificationActivity = notifications.map((notification) => {
-        const meta = NOTIFICATION_TYPES[notification.type] || { title: "Thông báo" };
+        const meta = NOTIFICATION_TYPES[notification.type] || { titleKey: "notification.default" };
         return {
-            title: notification.title || meta.title,
+            title: notification.title || t(meta.titleKey),
             createdAt: notification.createdAt
         };
     });
     const momentActivity = moments.map((moment) => ({
-        title: `Đăng khoảnh khắc: "${moment.caption || moment.sceneTitle || "VKU 360 Quest"}"`,
+        title: t("notification.momentActivity", { caption: moment.caption || moment.sceneTitle || "VKU 360 Quest" }),
         createdAt: moment.createdAt || moment.updatedAt
     }));
 
@@ -516,7 +521,7 @@ function normalizeProgress(progress) {
     const totalXp = firstFiniteNumber(progress.totalXp, progress.xp, progress.score, score);
     return {
         uid: progress.uid || "",
-        name: progress.customName || "Explorer",
+        name: progress.customName || t("fallback.explorer"),
         currentStep,
         unlockedStep,
         score,
@@ -550,9 +555,9 @@ function getTime(value) {
 
 function formatDate(value) {
     const time = getTime(value);
-    if (!time) return "Vừa xong";
+    if (!time) return t("status.justNow");
 
-    return new Intl.DateTimeFormat("vi-VN", {
+    return new Intl.DateTimeFormat(getCurrentLocale(), {
         day: "2-digit",
         month: "2-digit",
         hour: "2-digit",

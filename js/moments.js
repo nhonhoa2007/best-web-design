@@ -18,6 +18,7 @@ import {
     uploadBytes,
     where
 } from "./firebase.js";
+import { getCurrentLocale, getSceneText, t } from "./i18n.js";
 import { state } from "./state.js";
 import { showToast } from "./ui.js";
 
@@ -37,7 +38,7 @@ export function bindMomentControls() {
 
     document.getElementById("open-moment-form")?.addEventListener("click", () => {
         if (!auth?.currentUser) {
-            showToast("Bạn cần đăng nhập để đăng khoảnh khắc.");
+            showToast(t("toast.needLoginMomentPost"));
             return;
         }
 
@@ -57,11 +58,11 @@ export async function renderMomentsForScene(scene = route[state.currentStep]) {
 
     if (!auth?.currentUser || !db) {
         momentCountsByScene.set(scene.id, 0);
-        countLabel.textContent = "0 bài đăng";
+        countLabel.textContent = `0 ${t("unit.post")}`;
         list.innerHTML = `
             <div class="moments-empty">
                 <i class="ph ph-lock-key"></i>
-                <p>Đăng nhập để lưu và xem khoảnh khắc tại địa điểm này.</p>
+                <p>${t("moments.emptyLogin")}</p>
             </div>
         `;
         afterMomentsChange();
@@ -69,23 +70,23 @@ export async function renderMomentsForScene(scene = route[state.currentStep]) {
     }
 
     list.innerHTML = `
-        <div class="moments-loading">
-            <i class="ph ph-spinner-gap"></i>
-            <span>Đang tải khoảnh khắc...</span>
-        </div>
+            <div class="moments-loading">
+                <i class="ph ph-spinner-gap"></i>
+                <span>${t("moments.loading")}</span>
+            </div>
     `;
 
     try {
         const moments = await fetchMomentsForScene(scene.id);
         await attachReactionSummaries(moments);
         momentCountsByScene.set(scene.id, moments.length);
-        countLabel.textContent = `${moments.length} bài đăng`;
+        countLabel.textContent = `${moments.length} ${t("unit.post")}`;
 
         if (!moments.length) {
             list.innerHTML = `
                 <div class="moments-empty">
                     <i class="ph ph-camera"></i>
-                    <p>Chưa có khoảnh khắc nào ở địa điểm này.</p>
+                    <p>${t("moments.empty")}</p>
                 </div>
             `;
             afterMomentsChange();
@@ -97,14 +98,14 @@ export async function renderMomentsForScene(scene = route[state.currentStep]) {
     } catch (error) {
         console.error("Moment fetch error:", error);
         momentCountsByScene.set(scene.id, 0);
-        countLabel.textContent = "0 bài đăng";
+        countLabel.textContent = `0 ${t("unit.post")}`;
         list.innerHTML = `
             <div class="moments-empty error">
                 <i class="ph ph-warning"></i>
-                <p>Không tải được khoảnh khắc. Vui lòng thử lại sau.</p>
+                <p>${t("moments.error")}</p>
             </div>
         `;
-        showToast("Không tải được khoảnh khắc.");
+        showToast(t("toast.momentLoadError"));
         afterMomentsChange();
     }
 }
@@ -115,6 +116,8 @@ export function getMomentCountByScene(sceneId) {
 
 async function fetchMomentsForScene(sceneId) {
     const user = auth.currentUser;
+    if (!user || !db) return [];
+
     const momentsRef = collection(db, "moments");
     const publicQuery = query(
         momentsRef,
@@ -125,26 +128,38 @@ async function fetchMomentsForScene(sceneId) {
         where("uid", "==", user.uid)
     );
 
-    const [publicSnapshot, ownSnapshot] = await Promise.all([
+    const [publicResult, ownResult] = await Promise.allSettled([
         getDocs(publicQuery),
         getDocs(ownQuery)
     ]);
     const merged = new Map();
 
-    publicSnapshot.forEach((snapshot) => {
-        const moment = normalizeMoment(snapshot);
-        if (moment.sceneId === sceneId) {
-            merged.set(snapshot.id, moment);
-        }
-    });
-    ownSnapshot.forEach((snapshot) => {
-        const moment = normalizeMoment(snapshot);
-        if (moment.sceneId === sceneId) {
-            merged.set(snapshot.id, moment);
-        }
-    });
+    if (publicResult.status === "fulfilled") {
+        addSceneMoments(publicResult.value, sceneId, merged);
+    } else {
+        console.warn("Public moments load skipped:", publicResult.reason);
+    }
+
+    if (ownResult.status === "fulfilled") {
+        addSceneMoments(ownResult.value, sceneId, merged);
+    } else {
+        console.warn("Own moments load skipped:", ownResult.reason);
+    }
+
+    if (publicResult.status === "rejected" && ownResult.status === "rejected") {
+        throw ownResult.reason || publicResult.reason;
+    }
 
     return Array.from(merged.values()).sort((a, b) => getTime(b.createdAt) - getTime(a.createdAt));
+}
+
+function addSceneMoments(snapshot, sceneId, target) {
+    snapshot.forEach((item) => {
+        const moment = normalizeMoment(item);
+        if (moment.sceneId === sceneId) {
+            target.set(item.id, moment);
+        }
+    });
 }
 
 async function attachReactionSummaries(moments) {
@@ -156,10 +171,17 @@ async function attachReactionSummaries(moments) {
 
     for (let index = 0; index < ids.length; index += chunkSize) {
         const idChunk = ids.slice(index, index + chunkSize);
-        const snapshot = await getDocs(query(
-            collection(db, "momentReactions"),
-            where("momentId", "in", idChunk)
-        ));
+        let snapshot;
+
+        try {
+            snapshot = await getDocs(query(
+                collection(db, "momentReactions"),
+                where("momentId", "in", idChunk)
+            ));
+        } catch (error) {
+            console.warn("Reaction summaries load skipped:", error);
+            continue;
+        }
 
         snapshot.forEach((item) => {
             const reaction = item.data();
@@ -187,7 +209,7 @@ async function handleMomentSubmit(event) {
     event.preventDefault();
 
     if (!auth?.currentUser || !db || !storage) {
-        showToast("Bạn cần đăng nhập để lưu khoảnh khắc.");
+        showToast(t("toast.needLoginMomentSave"));
         return;
     }
 
@@ -202,14 +224,14 @@ async function handleMomentSubmit(event) {
     const file = document.getElementById("moment-photo").files[0] || null;
 
     if (!caption) {
-        showToast("Vui lòng nhập caption cho khoảnh khắc.");
+        showToast(t("toast.needCaption"));
         return;
     }
 
     if (file && !validateImageFile(file)) return;
 
     submitButton.disabled = true;
-    submitButton.innerHTML = '<i class="ph ph-spinner-gap"></i> Đang lưu...';
+    submitButton.innerHTML = `<i class="ph ph-spinner-gap"></i> ${t("moments.saveLoading")}`;
 
     try {
         if (editId) {
@@ -217,23 +239,23 @@ async function handleMomentSubmit(event) {
             await createNotification({
                 uid: auth.currentUser.uid,
                 type: "moment_updated",
-                title: "Bạn đã chỉnh sửa bài viết",
-                body: `Khoảnh khắc tại ${scene.title} đã được cập nhật.`,
+                title: t("notification.momentUpdated"),
+                body: t("moments.notificationUpdated", { sceneTitle: getSceneText(scene, "title") }),
                 momentId: editId,
                 sceneId: scene.id
             });
-            showToast("Đã cập nhật khoảnh khắc.");
+            showToast(t("toast.momentUpdated"));
         } else {
             const momentId = await createMoment(scene, { caption, mood, visibility, file });
             await createNotification({
                 uid: auth.currentUser.uid,
                 type: "moment_created",
-                title: "Bạn đã đăng khoảnh khắc",
-                body: `Bài viết mới tại ${scene.title} đã được lưu vào nhật ký.`,
+                title: t("notification.momentCreated"),
+                body: t("moments.notificationCreated", { sceneTitle: getSceneText(scene, "title") }),
                 momentId,
                 sceneId: scene.id
             });
-            showToast("Đã lưu khoảnh khắc.");
+            showToast(t("toast.momentSaved"));
         }
 
         form.reset();
@@ -241,10 +263,10 @@ async function handleMomentSubmit(event) {
         await renderMomentsForScene(scene);
     } catch (error) {
         console.error("Moment save error:", error);
-        showToast("Không lưu được khoảnh khắc.");
+        showToast(t("toast.momentSaveError"));
     } finally {
         submitButton.disabled = false;
-        submitButton.innerHTML = '<i class="ph ph-floppy-disk"></i> Lưu khoảnh khắc';
+        submitButton.innerHTML = `<i class="ph ph-floppy-disk"></i> ${t("tour.saveMoment")}`;
     }
 }
 
@@ -256,7 +278,7 @@ async function createMoment(scene, { caption, mood, visibility, file }) {
         authorName: state.customName,
         avatarId: state.selectedAvatar.id,
         sceneId: scene.id,
-        sceneTitle: scene.title,
+        sceneTitle: getSceneText(scene, "title"),
         zone: scene.zone,
         caption,
         mood,
@@ -324,7 +346,7 @@ async function handleMomentAction(event) {
 
 async function reactToMoment(button) {
     if (!auth?.currentUser || !db) {
-        showToast("Bạn cần đăng nhập để thả cảm xúc.");
+        showToast(t("toast.needLoginReaction"));
         return;
     }
 
@@ -344,7 +366,7 @@ async function reactToMoment(button) {
         if (previousReaction === reaction) {
             await deleteDoc(reactionRef);
             await renderMomentsForScene(route[state.currentStep]);
-            showToast("Đã gỡ cảm xúc khỏi khoảnh khắc.");
+            showToast(t("toast.reactionRemoved"));
             return;
         }
 
@@ -364,18 +386,18 @@ async function reactToMoment(button) {
             await createNotification({
                 uid: ownerUid,
                 type: "reaction_received",
-                title: `${state.customName} đã thả cảm xúc ${reaction}`,
-                body: `Khoảnh khắc "${moment.caption || button.dataset.caption || "của bạn"}" vừa nhận tương tác mới.`,
+                title: t("moments.reactionTitle", { name: state.customName, reaction }),
+                body: t("moments.reactionBody", { caption: moment.caption || button.dataset.caption || t("moments.yourMoment") }),
                 momentId,
                 sceneId: moment.sceneId || button.dataset.sceneId || ""
             });
         }
 
-        showToast("Đã thả cảm xúc cho khoảnh khắc.");
+        showToast(t("toast.reactionSaved"));
         await renderMomentsForScene(route[state.currentStep]);
     } catch (error) {
         console.error("Reaction save error:", error);
-        showToast("Không thả được cảm xúc. Vui lòng thử lại.");
+        showToast(t("toast.reactionError"));
     } finally {
         button.disabled = false;
     }
@@ -406,7 +428,7 @@ async function createNotification({ uid, type, title, body, momentId = "", scene
 async function deleteMoment(momentId, imagePath) {
     if (!momentId || !auth?.currentUser || !db) return;
 
-    const confirmed = window.confirm("Xóa khoảnh khắc này?");
+    const confirmed = window.confirm(t("confirm.deleteMoment"));
     if (!confirmed) return;
 
     try {
@@ -415,11 +437,11 @@ async function deleteMoment(momentId, imagePath) {
         }
 
         await deleteDoc(doc(db, "moments", momentId));
-        showToast("Đã xóa khoảnh khắc.");
+        showToast(t("toast.momentDeleted"));
         await renderMomentsForScene(route[state.currentStep]);
     } catch (error) {
         console.error("Moment delete error:", error);
-        showToast("Không xóa được khoảnh khắc.");
+        showToast(t("toast.momentDeleteError"));
     }
 }
 
@@ -496,7 +518,7 @@ function handlePhotoPreview(event) {
 
     const imageUrl = URL.createObjectURL(file);
     preview.classList.remove("hidden");
-    preview.innerHTML = `<img src="${imageUrl}" alt="Ảnh xem trước khoảnh khắc">`;
+    preview.innerHTML = `<img src="${imageUrl}" alt="${t("moments.previewAlt")}">`;
 }
 
 function resetMomentPreview() {
@@ -509,12 +531,12 @@ function resetMomentPreview() {
 
 function validateImageFile(file) {
     if (!file.type.startsWith("image/")) {
-        showToast("Chỉ hỗ trợ file ảnh.");
+        showToast(t("toast.imageOnly"));
         return false;
     }
 
     if (file.size > MAX_IMAGE_SIZE) {
-        showToast("Ảnh tối đa 5MB.");
+        showToast(t("toast.photoMax"));
         return false;
     }
 
@@ -523,9 +545,9 @@ function validateImageFile(file) {
 
 function renderMomentCard(moment) {
     const isOwner = auth?.currentUser?.uid === moment.uid;
-    const visibilityText = moment.visibility === "public" ? "Công khai" : "Chỉ mình tôi";
+    const visibilityText = moment.visibility === "public" ? t("moments.publicLabel") : t("moments.privateLabel");
     const image = moment.imageUrl
-        ? `<img class="moment-image" src="${escapeAttribute(moment.imageUrl)}" alt="Ảnh khoảnh khắc tại ${escapeAttribute(moment.sceneTitle)}">`
+        ? `<img class="moment-image" src="${escapeAttribute(moment.imageUrl)}" alt="${escapeAttribute(t("moments.imageAlt", { sceneTitle: moment.sceneTitle }))}">`
         : "";
 
     return `
@@ -538,21 +560,21 @@ function renderMomentCard(moment) {
                 </div>
                 <p>${escapeHtml(moment.caption)}</p>
                 <div class="moment-card-foot">
-                    <span>${escapeHtml(moment.authorName || "Explorer")}</span>
+                    <span>${escapeHtml(moment.authorName || t("fallback.explorer"))}</span>
                     <span>${formatMomentDate(moment.createdAt)}</span>
                 </div>
-                <div class="moment-reactions" aria-label="Thả cảm xúc cho khoảnh khắc">
-                    ${renderReactionButton(moment, "👍", "Thích")}
-                    ${renderReactionButton(moment, "💛", "Yêu thích")}
-                    ${renderReactionButton(moment, "🎉", "Chúc mừng")}
+                <div class="moment-reactions" aria-label="${t("moments.reactLabel")}">
+                    ${renderReactionButton(moment, "👍", t("moments.like"))}
+                    ${renderReactionButton(moment, "💛", t("moments.love"))}
+                    ${renderReactionButton(moment, "🎉", t("moments.celebrate"))}
                 </div>
                 ${isOwner ? `
                     <div class="moment-card-actions">
                         <button class="secondary-button compact-button" type="button" data-moment-edit="${moment.id}">
-                            <i class="ph ph-pencil-simple"></i> Sửa
+                            <i class="ph ph-pencil-simple"></i> ${t("moments.edit")}
                         </button>
                         <button class="secondary-button compact-button danger-button" type="button" data-moment-delete="${moment.id}" data-image-path="${escapeAttribute(moment.imagePath)}">
-                            <i class="ph ph-trash"></i> Xóa
+                            <i class="ph ph-trash"></i> ${t("moments.delete")}
                         </button>
                     </div>
                 ` : ""}
@@ -591,9 +613,9 @@ function getTime(value) {
 
 function formatMomentDate(value) {
     const time = getTime(value);
-    if (!time) return "Vừa xong";
+    if (!time) return t("status.justNow");
 
-    return new Intl.DateTimeFormat("vi-VN", {
+    return new Intl.DateTimeFormat(getCurrentLocale(), {
         day: "2-digit",
         month: "2-digit",
         year: "numeric",

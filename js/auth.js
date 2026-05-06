@@ -4,9 +4,11 @@ import {
     signInWithEmailAndPassword,
     signOut
 } from "./firebase.js";
+import { t } from "./i18n.js";
 import { showToast } from "./ui.js";
 
 let isLoginMode = true;
+let languageListenerBound = false;
 
 export function setupAuthUI() {
     const form = document.getElementById("auth-form");
@@ -17,20 +19,16 @@ export function setupAuthUI() {
 
     if (!form || !toggleLink || !toggleText || !title || !submitBtn) return;
 
-    toggleLink.onclick = (event) => {
+    refreshAuthText();
+    bindLanguageListener();
+
+    const currentToggleLink = document.getElementById("auth-toggle-link");
+    if (!currentToggleLink) return;
+
+    currentToggleLink.onclick = (event) => {
         event.preventDefault();
         isLoginMode = !isLoginMode;
-
-        if (isLoginMode) {
-            title.textContent = "Đăng nhập";
-            submitBtn.textContent = "Đăng nhập";
-            toggleText.innerHTML = 'Chưa có tài khoản? <a href="#" id="auth-toggle-link">Đăng ký ngay</a>';
-        } else {
-            title.textContent = "Đăng ký";
-            submitBtn.textContent = "Đăng ký";
-            toggleText.innerHTML = 'Đã có tài khoản? <a href="#" id="auth-toggle-link">Đăng nhập</a>';
-        }
-
+        refreshAuthText();
         setupAuthUI();
     };
 
@@ -40,27 +38,28 @@ export function setupAuthUI() {
         const password = document.getElementById("password").value;
 
         if (!auth) {
-            showToast("Cấu hình Firebase chưa được thiết lập.");
+            showToast(t("toast.firebaseMissing"));
             return;
         }
 
         submitBtn.disabled = true;
-        submitBtn.textContent = isLoginMode ? "Đang đăng nhập..." : "Đang đăng ký...";
+        submitBtn.textContent = isLoginMode ? t("auth.loggingIn") : t("auth.signingUp");
 
         try {
             if (isLoginMode) {
                 await signInWithEmailAndPassword(auth, email, password);
-                showToast("Đăng nhập thành công!");
+                showToast(t("toast.loginSuccess"));
             } else {
                 await createUserWithEmailAndPassword(auth, email, password);
-                showToast("Đăng ký thành công!");
+                showToast(t("toast.signupSuccess"));
             }
+            refreshAfterAuthChange();
         } catch (error) {
             showToast(getAuthErrorMessage(error));
             console.error("Auth Error:", error);
         } finally {
             submitBtn.disabled = false;
-            submitBtn.textContent = isLoginMode ? "Đăng nhập" : "Đăng ký";
+            submitBtn.textContent = isLoginMode ? t("auth.loginAction") : t("auth.signupAction");
         }
     };
 }
@@ -70,27 +69,57 @@ export async function handleLogout() {
 
     try {
         await signOut(auth);
-        showToast("Đã đăng xuất.");
+        showToast(t("toast.logoutSuccess"));
+        refreshAfterAuthChange();
     } catch (error) {
-        showToast("Lỗi đăng xuất.");
+        showToast(t("toast.logoutError"));
         console.error("Logout Error:", error);
     }
+}
+
+function refreshAfterAuthChange() {
+    window.location.reload();
 }
 
 function getAuthErrorMessage(error) {
     const code = error?.code || "";
     const messages = {
-        "auth/email-already-in-use": "Email này đã được đăng ký.",
-        "auth/invalid-email": "Email không hợp lệ.",
-        "auth/invalid-credential": "Email hoặc mật khẩu không đúng.",
-        "auth/network-request-failed": "Không kết nối được Firebase. Kiểm tra mạng hoặc cấu hình project.",
-        "auth/operation-not-allowed": "Bạn chưa bật phương thức đăng nhập Email/Password trong Firebase Authentication.",
-        "auth/too-many-requests": "Bạn thử đăng nhập quá nhiều lần. Vui lòng chờ một lúc rồi thử lại.",
-        "auth/missing-password": "Vui lòng nhập mật khẩu.",
-        "auth/weak-password": "Mật khẩu cần tối thiểu 6 ký tự.",
-        "auth/user-not-found": "Không tìm thấy tài khoản.",
-        "auth/wrong-password": "Mật khẩu không đúng."
+        "auth/email-already-in-use": t("auth.error.emailInUse"),
+        "auth/invalid-email": t("auth.error.invalidEmail"),
+        "auth/invalid-credential": t("auth.error.invalidCredential"),
+        "auth/network-request-failed": t("auth.error.network"),
+        "auth/operation-not-allowed": t("auth.error.operation"),
+        "auth/too-many-requests": t("auth.error.tooMany"),
+        "auth/missing-password": t("auth.error.missingPassword"),
+        "auth/weak-password": t("auth.error.weakPassword"),
+        "auth/user-not-found": t("auth.error.userNotFound"),
+        "auth/wrong-password": t("auth.error.wrongPassword")
     };
 
-    return messages[code] || error?.message || "Đã xảy ra lỗi.";
+    return messages[code] || error?.message || t("auth.error.default");
+}
+
+function refreshAuthText() {
+    const title = document.getElementById("auth-title");
+    const submitBtn = document.getElementById("auth-submit-btn");
+    const toggleText = document.getElementById("auth-toggle-text");
+
+    if (title) title.textContent = isLoginMode ? t("auth.loginTitle") : t("auth.signupTitle");
+    if (submitBtn && !submitBtn.disabled) {
+        submitBtn.textContent = isLoginMode ? t("auth.loginAction") : t("auth.signupAction");
+    }
+    if (toggleText) {
+        toggleText.innerHTML = isLoginMode
+            ? `${t("auth.needAccount")} <a href="#" id="auth-toggle-link">${t("auth.signupNow")}</a>`
+            : `${t("auth.hasAccount")} <a href="#" id="auth-toggle-link">${t("auth.loginNow")}</a>`;
+    }
+}
+
+function bindLanguageListener() {
+    if (languageListenerBound) return;
+    languageListenerBound = true;
+    window.addEventListener("vku-language-change", () => {
+        refreshAuthText();
+        setupAuthUI();
+    });
 }
