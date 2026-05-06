@@ -425,7 +425,9 @@ function renderExperience() {
 }
 
 function renderProfile() {
-    const avatarMarkup = `<i class="ph ${state.selectedAvatar.icon}"></i>`;
+    const avatarMarkup = state.avatarImageUrl
+        ? `<img class="avatar-image" src="${escapeAttribute(state.avatarImageUrl)}" alt="">`
+        : `<i class="ph ${state.selectedAvatar.icon}"></i>`;
     const colorStyle = state.selectedAvatar.color;
     const profileAvatar = document.getElementById("profile-avatar");
     const dialogAvatar = document.getElementById("dialog-avatar");
@@ -501,6 +503,16 @@ function focusZone(zone) {
     setActiveMapZone(zone);
     renderRouteList();
     renderMap();
+}
+
+function escapeAttribute(value = "") {
+    return String(value)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;")
+        .replaceAll("`", "&#096;");
 }
 
 export function preloadPanoramas() {

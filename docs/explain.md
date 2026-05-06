@@ -10,9 +10,9 @@ Dự án tuân thủ triết lý **"Zero-Framework"** (không dùng các thư vi
 
 ---
 
-## 2. PHÂN TÍCH CHI TIẾT FILE STYLE.CSS (3629 DÒNG)
+## 2. PHÂN TÍCH CHI TIẾT FILE CSS/MAIN.CSS (3629 DÒNG)
 
-File `style.css` là trung tâm của trải nghiệm hình ảnh. Dưới đây là phân tích chi tiết:
+File `css/main.css` là trung tâm của trải nghiệm hình ảnh. Dưới đây là phân tích chi tiết:
 
 ### 2.1. Giải thích hệ thống biến (Dòng 1-100)
 - Dòng 1-10: Định nghĩa bảng màu chủ đạo (Gold, Ink, Panel).
@@ -174,9 +174,9 @@ Hệ thống bảo mật được thiết lập chặt chẽ:
 
 Phần phụ lục này cung cấp một cái nhìn chi tiết nhất về các khối mã nguồn chính của dự án. Lập trình viên và người thẩm định có thể sử dụng phần này để hiểu rõ ý đồ thiết kế của từng hàm và từng phong cách CSS.
 
-### 9.1. PHÂN TÍCH CHI TIẾT TỆP STYLE.CSS (3629 DÒNG)
+### 9.1. PHÂN TÍCH CHI TIẾT TỆP CSS/MAIN.CSS (3629 DÒNG)
 
-Tệp `style.css` quản lý toàn bộ hệ thống hình ảnh. Do dung lượng tệp rất lớn, báo cáo sẽ phân tích theo các phân đoạn chức năng trọng tâm.
+Tệp `css/main.css` quản lý toàn bộ hệ thống hình ảnh. Do dung lượng tệp rất lớn, báo cáo sẽ phân tích theo các phân đoạn chức năng trọng tâm.
 
 #### 9.1.1. Thiết lập biến và Hệ thống thiết kế (Design System)
 Dự án sử dụng các biến CSS để định nghĩa "ngôn ngữ hình ảnh" nhất quán:

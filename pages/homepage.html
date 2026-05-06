@@ -5,19 +5,19 @@
             </a>
             <div class="home-nav-links" aria-label="Điều hướng trang chủ">
                 <a class="active" href="#home-hero">Dashboard</a>
-                <a href="#home-quests">Quests</a>
-                <a href="#home-leaderboard">Leaderboard</a>
-                <a href="#home-library">Library</a>
-                <a href="#" data-open-profile>Profile</a>
+                <a href="#" data-open-page="quest">Quests</a>
+                <a href="#" data-open-page="leaderboard">Leaderboard</a>
+                <a href="#" data-open-page="library">Library</a>
+                <a href="#" data-open-page="profile">Profile</a>
                 <a href="#home-events">Events</a>
             </div>
             <div class="home-nav-actions">
                 <button class="home-login-button" type="button" data-start-tour>Map 360</button>
-                <a class="home-icon-button" href="#" data-open-profile aria-label="Thông báo">
+                <a class="home-icon-button" href="#" data-open-page="profile" aria-label="Thông báo">
                     <i class="ph ph-bell"></i>
                     <span id="notification-badge" class="notification-badge hidden">0</span>
                 </a>
-                <a class="home-icon-button" href="#" data-open-profile aria-label="Tài khoản"><i class="ph ph-user-circle"></i></a>
+                <a class="home-icon-button" href="#" data-open-page="profile" aria-label="Tài khoản"><i class="ph ph-user-circle"></i></a>
             </div>
         </nav>
 
@@ -34,14 +34,14 @@
                         <button class="home-primary" type="button" data-start-tour>
                             Get Started <i class="ph ph-arrow-right"></i>
                         </button>
-                        <a class="home-secondary" href="#home-leaderboard">
+                        <a class="home-secondary" href="#" data-open-page="leaderboard">
                             View Leaderboard <i class="ph ph-trophy"></i>
                         </a>
                     </div>
                 </div>
 
                 <div class="home-hero-visual" aria-label="VKU campus preview">
-                    <img src="image_web/fullmap_khuV.jpg" alt="Bản đồ khu V VKU">
+                    <img src="assets/images/maps/fullmap_khuV.jpg" alt="Bản đồ khu V VKU">
                     <div class="campus-pin one"><i class="ph ph-map-pin"></i></div>
                     <div class="campus-pin two"><i class="ph ph-flag"></i></div>
                     <div class="campus-card card-one">
@@ -52,92 +52,6 @@
                         <span>Progress</span>
                         <strong>17 campus stops</strong>
                     </div>
-                </div>
-            </section>
-
-            <section id="home-quests" class="home-dashboard-section">
-                <div class="section-heading align-left">
-                    <h2>Quest theo từng chặng</h2>
-                    <p>Mỗi điểm dừng mở một nhiệm vụ nhỏ để người học quan sát, ghi nhớ và tiếp tục hành trình đúng tuyến.</p>
-                </div>
-                <div id="home-quest-list" class="quest-stage-grid">
-                    <article class="quest-stage-card">
-                        <span>Chặng 1</span>
-                        <h3>Cổng chính Khu V</h3>
-                        <p>Xác định hướng di chuyển và điểm bắt đầu của tuyến khám phá.</p>
-                    </article>
-                    <article class="quest-stage-card">
-                        <span>Chặng 2</span>
-                        <h3>Giảng đường A</h3>
-                        <p>Ghi nhớ ký hiệu khu học và cách tìm phòng theo tầng.</p>
-                    </article>
-                    <article class="quest-stage-card">
-                        <span>Chặng 3</span>
-                        <h3>Giảng đường B</h3>
-                        <p>So sánh vị trí với VA và hoàn thành ghi chú định vị.</p>
-                    </article>
-                    <article class="quest-stage-card">
-                        <span>Chặng 4+</span>
-                        <h3>Khu K mở rộng</h3>
-                        <p>Mở khóa hành chính, hội trường, thư viện và các mốc tiện ích.</p>
-                    </article>
-                </div>
-            </section>
-
-            <section id="home-leaderboard" class="home-dashboard-section leaderboard-section">
-                <div class="section-heading align-left">
-                    <h2>Bảng xếp hạng</h2>
-                    <p>Theo dõi người chơi nổi bật dựa trên số chặng đã hoàn thành và khoảnh khắc đã lưu.</p>
-                </div>
-                <div id="home-leaderboard-table" class="leaderboard-table" aria-label="Bảng xếp hạng VKU 360 Quest">
-                    <div class="leaderboard-row head">
-                        <span>Rank</span>
-                        <span>Người chơi</span>
-                        <span>Tiến độ</span>
-                        <span>Điểm</span>
-                    </div>
-                    <div class="leaderboard-row">
-                        <span>#1</span>
-                        <strong>Explorer Minh</strong>
-                        <span>17/17 chặng</span>
-                        <span>1,940</span>
-                    </div>
-                    <div class="leaderboard-row">
-                        <span>#2</span>
-                        <strong>VKU Navigator</strong>
-                        <span>15/17 chặng</span>
-                        <span>1,720</span>
-                    </div>
-                    <div class="leaderboard-row">
-                        <span>#3</span>
-                        <strong>Campus Hunter</strong>
-                        <span>12/17 chặng</span>
-                        <span>1,380</span>
-                    </div>
-                </div>
-            </section>
-
-            <section id="home-library" class="home-dashboard-section library-section">
-                <div class="section-heading align-left">
-                    <h2>Nhật ký hành trình</h2>
-                    <p>Library lưu lại các mốc đã đi qua, ghi chú quan sát và khoảnh khắc được đăng trong tour.</p>
-                </div>
-                <div id="home-library-grid" class="library-grid">
-                    <article class="library-card">
-                        <i class="ph ph-book-open-text"></i>
-                        <strong>Ghi chú chặng</strong>
-                        <span>Tổng hợp các ghi chú khám phá tại từng địa điểm.</span>
-                    </article>
-                    <article class="library-card">
-                        <i class="ph ph-images"></i>
-                        <strong>Khoảnh khắc</strong>
-                        <span>Lưu ảnh, caption và cảm xúc trong hành trình cá nhân.</span>
-                    </article>
-                    <article class="library-card">
-                        <i class="ph ph-map-pin-line"></i>
-                        <strong>Mốc đã mở khóa</strong>
-                        <span>Xem lại các điểm đã hoàn thành trên bản đồ khu V và khu K.</span>
-                    </article>
                 </div>
             </section>
 

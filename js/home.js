@@ -17,21 +17,21 @@ export async function renderHomeDashboard() {
         renderLeaderboard(),
         renderLibrary(),
         renderProfile(),
+        renderAchievements(),
         renderNotifications()
     ]);
 }
 
 function renderQuestSummary() {
-    const list = document.getElementById("home-quest-list");
+    const list = document.getElementById("quest-list") || document.getElementById("home-quest-list");
     if (!list) return;
 
     if (!route || route.length === 0) {
-        showSkeleton("home-quest-list", 4);
+        showSkeleton(list.id, 4);
         return;
     }
 
-    const visibleScenes = route.slice(0, 4);
-    list.innerHTML = visibleScenes.map((scene, index) => {
+    list.innerHTML = route.map((scene, index) => {
         const isUnlocked = index <= state.unlockedStep;
         return `
             <article class="quest-stage-card ${isUnlocked ? "is-unlocked" : ""}">
@@ -44,10 +44,10 @@ function renderQuestSummary() {
 }
 
 async function renderLeaderboard() {
-    const table = document.getElementById("home-leaderboard-table");
+    const table = document.getElementById("leaderboard-table") || document.getElementById("home-leaderboard-table");
     if (!table) return;
 
-    showSkeleton("home-leaderboard-table", 1);
+    showSkeleton(table.id, 1);
 
     table.innerHTML = `
         <div class="leaderboard-row head">
@@ -123,10 +123,10 @@ async function fetchLeaderboardData() {
 }
 
 async function renderLibrary() {
-    const grid = document.getElementById("home-library-grid");
+    const grid = document.getElementById("library-grid") || document.getElementById("home-library-grid");
     if (!grid) return;
 
-    showSkeleton("home-library-grid", 3);
+    showSkeleton(grid.id, 3);
 
     grid.innerHTML = `
         <article class="library-card">
@@ -182,12 +182,13 @@ async function renderProfile() {
     const xpCurrent = Math.min(totalXp, xpTarget);
     const xpPercent = Math.round((xpCurrent / xpTarget) * 1000) / 10;
     const level = profile.level || Math.max(1, Math.floor(totalXp / 500) + 1);
+    const avatarMarkup = renderAvatarMarkup();
 
     avatar.style.setProperty("--avatar-color", state.selectedAvatar.color);
-    avatar.innerHTML = `<i class="ph ${state.selectedAvatar.icon || "ph-user-circle"}"></i>`;
+    avatar.innerHTML = avatarMarkup;
     if (portrait) {
         portrait.style.setProperty("--avatar-color", state.selectedAvatar.color);
-        portrait.innerHTML = `<i class="ph ${state.selectedAvatar.icon || "ph-user-circle"}"></i>`;
+        portrait.innerHTML = avatarMarkup;
     }
     name.textContent = profile.name || state.customName || "Explorer";
     email.textContent = auth?.currentUser?.email || "Tài khoản cục bộ";
@@ -233,6 +234,192 @@ async function renderNotifications() {
     }
 
     list.innerHTML = activity.slice(0, 5).map(renderActivityItem).join("");
+}
+
+async function renderAchievements() {
+    const grid = document.getElementById("profile-achievement-grid");
+    if (!grid) return;
+
+    if (!auth?.currentUser || !db) {
+        renderAchievementEmpty(grid, "Đăng nhập để đồng bộ achievements từ Firebase.");
+        return;
+    }
+
+    grid.innerHTML = `
+        <article class="profile-achievement-card rare">
+            <i class="ph ph-spinner-gap"></i>
+            <strong>Đang tải achievements</strong>
+            <span>Firebase</span>
+        </article>
+    `;
+
+    let storedAchievements = [];
+    try {
+        storedAchievements = await fetchUserAchievements();
+    } catch (error) {
+        console.warn("Stored achievements load error:", error);
+    }
+
+    if (storedAchievements.length) {
+        grid.innerHTML = storedAchievements.slice(0, 6).map(renderAchievementCard).join("");
+        return;
+    }
+
+    try {
+        const [ownMoments, reactionCount, leaderboardData] = await Promise.all([
+            fetchOwnMoments(),
+            fetchReceivedReactionCount(),
+            fetchLeaderboardData()
+        ]);
+        const generatedAchievements = buildAchievementsFromFirebaseData({
+            moments: ownMoments,
+            reactionCount,
+            leaderboardData
+        });
+
+        if (!generatedAchievements.length) {
+            renderAchievementEmpty(grid, "Chưa có achievement nào được mở khóa.");
+            return;
+        }
+
+        grid.innerHTML = generatedAchievements.slice(0, 6).map(renderAchievementCard).join("");
+    } catch (error) {
+        console.warn("Achievements load error:", error);
+        renderAchievementEmpty(grid, "Không tải được achievements từ Firebase.");
+    }
+}
+
+async function fetchUserAchievements() {
+    const snapshot = await getDocs(query(
+        collection(db, "achievements"),
+        where("uid", "==", auth.currentUser.uid)
+    ));
+    const achievements = [];
+    snapshot.forEach((item) => achievements.push(normalizeAchievement({ id: item.id, ...item.data() })));
+    return achievements
+        .filter((achievement) => achievement.title)
+        .sort((a, b) => getTime(b.unlockedAt) - getTime(a.unlockedAt));
+}
+
+function buildAchievementsFromFirebaseData({ moments, reactionCount, leaderboardData }) {
+    const progress = leaderboardData.currentProgress || currentUserRank();
+    const completedQuests = progress.unlockedStep + 1;
+    const achievements = [];
+
+    if (completedQuests > 0) {
+        achievements.push(normalizeAchievement({
+            title: "Quest Starter",
+            rarity: "rare",
+            icon: "ph-rocket-launch",
+            description: `${completedQuests}/${TOTAL_STEPS} chặng đã mở`,
+            unlockedAt: progress.updatedAt
+        }));
+    }
+
+    if (completedQuests >= Math.ceil(TOTAL_STEPS / 2)) {
+        achievements.push(normalizeAchievement({
+            title: "Campus Navigator",
+            rarity: "epic",
+            icon: "ph-map-trifold",
+            description: "Đã đi qua hơn nửa lộ trình",
+            unlockedAt: progress.updatedAt
+        }));
+    }
+
+    if (completedQuests >= TOTAL_STEPS) {
+        achievements.push(normalizeAchievement({
+            title: "VKU 360 Finisher",
+            rarity: "legendary",
+            icon: "ph-trophy",
+            description: "Hoàn thành toàn bộ quest route",
+            unlockedAt: progress.updatedAt
+        }));
+    }
+
+    if (moments.length > 0) {
+        achievements.push(normalizeAchievement({
+            title: "Moment Keeper",
+            rarity: "rare",
+            icon: "ph-images",
+            description: `${moments.length} khoảnh khắc đã lưu`,
+            unlockedAt: moments[0].createdAt || moments[0].updatedAt
+        }));
+    }
+
+    if (reactionCount > 0) {
+        achievements.push(normalizeAchievement({
+            title: "Campus Signal",
+            rarity: "epic",
+            icon: "ph-heart",
+            description: `${reactionCount} cảm xúc đã nhận`,
+            unlockedAt: null
+        }));
+    }
+
+    if (leaderboardData.currentRank && leaderboardData.currentRank <= 3) {
+        achievements.push(normalizeAchievement({
+            title: "Top Explorer",
+            rarity: "legendary",
+            icon: "ph-medal",
+            description: `Hạng #${leaderboardData.currentRank} trên bảng xếp hạng`,
+            unlockedAt: null
+        }));
+    }
+
+    return achievements;
+}
+
+function renderAchievementCard(achievement) {
+    return `
+        <article class="profile-achievement-card ${escapeAttribute(achievement.rarity)}">
+            <i class="ph ${escapeAttribute(achievement.icon)}"></i>
+            <strong>${escapeHtml(achievement.title)}</strong>
+            <span>${escapeHtml(achievement.description || formatRarity(achievement.rarity))}</span>
+        </article>
+    `;
+}
+
+function renderAchievementEmpty(grid, message) {
+    grid.innerHTML = `
+        <article class="profile-achievement-card profile-achievement-empty">
+            <i class="ph ph-medal"></i>
+            <strong>${escapeHtml(message)}</strong>
+            <span>Firebase</span>
+        </article>
+    `;
+}
+
+function normalizeAchievement(achievement) {
+    const rarity = normalizeRarity(achievement.rarity || achievement.tier || achievement.level);
+    return {
+        id: achievement.id || "",
+        title: achievement.title || achievement.name || "",
+        rarity,
+        icon: normalizeIcon(achievement.icon),
+        description: achievement.description || achievement.body || achievement.subtitle || formatRarity(rarity),
+        unlockedAt: achievement.unlockedAt || achievement.createdAt || achievement.updatedAt || null
+    };
+}
+
+function normalizeRarity(value = "rare") {
+    const rarity = String(value).toLowerCase();
+    return ["common", "rare", "epic", "legendary"].includes(rarity) ? rarity : "rare";
+}
+
+function normalizeIcon(value = "") {
+    const icon = String(value).trim();
+    if (!icon) return "ph-medal";
+    return icon.startsWith("ph-") ? icon : `ph-${icon}`;
+}
+
+function formatRarity(rarity) {
+    const labels = {
+        common: "Common",
+        rare: "Rare",
+        epic: "Epic",
+        legendary: "Legendary"
+    };
+    return labels[rarity] || labels.rare;
 }
 
 async function fetchNotifications() {
@@ -335,7 +522,8 @@ function normalizeProgress(progress) {
         score,
         totalXp,
         level: firstFiniteNumber(progress.level, null),
-        xpTarget: firstFiniteNumber(progress.xpTarget, progress.nextLevelXp, null)
+        xpTarget: firstFiniteNumber(progress.xpTarget, progress.nextLevelXp, null),
+        updatedAt: progress.updatedAt || progress.createdAt || null
     };
 }
 
@@ -384,6 +572,14 @@ function setText(id, value) {
     if (element) element.textContent = value;
 }
 
+function renderAvatarMarkup() {
+    if (state.avatarImageUrl) {
+        return `<img class="avatar-image" src="${escapeAttribute(state.avatarImageUrl)}" alt="">`;
+    }
+
+    return `<i class="ph ${state.selectedAvatar.icon || "ph-user-circle"}"></i>`;
+}
+
 function escapeHtml(value = "") {
     return String(value)
         .replaceAll("&", "&amp;")
@@ -391,4 +587,8 @@ function escapeHtml(value = "") {
         .replaceAll(">", "&gt;")
         .replaceAll('"', "&quot;")
         .replaceAll("'", "&#039;");
+}
+
+function escapeAttribute(value = "") {
+    return escapeHtml(value).replaceAll("`", "&#096;");
 }

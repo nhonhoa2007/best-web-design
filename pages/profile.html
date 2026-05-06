@@ -3,9 +3,9 @@
         <button class="profile-brand" type="button" data-back-home>UniQuest</button>
         <div class="profile-nav-links">
             <button type="button" data-back-home>Dashboard</button>
-            <button type="button" data-start-tour>Quests</button>
-            <button type="button" data-back-home>Leaderboard</button>
-            <button type="button" data-back-home>Library</button>
+            <button type="button" data-open-page="quest">Quests</button>
+            <button type="button" data-open-page="leaderboard">Leaderboard</button>
+            <button type="button" data-open-page="library">Library</button>
             <span>Profile</span>
             <button type="button" data-back-home>Events</button>
         </div>
@@ -24,7 +24,7 @@
 
     <div class="profile-page-shell">
         <section class="profile-hero-card">
-            <div class="profile-avatar-stage" aria-hidden="true">
+            <div class="profile-avatar-stage">
                 <div class="profile-portrait">
                     <i class="ph ph-user-circle"></i>
                 </div>
@@ -35,6 +35,14 @@
                 <div class="profile-badges">
                     <span>VKU Explorer</span>
                     <span id="profile-home-email">Virtual Hub Alpha</span>
+                </div>
+                <div class="profile-avatar-actions">
+                    <input id="profile-avatar-file" type="file" accept="image/*" hidden>
+                    <button id="upload-profile-avatar" type="button">
+                        <i class="ph ph-camera"></i>
+                        Upload avatar
+                    </button>
+                    <span id="profile-avatar-status" aria-live="polite"></span>
                 </div>
                 <div class="profile-progress-row">
                     <div>
@@ -77,21 +85,11 @@
                     <h2>My Achievements</h2>
                     <button type="button">View All <i class="ph ph-arrow-right"></i></button>
                 </div>
-                <div class="profile-achievement-grid">
+                <div id="profile-achievement-grid" class="profile-achievement-grid">
                     <article class="profile-achievement-card rare">
-                        <i class="ph ph-rocket-launch"></i>
-                        <strong>Crystal Voyager</strong>
-                        <span>Rare</span>
-                    </article>
-                    <article class="profile-achievement-card epic">
-                        <i class="ph ph-terminal-window"></i>
-                        <strong>Launch Protocol</strong>
-                        <span>Epic</span>
-                    </article>
-                    <article class="profile-achievement-card legendary">
-                        <i class="ph ph-circuitry"></i>
-                        <strong>Neural Link</strong>
-                        <span>Legendary</span>
+                        <i class="ph ph-spinner-gap"></i>
+                        <strong>Đang tải achievements</strong>
+                        <span>Firebase</span>
                     </article>
                 </div>
             </div>

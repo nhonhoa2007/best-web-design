@@ -42,7 +42,7 @@ Vì không phải góc nào cũng có thể hiện trên ảnh 360, khung Nhiệ
   - *Hành chính:* Ảnh chụp màn hình hướng dẫn lấy số thứ tự hoặc giấy tờ mẫu.
   - *Sân bóng:* Khoảnh khắc một trận đấu sinh viên đang diễn ra.
 - **Map & Radar:**
-  - File `image_web/fullmap_khuV.jpg` và `image_web/fullmap_khuK.jpg` hiện tại cần đảm bảo chất lượng, có thể redraw sang dạng Vector/SVG hoặc 3D isometric để nhìn cao cấp hơn.
+  - File `assets/images/maps/fullmap_khuV.jpg` và `assets/images/maps/fullmap_khuK.jpg` hiện tại cần đảm bảo chất lượng, có thể redraw sang dạng Vector/SVG hoặc 3D isometric để nhìn cao cấp hơn.
 - **Easter Eggs:** Các icon hoặc badge nhỏ `.png` (như huy hiệu cúp, mảnh ghép) khi click vào hotspot bí mật.
 
 ---

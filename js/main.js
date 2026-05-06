@@ -1,18 +1,32 @@
 import { auth, onAuthStateChanged } from "./firebase.js";
 import { setupAuthUI } from "./auth.js";
 import { renderHomeDashboard } from "./home.js";
+import { bindProfileControls } from "./profile.js";
 import { hydrateProgressFromFirebase, hydrateState } from "./state.js";
 import { bindControls, preloadPanoramas, renderAvatarOptions, renderResumeButton, startTour } from "./tour.js";
-import { showSkeleton, hideSkeleton } from "./ui-utils.js";
 
 
 const PAGE_PARTIALS = [
     "pages/homepage.html",
+    "pages/quest.html",
+    "pages/leaderboard.html",
+    "pages/library.html",
     "pages/profile.html",
     "pages/login.html",
     "pages/avatar.html",
     "pages/tour.html",
     "pages/congrats.html"
+];
+
+const APP_SCREENS = [
+    "home-screen",
+    "quest-screen",
+    "leaderboard-screen",
+    "library-screen",
+    "profile-screen",
+    "auth-screen",
+    "avatar-screen",
+    "tour-app"
 ];
 
 document.addEventListener("DOMContentLoaded", async () => {
@@ -26,30 +40,21 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     setupHomeUI();
     setupAuthUI();
+    bindProfileControls();
 
     if (auth) {
         onAuthStateChanged(auth, async (user) => {
             if (user) {
-                document.getElementById("home-screen")?.classList.remove("hidden");
-                document.getElementById("profile-screen")?.classList.add("hidden");
-                document.getElementById("auth-screen")?.classList.add("hidden");
-                document.getElementById("avatar-screen")?.classList.add("hidden");
-                document.getElementById("tour-app")?.classList.add("hidden");
+                showScreen("home-screen");
 
                 await bootTourShell(user);
                 await renderHomeDashboard();
             } else {
-                document.getElementById("home-screen")?.classList.add("hidden");
-                document.getElementById("profile-screen")?.classList.add("hidden");
-                document.getElementById("auth-screen")?.classList.remove("hidden");
-                document.getElementById("avatar-screen")?.classList.add("hidden");
-                document.getElementById("tour-app")?.classList.add("hidden");
+                showScreen("auth-screen");
             }
         });
     } else {
-        document.getElementById("home-screen")?.classList.add("hidden");
-        document.getElementById("profile-screen")?.classList.add("hidden");
-        document.getElementById("auth-screen")?.classList.remove("hidden");
+        showScreen("auth-screen");
         bootTourShell();
         void renderHomeDashboard();
     }
@@ -102,29 +107,23 @@ async function bootTourShell(user = null) {
 }
 
 function setupHomeUI() {
-    const homeScreen = document.getElementById("home-screen");
-    const profileScreen = document.getElementById("profile-screen");
-    const authScreen = document.getElementById("auth-screen");
-
     document.querySelectorAll("[data-start-tour]").forEach((button) => {
         button.addEventListener("click", () => {
-            homeScreen?.classList.add("hidden");
-            profileScreen?.classList.add("hidden");
-            authScreen?.classList.add("hidden");
+            showScreen("tour-app");
             startTour();
         });
     });
 
-    document.querySelectorAll("[data-open-profile]").forEach((button) => {
+    document.querySelectorAll("[data-open-page]").forEach((button) => {
         button.addEventListener("click", async (event) => {
             event.preventDefault();
             if (!auth?.currentUser) return;
 
-            homeScreen?.classList.add("hidden");
-            authScreen?.classList.add("hidden");
-            document.getElementById("avatar-screen")?.classList.add("hidden");
-            document.getElementById("tour-app")?.classList.add("hidden");
-            profileScreen?.classList.remove("hidden");
+            const page = event.currentTarget.dataset.openPage;
+            const screenId = `${page}-screen`;
+            if (!APP_SCREENS.includes(screenId)) return;
+
+            showScreen(screenId);
             await renderHomeDashboard();
         });
     });
@@ -132,12 +131,14 @@ function setupHomeUI() {
     document.querySelectorAll("[data-back-home], #back-home").forEach((button) => {
         button.addEventListener("click", () => {
             if (auth?.currentUser) {
-                authScreen?.classList.add("hidden");
-                profileScreen?.classList.add("hidden");
-                document.getElementById("tour-app")?.classList.add("hidden");
-                document.getElementById("avatar-screen")?.classList.add("hidden");
-                homeScreen?.classList.remove("hidden");
+                showScreen("home-screen");
             }
         });
+    });
+}
+
+function showScreen(activeScreenId) {
+    APP_SCREENS.forEach((screenId) => {
+        document.getElementById(screenId)?.classList.toggle("hidden", screenId !== activeScreenId);
     });
 }

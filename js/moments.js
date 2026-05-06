@@ -77,6 +77,7 @@ export async function renderMomentsForScene(scene = route[state.currentStep]) {
 
     try {
         const moments = await fetchMomentsForScene(scene.id);
+        await attachReactionSummaries(moments);
         momentCountsByScene.set(scene.id, moments.length);
         countLabel.textContent = `${moments.length} bài đăng`;
 
@@ -144,6 +145,42 @@ async function fetchMomentsForScene(sceneId) {
     });
 
     return Array.from(merged.values()).sort((a, b) => getTime(b.createdAt) - getTime(a.createdAt));
+}
+
+async function attachReactionSummaries(moments) {
+    if (!moments.length || !auth?.currentUser || !db) return;
+
+    const reactionsByMoment = new Map();
+    const ids = moments.map((moment) => moment.id);
+    const chunkSize = 10;
+
+    for (let index = 0; index < ids.length; index += chunkSize) {
+        const idChunk = ids.slice(index, index + chunkSize);
+        const snapshot = await getDocs(query(
+            collection(db, "momentReactions"),
+            where("momentId", "in", idChunk)
+        ));
+
+        snapshot.forEach((item) => {
+            const reaction = item.data();
+            const summary = reactionsByMoment.get(reaction.momentId) || {
+                counts: {},
+                viewerReaction: ""
+            };
+
+            summary.counts[reaction.reaction] = (summary.counts[reaction.reaction] || 0) + 1;
+            if (reaction.actorUid === auth.currentUser.uid) {
+                summary.viewerReaction = reaction.reaction;
+            }
+            reactionsByMoment.set(reaction.momentId, summary);
+        });
+    }
+
+    moments.forEach((moment) => {
+        const summary = reactionsByMoment.get(moment.id) || { counts: {}, viewerReaction: "" };
+        moment.reactionCounts = summary.counts;
+        moment.viewerReaction = summary.viewerReaction;
+    });
 }
 
 async function handleMomentSubmit(event) {
@@ -300,6 +337,17 @@ async function reactToMoment(button) {
     const reactionRef = doc(db, "momentReactions", `${momentId}_${user.uid}`);
 
     try {
+        button.disabled = true;
+        const existingSnapshot = await getDoc(reactionRef);
+        const previousReaction = existingSnapshot.exists() ? existingSnapshot.data().reaction : "";
+
+        if (previousReaction === reaction) {
+            await deleteDoc(reactionRef);
+            await renderMomentsForScene(route[state.currentStep]);
+            showToast("Đã gỡ cảm xúc khỏi khoảnh khắc.");
+            return;
+        }
+
         await setDoc(reactionRef, {
             momentId,
             ownerUid,
@@ -310,7 +358,7 @@ async function reactToMoment(button) {
             updatedAt: serverTimestamp()
         }, { merge: true });
 
-        if (ownerUid !== user.uid) {
+        if (ownerUid !== user.uid && !previousReaction) {
             const momentSnapshot = await getDoc(doc(db, "moments", momentId));
             const moment = momentSnapshot.exists() ? momentSnapshot.data() : {};
             await createNotification({
@@ -324,9 +372,12 @@ async function reactToMoment(button) {
         }
 
         showToast("Đã thả cảm xúc cho khoảnh khắc.");
+        await renderMomentsForScene(route[state.currentStep]);
     } catch (error) {
         console.error("Reaction save error:", error);
         showToast("Không thả được cảm xúc. Vui lòng thử lại.");
+    } finally {
+        button.disabled = false;
     }
 }
 
@@ -511,10 +562,15 @@ function renderMomentCard(moment) {
 }
 
 function renderReactionButton(moment, reaction, label) {
+    const count = moment.reactionCounts?.[reaction] || 0;
+    const isActive = moment.viewerReaction === reaction;
+    const countText = count ? `<strong>${count}</strong>` : "";
+
     return `
-        <button class="reaction-button" type="button" data-moment-react="${escapeAttribute(reaction)}" data-moment-id="${escapeAttribute(moment.id)}" data-owner-uid="${escapeAttribute(moment.uid)}" data-scene-id="${escapeAttribute(moment.sceneId)}" data-caption="${escapeAttribute(moment.caption)}">
+        <button class="reaction-button${isActive ? " active" : ""}" type="button" aria-pressed="${isActive ? "true" : "false"}" data-moment-react="${escapeAttribute(reaction)}" data-moment-id="${escapeAttribute(moment.id)}" data-owner-uid="${escapeAttribute(moment.uid)}" data-scene-id="${escapeAttribute(moment.sceneId)}" data-caption="${escapeAttribute(moment.caption)}">
             <span>${reaction}</span>
             ${escapeHtml(label)}
+            ${countText}
         </button>
     `;
 }

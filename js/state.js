@@ -5,6 +5,8 @@ import { clamp } from "./ui.js";
 
 export const STORAGE_KEYS = {
     avatar: "vkuQuestAvatar",
+    avatarImagePath: "vkuQuestAvatarImagePath",
+    avatarImageUrl: "vkuQuestAvatarImageUrl",
     customName: "vkuQuestCustomName",
     currentStep: "vkuQuestCurrentStep",
     unlockedStep: "vkuQuestUnlockedStep"
@@ -15,6 +17,8 @@ export const routeIndexById = new Map(route.map((scene, index) => [scene.id, ind
 
 export const state = {
     selectedAvatar: avatars[0],
+    avatarImagePath: "",
+    avatarImageUrl: "",
     customName: "Khách",
     currentStep: 0,
     unlockedStep: 0,
@@ -25,11 +29,15 @@ export const state = {
 
 export function hydrateState() {
     const savedAvatar = localStorage.getItem(STORAGE_KEYS.avatar);
+    const savedAvatarImagePath = localStorage.getItem(STORAGE_KEYS.avatarImagePath);
+    const savedAvatarImageUrl = localStorage.getItem(STORAGE_KEYS.avatarImageUrl);
     const savedName = localStorage.getItem(STORAGE_KEYS.customName);
     const savedCurrent = Number(localStorage.getItem(STORAGE_KEYS.currentStep));
     const savedUnlocked = Number(localStorage.getItem(STORAGE_KEYS.unlockedStep));
 
     state.selectedAvatar = avatarById.get(savedAvatar) || avatars[0];
+    state.avatarImagePath = savedAvatarImagePath || "";
+    state.avatarImageUrl = savedAvatarImageUrl || "";
     state.customName = savedName || "Khách";
     state.currentStep = Number.isFinite(savedCurrent) ? clamp(savedCurrent, 0, route.length - 1) : 0;
     state.unlockedStep = Number.isFinite(savedUnlocked)
@@ -77,6 +85,8 @@ export function hasSavedProgress() {
 
 export function persistState() {
     localStorage.setItem(STORAGE_KEYS.avatar, state.selectedAvatar.id);
+    localStorage.setItem(STORAGE_KEYS.avatarImagePath, state.avatarImagePath);
+    localStorage.setItem(STORAGE_KEYS.avatarImageUrl, state.avatarImageUrl);
     localStorage.setItem(STORAGE_KEYS.customName, state.customName);
     localStorage.setItem(STORAGE_KEYS.currentStep, String(state.currentStep));
     localStorage.setItem(STORAGE_KEYS.unlockedStep, String(state.unlockedStep));
@@ -93,6 +103,8 @@ export async function saveProgressToFirebase() {
     const payload = {
         uid: user.uid,
         avatarId: state.selectedAvatar.id,
+        avatarImagePath: state.avatarImagePath,
+        avatarImageUrl: state.avatarImageUrl,
         customName: state.customName,
         currentStep: state.currentStep,
         unlockedStep: state.unlockedStep,
@@ -120,6 +132,11 @@ export function setProfile(avatar, name) {
     state.customName = name;
 }
 
+export function setProfileAvatarImage(imageUrl, imagePath) {
+    state.avatarImageUrl = imageUrl || "";
+    state.avatarImagePath = imagePath || "";
+}
+
 export function resetProgress() {
     state.currentStep = 0;
     state.unlockedStep = 0;
@@ -141,6 +158,8 @@ export function setActiveMapZone(zone) {
 
 function resetStateToDefault() {
     state.selectedAvatar = avatars[0];
+    state.avatarImagePath = "";
+    state.avatarImageUrl = "";
     state.customName = "Khách";
     state.currentStep = 0;
     state.unlockedStep = 0;
@@ -154,6 +173,8 @@ function applyProgressData(data) {
     const unlockedStep = Number.isFinite(savedUnlocked) ? clamp(savedUnlocked, currentStep, route.length - 1) : currentStep;
 
     state.selectedAvatar = avatarById.get(data.avatarId) || avatars[0];
+    state.avatarImagePath = typeof data.avatarImagePath === "string" ? data.avatarImagePath : "";
+    state.avatarImageUrl = typeof data.avatarImageUrl === "string" ? data.avatarImageUrl : "";
     state.customName = typeof data.customName === "string" && data.customName.trim()
         ? data.customName.trim()
         : "Khách";
