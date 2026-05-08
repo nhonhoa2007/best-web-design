@@ -1,5 +1,5 @@
 export const PANORAMAS = {
-    courtyard: "https://pannellum.org/images/alma.jpg",
+    courtyard: "assets/panoramas/demo.webp",
     mountain: "https://pannellum.org/images/cerro-toco-0.jpg",
     hall: "https://pannellum.org/images/bma-0.jpg"
 };

@@ -66,6 +66,8 @@ const TEXT = {
         "events.eventName": "Tên buổi campus",
         "events.eventNamePlaceholder": "Ví dụ: Ngày định hướng, Open Campus...",
         "events.photo": "Ảnh sự kiện",
+        "events.choosePhoto": "Chọn ảnh",
+        "events.noFileSelected": "Chưa chọn ảnh",
         "events.photoHelp": "Ảnh tối đa 5MB.",
         "events.caption": "Caption",
         "events.captionPlaceholder": "Viết vài dòng về khoảnh khắc này...",
@@ -275,7 +277,17 @@ const TEXT = {
         "mood.excited": "Hào hứng",
         "mood.impressed": "Ấn tượng",
         "mood.peaceful": "Bình yên",
-        "mood.proud": "Tự hào"
+        "mood.proud": "Tự hào",
+        "guide.title": "VKU Guide",
+        "guide.subtitle": "Campus assistant",
+        "guide.placeholder": "Hỏi guide về chặng hiện tại...",
+        "guide.welcome": "Mình là VKU Guide. Bạn có thể hỏi về chặng hiện tại, hướng đi tiếp theo hoặc nhiệm vụ nhỏ.",
+        "guide.needLogin": "Bạn cần đăng nhập để dùng guide.",
+        "guide.needLoginLong": "Hãy đăng nhập trước, sau đó mình sẽ hướng dẫn theo tiến độ của bạn.",
+        "guide.noFunctions": "Guide chưa được cấu hình Cloud Functions.",
+        "guide.thinking": "Đang suy nghĩ...",
+        "guide.noReply": "Mình chưa có câu trả lời phù hợp.",
+        "guide.error": "Guide hiện chưa phản hồi được. Hãy thử lại sau khi function đã deploy xong."
     },
     en: {
         "lang.vi": "VI",
@@ -341,6 +353,8 @@ const TEXT = {
         "events.eventName": "Campus event name",
         "events.eventNamePlaceholder": "Example: Orientation Day, Open Campus...",
         "events.photo": "Event photo",
+        "events.choosePhoto": "Choose photo",
+        "events.noFileSelected": "No file selected",
         "events.photoHelp": "Maximum image size is 5MB.",
         "events.caption": "Caption",
         "events.captionPlaceholder": "Write a few lines about this moment...",
@@ -550,7 +564,17 @@ const TEXT = {
         "mood.excited": "Excited",
         "mood.impressed": "Impressed",
         "mood.peaceful": "Peaceful",
-        "mood.proud": "Proud"
+        "mood.proud": "Proud",
+        "guide.title": "VKU Guide",
+        "guide.subtitle": "Campus assistant",
+        "guide.placeholder": "Ask guide about current stage...",
+        "guide.welcome": "I'm VKU Guide. You can ask about the current stage, next direction, or mini missions.",
+        "guide.needLogin": "You need to sign in to use the guide.",
+        "guide.needLoginLong": "Please sign in first, then I'll guide you based on your progress.",
+        "guide.noFunctions": "Guide Cloud Functions not configured.",
+        "guide.thinking": "Thinking...",
+        "guide.noReply": "I don't have a suitable answer yet.",
+        "guide.error": "Guide is currently unresponsive. Please try again after the function is deployed."
     }
 };
 
@@ -620,7 +644,9 @@ const STATIC_BINDINGS = [
     { selector: "#event-photo-submit", html: '<i class="ph ph-cloud-arrow-up"></i> Đăng ảnh', key: "events.postPhoto" },
     { selector: 'label[for="event-photo-title"]', key: "events.eventName" },
     { selector: "#event-photo-title", attr: "placeholder", key: "events.eventNamePlaceholder" },
-    { selector: 'label[for="event-photo-file"]', key: "events.photo" },
+    { selector: 'label[for="event-photo-file"]:not(.event-file-button)', key: "events.photo" },
+    { selector: ".event-file-button span", key: "events.choosePhoto" },
+    { selector: "#event-photo-file-name", key: "events.noFileSelected" },
     { selector: ".event-file-control small", key: "events.photoHelp" },
     { selector: 'label[for="event-photo-caption"]', key: "events.caption" },
     { selector: "#event-photo-caption", attr: "placeholder", key: "events.captionPlaceholder" },

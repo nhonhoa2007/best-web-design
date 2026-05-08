@@ -25,6 +25,10 @@ import {
     ref,
     uploadBytes
 } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-storage.js";
+import {
+    getFunctions,
+    httpsCallable
+} from "https://www.gstatic.com/firebasejs/10.11.0/firebase-functions.js";
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
 
 // TODO: Thay thế bằng cấu hình Firebase của dự án khi triển khai chính thức.
@@ -42,12 +46,14 @@ let app = null;
 let auth = null;
 let db = null;
 let storage = null;
+let functions = null;
 
 try {
     app = initializeApp(firebaseConfig);
     auth = getAuth(app);
     db = getFirestore(app);
     storage = getStorage(app);
+    functions = getFunctions(app, "asia-southeast1");
 } catch (error) {
     console.error("Lỗi khởi tạo Firebase. Vui lòng kiểm tra firebaseConfig.", error);
 }
@@ -61,9 +67,11 @@ export {
     deleteObject,
     db,
     doc,
+    functions,
     getDoc,
     getDocs,
     getDownloadURL,
+    httpsCallable,
     onAuthStateChanged,
     query,
     ref,

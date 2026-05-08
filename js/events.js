@@ -20,6 +20,7 @@ const MAX_EVENT_IMAGE_SIZE = 5 * 1024 * 1024;
 let controlsBound = false;
 
 window.addEventListener("vku-language-change", () => {
+    syncEventFileName();
     void renderEventGallery();
 });
 
@@ -87,6 +88,7 @@ async function handleEventPhotoSubmit(event) {
     try {
         await createEventPhoto({ title, caption, file });
         form.reset();
+        syncEventFileName();
         resetEventPhotoPreview();
         showToast(t("toast.eventPhotoSaved"));
         await renderEventGallery();
@@ -135,6 +137,7 @@ async function fetchEventPhotos() {
 function handleEventPhotoPreview(event) {
     const file = event.target.files?.[0] || null;
     const preview = document.getElementById("event-photo-preview");
+    syncEventFileName(file);
     if (!preview) return;
 
     if (!file) {
@@ -144,6 +147,7 @@ function handleEventPhotoPreview(event) {
 
     if (!validateEventImage(file)) {
         event.target.value = "";
+        syncEventFileName();
         resetEventPhotoPreview();
         return;
     }
@@ -151,6 +155,13 @@ function handleEventPhotoPreview(event) {
     const imageUrl = URL.createObjectURL(file);
     preview.classList.remove("hidden");
     preview.innerHTML = `<img src="${imageUrl}" alt="${t("events.previewAlt")}">`;
+}
+
+function syncEventFileName(file = document.getElementById("event-photo-file")?.files?.[0] || null) {
+    const fileName = document.getElementById("event-photo-file-name");
+    if (!fileName) return;
+
+    fileName.textContent = file ? file.name : t("events.noFileSelected");
 }
 
 function resetEventPhotoPreview() {

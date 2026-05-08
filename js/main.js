@@ -1,11 +1,13 @@
 import { auth, onAuthStateChanged } from "./firebase.js";
 import { setupAuthUI } from "./auth.js";
+import { setupGuideChat } from "./chat-guide.js";
 import { bindEventControls, renderEventGallery } from "./events.js";
 import { renderHomeDashboard } from "./home.js";
 import { applyTranslations, mountLanguageSwitchers, t } from "./i18n.js";
 import { bindProfileControls } from "./profile.js";
 import { hydrateProgressFromFirebase, hydrateState } from "./state.js";
 import { bindControls, preloadPanoramas, renderAvatarOptions, renderResumeButton, startTour } from "./tour.js";
+import Theme from "./theme.js";
 
 
 const PAGE_PARTIALS = [
@@ -42,10 +44,12 @@ document.addEventListener("DOMContentLoaded", async () => {
         return;
     }
 
+    Theme.init();
     setupHomeUI();
     mountLanguageSwitchers();
     applyTranslations();
     setupAuthUI();
+    setupGuideChat();
     bindEventControls();
     bindProfileControls();
 

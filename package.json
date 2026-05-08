@@ -1,0 +1,25 @@
+{
+  "name": "best-web-design",
+  "version": "1.0.0",
+  "description": "VKU 360 Quest - hành trình khám phá khu V và khu K theo từng chặng.",
+  "main": "index.html",
+  "type": "module",
+  "scripts": {
+    "dev": "npx serve .",
+    "deploy": "firebase deploy",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "vku",
+    "360",
+    "quest",
+    "virtual-tour",
+    "pannellum"
+  ],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "firebase-tools": "^13.8.3",
+    "serve": "^14.2.3"
+  }
+}
