@@ -1,38 +1,44 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(uid) {
+      return signedIn() && request.auth.uid == uid;
+    }
+
+    function hasText(field, maxSize) {
+      return field is string && field.size() > 0 && field.size() <= maxSize;
+    }
+
     match /tourProgress/{uid} {
-      allow read: if request.auth != null;
-      allow create, update: if request.auth != null
-                            && request.auth.uid == uid
+      allow read: if signedIn();
+      allow create, update: if isOwner(uid)
                             && request.resource.data.uid == uid;
-      allow delete: if request.auth != null && request.auth.uid == uid;
+      allow delete: if isOwner(uid);
     }
 
     match /moments/{momentId} {
-      allow read: if request.auth != null
+      allow read: if signedIn()
                   && (resource.data.visibility == "public"
                       || resource.data.uid == request.auth.uid);
-      allow create: if request.auth != null
+      allow create: if signedIn()
                     && request.resource.data.uid == request.auth.uid
                     && request.resource.data.visibility in ["private", "public"]
-                    && request.resource.data.caption is string
-                    && request.resource.data.caption.size() > 0
-                    && request.resource.data.caption.size() <= 180;
-      allow update: if request.auth != null
+                    && hasText(request.resource.data.caption, 180);
+      allow update: if signedIn()
                     && resource.data.uid == request.auth.uid
                     && request.resource.data.uid == resource.data.uid
                     && request.resource.data.visibility in ["private", "public"]
-                    && request.resource.data.caption is string
-                    && request.resource.data.caption.size() > 0
-                    && request.resource.data.caption.size() <= 180;
-      allow delete: if request.auth != null
-                    && resource.data.uid == request.auth.uid;
+                    && hasText(request.resource.data.caption, 180);
+      allow delete: if isOwner(resource.data.uid);
     }
 
     match /momentReactions/{reactionId} {
-      allow read: if request.auth != null;
-      allow create, update: if request.auth != null
+      allow read: if signedIn();
+      allow create, update: if signedIn()
                             && reactionId == request.resource.data.momentId + "_" + request.auth.uid
                             && request.resource.data.actorUid == request.auth.uid
                             && request.resource.data.ownerUid is string
@@ -42,48 +48,56 @@ service cloud.firestore {
                             && request.resource.data.ownerUid == get(/databases/$(database)/documents/moments/$(request.resource.data.momentId)).data.uid
                             && (get(/databases/$(database)/documents/moments/$(request.resource.data.momentId)).data.visibility == "public"
                                 || get(/databases/$(database)/documents/moments/$(request.resource.data.momentId)).data.uid == request.auth.uid);
-      allow delete: if request.auth != null
-                    && resource.data.actorUid == request.auth.uid;
+      allow delete: if isOwner(resource.data.actorUid);
     }
 
     match /notifications/{notificationId} {
-      allow read: if request.auth != null
-                  && resource.data.uid == request.auth.uid;
-      allow create: if request.auth != null
+      allow read: if isOwner(resource.data.uid);
+      allow create: if signedIn()
                     && request.resource.data.actorUid == request.auth.uid
                     && request.resource.data.uid is string
                     && request.resource.data.type in ["moment_created", "moment_updated", "reaction_received"]
                     && request.resource.data.title is string
-                    && request.resource.data.body is string;
-      allow update, delete: if request.auth != null
-                            && resource.data.uid == request.auth.uid;
+                    && request.resource.data.body is string
+                    && (
+                      request.resource.data.uid == request.auth.uid
+                      || (
+                        request.resource.data.type == "reaction_received"
+                        && request.resource.data.momentId is string
+                        && request.resource.data.uid != request.auth.uid
+                        && exists(/databases/$(database)/documents/moments/$(request.resource.data.momentId))
+                        && get(/databases/$(database)/documents/moments/$(request.resource.data.momentId)).data.uid == request.resource.data.uid
+                      )
+                    );
+      allow update: if isOwner(resource.data.uid)
+                    && request.resource.data.uid == resource.data.uid;
+      allow delete: if isOwner(resource.data.uid);
     }
 
     match /achievements/{achievementId} {
-      allow read: if request.auth != null
-                  && resource.data.uid == request.auth.uid;
-      allow create, update: if request.auth != null
+      allow read: if isOwner(resource.data.uid);
+      allow create, update: if signedIn()
                             && request.resource.data.uid == request.auth.uid
                             && request.resource.data.title is string
                             && request.resource.data.rarity in ["common", "rare", "epic", "legendary"];
-      allow delete: if request.auth != null
-                    && resource.data.uid == request.auth.uid;
+      allow delete: if isOwner(resource.data.uid);
     }
 
     match /campusEventPhotos/{photoId} {
-      allow read: if request.auth != null;
-      allow create: if request.auth != null
+      allow read: if signedIn();
+      allow create: if signedIn()
                     && request.resource.data.uid == request.auth.uid
-                    && request.resource.data.title is string
-                    && request.resource.data.title.size() > 0
-                    && request.resource.data.title.size() <= 80
-                    && request.resource.data.caption is string
-                    && request.resource.data.caption.size() > 0
-                    && request.resource.data.caption.size() <= 220
+                    && hasText(request.resource.data.title, 80)
+                    && hasText(request.resource.data.caption, 220)
                     && request.resource.data.imageUrl is string
                     && request.resource.data.imagePath is string;
-      allow update, delete: if request.auth != null
-                            && resource.data.uid == request.auth.uid;
+      allow update: if isOwner(resource.data.uid)
+                    && request.resource.data.uid == resource.data.uid;
+      allow delete: if isOwner(resource.data.uid);
+    }
+
+    match /{document=**} {
+      allow read, write: if false;
     }
   }
 }

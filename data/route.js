@@ -1,7 +1,11 @@
 export const PANORAMAS = {
-    courtyard: "assets/panoramas/demo.webp",
-    mountain: "https://pannellum.org/images/cerro-toco-0.jpg",
-    hall: "https://pannellum.org/images/bma-0.jpg"
+    v_cong: "assets/panoramas/v_cong.jpg",
+    k_e: "assets/panoramas/k_e.webp",
+    k_b: "assets/panoramas/k_b.webp",
+    k_d2: "assets/panoramas/k_d2.webp",
+    mountain: "assets/panoramas/k_e.webp",
+    hall: "assets/panoramas/k_b.webp",
+    courtyard: "assets/panoramas/v_cong.jpg"
 };
 
 export const route = [
@@ -13,7 +17,7 @@ export const route = [
         shortTitle: "Cổng chính",
         chapter: "Chặng 1",
         reward: "+10 định hướng",
-        panorama: PANORAMAS.courtyard,
+        panorama: PANORAMAS.v_cong,
         mapCoords: { x: 46, y: 76 },
         body: "Đây là điểm khởi hành của hành trình. Từ cổng chính, người học bắt đầu hình dung cách các khu chức năng trong khu V kết nối với nhau.",
         notes: [
@@ -172,7 +176,7 @@ export const route = [
         shortTitle: "D1, D2",
         chapter: "Chặng 9",
         reward: "+10 học vụ",
-        panorama: PANORAMAS.hall,
+        panorama: PANORAMAS.k_d2,
         mapCoords: { x: 65, y: 40 },
         body: "D1, D2 phù hợp để giới thiệu các khoa, phòng chuyên môn hoặc nơi sinh viên cần liên hệ trong quá trình học.",
         notes: [
@@ -286,7 +290,7 @@ export const route = [
         shortTitle: "Giảng đường B",
         chapter: "Chặng 15",
         reward: "+10 lớp học",
-        panorama: PANORAMAS.hall,
+        panorama: PANORAMAS.k_b,
         mapCoords: { x: 40, y: 60 },
         body: "Giảng đường B là điểm tiếp nối trong cụm học tập. Nội dung nên giúp người xem hiểu tuyến A-B-C thay vì xem từng tòa rời rạc.",
         notes: [

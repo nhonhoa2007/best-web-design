@@ -329,7 +329,7 @@ Dự án thể hiện sự kết hợp hài hòa giữa công nghệ hiện đ�
 
 Phần này thực hiện giải thích "từng dòng mã" cho các đoạn logic quan trọng nhất của dự án.
 
-### 11.1. Giải thích chi tiết Logic Chuyển Chặng (`js/tour.js`)
+### 11.1. Giải thích chi tiết Logic Chuyển Chặng (`js/features/tour.js`)
 
 Dưới đây là phân tích hàm `loadStep`, trái tim của việc điều hướng:
 
@@ -371,7 +371,7 @@ export function loadStep(index, options = {}) {
 }
 ```
 
-### 11.2. Giải thích chi tiết Logic Đồng bộ Firebase (`js/state.js`)
+### 11.2. Giải thích chi tiết Logic Đồng bộ Firebase (`js/app/state.js`)
 
 Đây là cách dự án đảm bảo dữ liệu luôn được lưu lại an toàn:
 
@@ -430,7 +430,7 @@ Khối mã tạo nên nền tảng thẩm mỹ của trang chủ:
 }
 ```
 
-### 11.4. Giải thích chi tiết Logic Mạng xã hội (`js/moments.js`)
+### 11.4. Giải thích chi tiết Logic Mạng xã hội (`js/features/moments.js`)
 
 Đây là cách hệ thống xử lý việc lấy dữ liệu đa luồng (Public & Private):
 
@@ -467,7 +467,7 @@ export async function fetchMomentsForScene(sceneId) {
 }
 ```
 
-### 11.5. Giải thích chi tiết Logic Xác thực (`js/auth.js`)
+### 11.5. Giải thích chi tiết Logic Xác thực (`js/features/auth.js`)
 
 Quy trình quản lý trạng thái đăng nhập:
 
@@ -490,7 +490,7 @@ export function initAuth() {
 }
 ```
 
-### 11.6. Giải thích chi tiết Logic Bản đồ (`js/map.js`)
+### 11.6. Giải thích chi tiết Logic Bản đồ (`js/features/map.js`)
 
 Cách các chấm vị trí được vẽ chính xác trên mọi màn hình:
 
@@ -544,7 +544,7 @@ Giao diện được xây dựng theo phương pháp **Component-Based Styling**
     - Hiệu ứng `translateY(-4px)` cho các thẻ nhân vật.
     - Hoạt ảnh `fade-in` cho các mảnh trang được tải động.
 
-### 11.9. Giải thích chi tiết Logic Preload (`js/tour.js`)
+### 11.9. Giải thích chi tiết Logic Preload (`js/features/tour.js`)
 
 Để đảm bảo người dùng không phải chờ đợi khi chuyển cảnh:
 

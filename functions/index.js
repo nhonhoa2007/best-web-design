@@ -5,6 +5,7 @@ const logger = require("firebase-functions/logger");
 
 const GEMINI_API_KEY = defineSecret("GEMINI_API_KEY");
 const GEMINI_MODEL = "gemini-2.5-flash";
+const MAX_CHAT_MESSAGE_LENGTH = 1000;
 
 setGlobalOptions({
   region: "asia-southeast1",
@@ -28,8 +29,15 @@ exports.chatGuide = onCall(
     const currentScene = sanitizeScene(request.data?.currentScene);
     const progress = sanitizeProgress(request.data?.progress);
 
-    if (!message || message.length > 1000) {
-      throw new HttpsError("invalid-argument", "Tin nhan khong hop le.");
+    if (!message) {
+      throw new HttpsError("invalid-argument", "Tin nhan khong duoc de trong.");
+    }
+
+    if (message.length > MAX_CHAT_MESSAGE_LENGTH) {
+      throw new HttpsError(
+        "invalid-argument",
+        `Tin nhan khong duoc qua ${MAX_CHAT_MESSAGE_LENGTH} ky tu.`
+      );
     }
 
     try {
