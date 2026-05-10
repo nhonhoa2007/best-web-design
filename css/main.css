@@ -6824,9 +6824,46 @@ video {
 
 /* Route modal polish */
 .tour-app.show-route-page .quest-panel {
-    height: min(72vh, 720px) !important;
-    grid-template-rows: auto auto auto minmax(260px, 1fr);
+    top: clamp(118px, 13vh, 136px) !important;
+    bottom: 24px !important;
+    height: auto !important;
+    grid-template-rows: auto auto auto minmax(0, 1fr);
     gap: 14px;
+    padding-top: 26px;
+}
+
+.tour-app.show-route-page #close-route-page-btn {
+    display: grid !important;
+    visibility: visible;
+    opacity: 1;
+}
+
+.tour-app.show-route-page .route-panel-head {
+    min-height: 56px;
+    align-items: flex-start;
+    padding-right: 72px;
+}
+
+.tour-app.show-route-page .route-panel-head > div {
+    min-width: 0;
+}
+
+.tour-app.show-route-page .route-panel-head strong {
+    overflow: hidden;
+    line-height: 1.18;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.tour-app.show-route-page .route-panel-head span {
+    line-height: 1.25;
+}
+
+.tour-app.show-route-page #close-route-page-btn {
+    position: absolute;
+    top: 28px;
+    right: 28px;
+    z-index: 2;
 }
 
 .tour-app.show-route-page .quest-panel .profile-card {
@@ -6924,6 +6961,8 @@ video {
 
 @media (max-width: 640px) {
     .tour-app.show-route-page .quest-panel {
+        top: 0 !important;
+        bottom: auto !important;
         height: auto !important;
         grid-template-rows: auto auto auto minmax(0, 1fr);
     }

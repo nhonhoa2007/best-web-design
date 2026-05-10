@@ -209,6 +209,10 @@ function bindSidebarControls() {
         app.classList.remove("show-route-page", "show-moments-page", "show-minimap-page", "show-mobile-map");
         app.classList.add(className);
         applyState();
+
+        if (className === "show-route-page") {
+            window.requestAnimationFrame(scrollCurrentRouteIntoView);
+        }
     };
 
     if (localStorage.getItem("vkuStorySidebarCollapsed") === "true") {
@@ -274,6 +278,7 @@ function openRoutePage() {
     document.getElementById("toggle-minimap-page")?.setAttribute("aria-pressed", "false");
     document.getElementById("toggle-moments-page")?.classList.remove("is-active");
     document.getElementById("toggle-moments-page")?.setAttribute("aria-pressed", "false");
+    window.requestAnimationFrame(scrollCurrentRouteIntoView);
 }
 
 export function startTour() {
@@ -633,6 +638,16 @@ function renderRouteList() {
     document.getElementById("tab-khu-k").classList.toggle("active", state.activeMapZone === "khu-k");
     document.getElementById("tab-khu-v").textContent = t("route.zoneV");
     document.getElementById("tab-khu-k").textContent = t("route.zoneK");
+
+    if (document.getElementById("tour-app")?.classList.contains("show-route-page")) {
+        window.requestAnimationFrame(scrollCurrentRouteIntoView);
+    }
+}
+
+function scrollCurrentRouteIntoView() {
+    const list = document.getElementById("route-list");
+    const current = list?.querySelector(".route-step.current");
+    current?.scrollIntoView({ block: "center", inline: "nearest" });
 }
 
 function focusZone(zone) {
