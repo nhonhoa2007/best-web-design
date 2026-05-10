@@ -1,4 +1,4 @@
-export const PANORAMAS = {
+const PANORAMAS = {
     v_cong: "assets/panoramas/v_cong.webp",
     k_e: "assets/panoramas/k_e.webp",
     k_b: "assets/panoramas/k_b.webp",
@@ -7,7 +7,6 @@ export const PANORAMAS = {
     hall: "assets/panoramas/k_b.webp",
     courtyard: "assets/panoramas/v_cong.webp"
 };
-
 
 export const route = [
     {

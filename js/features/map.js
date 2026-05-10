@@ -2,7 +2,7 @@ import { route } from "../../data/route.js";
 import { getSceneText, getZoneName, t } from "../app/i18n.js";
 import { getMomentCountByScene } from "./moments.js";
 import { state } from "../app/state.js";
-import { handleLogout } from "./auth.js";
+
 let navigateToStep = () => {};
 
 export function setMapNavigator(callback) {

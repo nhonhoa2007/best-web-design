@@ -20,7 +20,6 @@ const TEXT = {
         "nav.account": "Tài khoản",
         "nav.settings": "Cài đặt",
         "nav.logout": "Đăng xuất",
-        "nav.avatar": "Ảnh đại diện",
         "action.map360": "Bản đồ 360",
         "action.getStarted": "Bắt đầu",
         "action.startTour": "Bắt đầu tour",
@@ -107,12 +106,7 @@ const TEXT = {
         "library.kicker": "Thư viện hành trình",
         "library.title": "Nhật ký hành trình",
         "library.body": "Thư viện lưu lại các mốc đã đi qua, ghi chú quan sát và khoảnh khắc được đăng trong tour.",
-        "library.notesTitle": "Ghi chú chặng",
-        "library.notesBody": "Tổng hợp các ghi chú khám phá tại từng địa điểm.",
-        "library.momentsTitle": "Khoảnh khắc",
-        "library.momentsBody": "Lưu ảnh, caption và cảm xúc trong hành trình cá nhân.",
         "library.unlockedTitle": "Mốc đã mở khóa",
-        "library.unlockedBody": "Xem lại các điểm đã hoàn thành trên bản đồ khu V và khu K.",
         "profile.badge": "VKU Explorer",
         "profile.localAccount": "Tài khoản cục bộ",
         "profile.xpProgress": "Tiến độ XP",
@@ -123,7 +117,6 @@ const TEXT = {
         "profile.achievements": "Thành tựu của tôi",
         "profile.activity": "Hoạt động gần đây",
         "profile.loadingAchievements": "Đang tải achievements",
-        "profile.loadingActivity": "Đang tải hoạt động",
         "profile.noActivity": "Chưa có hoạt động",
         "profile.firebase": "Firebase",
         "profile.avatarSyncing": "Đang đồng bộ ảnh",
@@ -291,7 +284,6 @@ const TEXT = {
         "guide.needLogin": "Bạn cần đăng nhập để dùng guide.",
         "guide.needLoginLong": "Hãy đăng nhập trước, sau đó mình sẽ hướng dẫn theo tiến độ của bạn.",
         "guide.noFunctions": "Guide chưa được cấu hình Cloud Functions.",
-        "guide.thinking": "Đang suy nghĩ...",
         "guide.noReply": "Mình chưa có câu trả lời phù hợp.",
         "guide.error": "Guide hiện chưa phản hồi được. Hãy thử lại sau khi function đã deploy xong."
     },
@@ -313,7 +305,6 @@ const TEXT = {
         "nav.account": "Account",
         "nav.settings": "Settings",
         "nav.logout": "Logout",
-        "nav.avatar": "Avatar",
         "action.map360": "Map 360",
         "action.getStarted": "Get Started",
         "action.startTour": "Start tour",
@@ -400,12 +391,7 @@ const TEXT = {
         "library.kicker": "Journey Library",
         "library.title": "Journey journal",
         "library.body": "The library keeps visited milestones, observation notes, and moments posted during the tour.",
-        "library.notesTitle": "Stage notes",
-        "library.notesBody": "Collected exploration notes for each campus location.",
-        "library.momentsTitle": "Moments",
-        "library.momentsBody": "Save photos, captions, and reactions from your personal journey.",
         "library.unlockedTitle": "Unlocked stops",
-        "library.unlockedBody": "Review completed stops on the zone V and zone K maps.",
         "profile.badge": "VKU Explorer",
         "profile.localAccount": "Local account",
         "profile.xpProgress": "XP Progress",
@@ -416,7 +402,6 @@ const TEXT = {
         "profile.achievements": "My Achievements",
         "profile.activity": "Recent Activity",
         "profile.loadingAchievements": "Loading achievements",
-        "profile.loadingActivity": "Loading activity",
         "profile.noActivity": "No activity yet",
         "profile.firebase": "Firebase",
         "profile.avatarSyncing": "Syncing image",
@@ -584,7 +569,6 @@ const TEXT = {
         "guide.needLogin": "You need to sign in to use the guide.",
         "guide.needLoginLong": "Please sign in first, then I'll guide you based on your progress.",
         "guide.noFunctions": "Guide Cloud Functions not configured.",
-        "guide.thinking": "Thinking...",
         "guide.noReply": "I don't have a suitable answer yet.",
         "guide.error": "Guide is currently unresponsive. Please try again after the function is deployed."
     }
@@ -1024,7 +1008,7 @@ export function getCurrentLocale() {
     return getCurrentLanguage() === "en" ? "en-US" : "vi-VN";
 }
 
-export function setLanguage(language) {
+function setLanguage(language) {
     const nextLanguage = SUPPORTED_LANGUAGES.includes(language) ? language : "vi";
     localStorage.setItem(LANGUAGE_KEY, nextLanguage);
     applyTranslations();
@@ -1176,10 +1160,6 @@ export function getAvatarText(avatar, field) {
 
 export function getZoneName(zone) {
     return zone === "khu-v" ? t("route.zoneV") : t("route.zoneK");
-}
-
-export function countLabel(count, unitKey) {
-    return `${count} ${t(unitKey)}`;
 }
 
 function syncLanguageSwitchers() {

@@ -147,7 +147,6 @@ export function bindControls() {
     document.getElementById("change-avatar")?.addEventListener("click", showAvatarScreen);
     document.getElementById("restart-tour")?.addEventListener("click", restartTour);
     document.getElementById("toggle-audio")?.addEventListener("click", toggleAudio);
-    document.getElementById("restart-tour")?.addEventListener("click", restartTour);
     document.getElementById("prev-step")?.addEventListener("click", () => loadStep(state.currentStep - 1));
     document.getElementById("next-step")?.addEventListener("click", goNext);
     document.getElementById("tab-khu-v")?.addEventListener("click", () => focusZone("khu-v"));
@@ -295,7 +294,7 @@ export function startTour() {
     loadStep(state.currentStep, { forceViewer: true });
 }
 
-export function showAvatarScreen() {
+function showAvatarScreen() {
     document.getElementById("tour-app")?.classList.add("hidden");
     document.getElementById("tour-app")?.classList.remove("is-screen-active", "screen-leaving", "screen-entering");
     const avatarScreen = document.getElementById("avatar-screen");
@@ -304,7 +303,7 @@ export function showAvatarScreen() {
     renderResumeButton();
 }
 
-export function restartTour() {
+function restartTour() {
     resetProgress();
     lastGuideAnnouncementKey = "";
     loadStep(0, { forceViewer: true });
@@ -444,7 +443,7 @@ function toggleAudio() {
         isAudioPlaying = false;
         if (icon) icon.className = "ph ph-speaker-slash";
     } else {
-        audio.play().catch(e => console.log("Audio play blocked", e));
+        audio.play().catch(() => {});
         isAudioPlaying = true;
         if (icon) icon.className = "ph ph-speaker-high";
     }
@@ -480,7 +479,7 @@ function showCongratsScreen() {
     }
 }
 
-export function loadStep(index, options = {}) {
+function loadStep(index, options = {}) {
     if (index < 0 || index >= route.length) return;
 
     if (index > state.unlockedStep + 1) {

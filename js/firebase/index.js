@@ -31,7 +31,6 @@ import {
 } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-functions.js";
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
 
-// TODO: Thay thế bằng cấu hình Firebase của dự án khi triển khai chính thức.
 const firebaseConfig = { 
   apiKey : "AIzaSyBDV2PqxXXvyIBsgDqpQsu2m4KrOOV6oPw" , 
   authDomain : "best-web-design.firebaseapp.com" , 
@@ -59,7 +58,6 @@ try {
 }
 
 export {
-    app,
     auth,
     collection,
     createUserWithEmailAndPassword,

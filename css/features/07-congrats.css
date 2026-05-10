@@ -1,0 +1,188 @@
+/* Man hinh hoan thanh */
+/* Kieu hien thi cho man hinh chuc mung */
+.congrats-screen {
+    position: fixed;
+    inset: 0;
+    z-index: 50;
+    display: grid;
+    place-items: center;
+    padding: 24px;
+    background:
+        linear-gradient(135deg, rgba(11, 19, 38, 0.85) 0%, rgba(23, 31, 51, 0.9) 48%, rgba(30, 41, 59, 0.85) 100%);
+    backdrop-filter: blur(12px);
+    opacity: 1;
+    transition: opacity 0.4s ease;
+}
+
+.congrats-screen.hidden {
+    display: grid !important; /* Giu bo cuc luoi de hieu ung mo dan hoat dong */
+    opacity: 0;
+    pointer-events: none;
+    visibility: hidden;
+}
+
+/* Can ghi de .hidden chung de man hinh chuc mung van co animation */
+section.congrats-screen.hidden {
+    display: grid !important;
+}
+
+.congrats-card {
+    width: min(460px, 100%);
+    padding: 40px 32px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 20px;
+    transform: scale(1);
+    transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.congrats-screen.hidden .congrats-card {
+    transform: scale(0.9);
+}
+
+.congrats-icon {
+    display: grid;
+    place-items: center;
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--gold), #ffda85);
+    color: #0b1326;
+    font-size: 2.8rem;
+    box-shadow: 0 0 40px rgba(255, 200, 77, 0.4), inset 0 -4px 12px rgba(0,0,0,0.2);
+    margin-bottom: 8px;
+    animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+    0% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
+    100% { transform: translateY(0px); }
+}
+
+.congrats-card h2 {
+    margin: 0;
+    font-family: var(--font-display);
+    font-size: 2.4rem;
+    color: var(--gold);
+}
+
+.congrats-card p {
+    margin: 0;
+    color: var(--muted);
+    font-size: 1.05rem;
+    line-height: 1.6;
+}
+
+.congrats-stats {
+    display: flex;
+    justify-content: center;
+    gap: 32px;
+    width: 100%;
+    margin: 12px 0;
+    padding: 16px 0;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.stat-item {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.stat-value {
+    font-size: 1.4rem;
+    font-weight: 800;
+    color: var(--ink);
+    font-family: var(--font-display);
+}
+
+.stat-label {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    color: var(--muted);
+    letter-spacing: 0.5px;
+    font-weight: 700;
+}
+
+.congrats-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    width: 100%;
+    margin-top: 8px;
+}
+
+.congrats-actions button {
+    width: 100%;
+}
+
+
+@media (max-width: 560px) {
+    .avatar-screen {
+        padding: 16px;
+    }
+
+    .intro-copy h1 {
+        font-size: 2.4rem;
+    }
+
+    .avatar-options {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .avatar-card {
+        min-height: 140px;
+        padding: 12px;
+        gap: 12px;
+    }
+
+    .avatar-face {
+        width: 56px;
+        height: 56px;
+    }
+    .avatar-face i {
+        font-size: 1.8rem;
+    }
+    .avatar-card strong {
+        font-size: 0.95rem;
+        margin-bottom: 4px;
+    }
+    .avatar-card span {
+        font-size: 0.8rem;
+    }
+
+    .topbar {
+        padding: 10px;
+    }
+
+    .topbar-brand {
+        min-width: 0;
+    }
+
+    .topbar-brand strong {
+        font-size: 0.92rem;
+    }
+
+    .story-actions {
+        grid-template-columns: 1fr;
+    }
+
+    .moments-head,
+    .moment-form-actions,
+    .moment-form-grid,
+    .moment-card-actions {
+        grid-template-columns: 1fr;
+    }
+
+    .moments-head {
+        display: grid;
+    }
+
+    .moment-toggle {
+        width: 100%;
+    }
+}

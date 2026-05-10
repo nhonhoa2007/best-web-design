@@ -1,4 +1,4 @@
-        import { route } from "../../data/route.js";
+import { route } from "../../data/route.js";
 import {
     auth,
     collection,

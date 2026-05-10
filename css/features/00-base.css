@@ -1,0 +1,255 @@
+/* Nen tang, bien thiet ke va bo cuc toan cuc */
+:root {
+    /* Giao dien toi mac dinh */
+    --ink: #dae2fd;
+    --muted: #aeb9d0;
+    --panel: rgba(30, 41, 59, 0.6);
+    --panel-strong: #171f33;
+    --panel-light: rgba(255, 255, 255, 0.1);
+    --line: rgba(255, 255, 255, 0.1);
+    --gold: #fbbf24;
+    --gold-dim: #f59e0b;
+    --blue: #bcc7de;
+    --red: #ffb4ab;
+    --green: #2dd4bf;
+    --red: #ffb4ab;
+    --green: #2dd4bf;
+    --paper: #1e293b;
+    --shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+
+    /* Nen cua giao dien toi */
+    --bg-primary: #0b1326;
+    --bg-secondary: #171f33;
+    --bg-tertiary: #1e293b;
+    --bg-glass: rgba(19, 27, 46, 0.75);
+
+    /* Chu cua giao dien toi */
+    --text-primary: #dae2fd;
+    --text-secondary: #aeb9d0;
+    --text-heading: #ffffff;
+
+    /* Vien cua giao dien toi */
+    --border-subtle: rgba(255, 255, 255, 0.08);
+    --border-default: rgba(255, 255, 255, 0.1);
+    --border-strong: rgba(148, 163, 184, 0.3);
+
+    /* Dieu huong cua giao dien toi */
+    --nav-bg: rgba(8, 12, 21, 0.85);
+    --nav-border: rgba(255, 255, 255, 0.08);
+    --nav-grid-gap: 24px;
+    --nav-link-gap: clamp(22px, 2.4vw, 36px);
+
+    /* Toan canh cua giao dien toi */
+    --pano-bg-1: #0b1326;
+    --pano-bg-2: #171f33;
+    --pano-bg-3: #1e293b;
+
+    /* Trang thai re chuot cua giao dien toi */
+    --hover-overlay: rgba(255, 255, 255, 0.1);
+
+    --font-main: "Be Vietnam Pro", sans-serif;
+    --font-display: "Space Grotesk", "Be Vietnam Pro", sans-serif;
+    --motion-fast: 160ms;
+    --motion-base: 260ms;
+    --motion-slow: 520ms;
+    --motion-ease: cubic-bezier(0.22, 1, 0.36, 1);
+    --motion-pop: cubic-bezier(0.18, 0.89, 0.32, 1.28);
+}
+
+/* Giao dien sang */
+[data-theme="light"] {
+    --ink: #111827;
+    --muted: #5b6678;
+    --panel: rgba(255, 255, 255, 0.92);
+    --panel-strong: #ffffff;
+    --panel-light: rgba(37, 99, 235, 0.08);
+    --line: rgba(15, 23, 42, 0.12);
+    --gold: #f4b400;
+    --gold-dim: #d99400;
+    --blue: #2563eb;
+    --red: #dc2626;
+    --green: #0f766e;
+    --paper: #ffffff;
+    --shadow: 0 18px 44px rgba(31, 41, 55, 0.11);
+
+    /* Nen cua giao dien sang */
+    --bg-primary: #f4f7fb;
+    --bg-secondary: #eef3f9;
+    --bg-tertiary: #ffffff;
+    --bg-glass: rgba(255, 255, 255, 0.9);
+
+    /* Chu cua giao dien sang */
+    --text-primary: #111827;
+    --text-secondary: #536174;
+    --text-heading: #0f172a;
+
+    /* Vien cua giao dien sang */
+    --border-subtle: rgba(15, 23, 42, 0.07);
+    --border-default: rgba(15, 23, 42, 0.11);
+    --border-strong: rgba(51, 65, 85, 0.2);
+
+    /* Dieu huong cua giao dien sang */
+    --nav-bg: rgba(255, 255, 255, 0.94);
+    --nav-border: rgba(15, 23, 42, 0.09);
+
+    /* Toan canh cua giao dien sang */
+    --pano-bg-1: #edf4fb;
+    --pano-bg-2: #dbeafe;
+    --pano-bg-3: #b9c9df;
+
+    /* Trang thai re chuot cua giao dien sang */
+    --hover-overlay: rgba(37, 99, 235, 0.09);
+}
+
+* {
+    box-sizing: border-box;
+}
+
+html,
+body {
+    margin: 0;
+    min-height: 100%;
+}
+
+body {
+    font-family: var(--font-main);
+    color: var(--text-primary);
+    background: var(--bg-primary);
+    overflow: hidden;
+}
+
+button {
+    font: inherit;
+}
+
+#panorama {
+    position: fixed;
+    inset: 0;
+    z-index: 1;
+    background:
+        radial-gradient(circle at 30% 20%, rgba(251, 191, 36, 0.18), transparent 32%),
+        linear-gradient(135deg, var(--pano-bg-1) 0%, var(--pano-bg-2) 48%, var(--pano-bg-3) 100%);
+}
+
+#panorama.is-loading::before,
+#panorama.is-loading::after {
+    content: "";
+    position: absolute;
+    pointer-events: none;
+}
+
+#panorama.is-loading::before {
+    inset: 0;
+    z-index: 20;
+    background:
+        linear-gradient(90deg, rgba(6, 12, 24, 0.76), rgba(6, 12, 24, 0.28), rgba(6, 12, 24, 0.76)),
+        linear-gradient(110deg, rgba(255, 255, 255, 0.05) 22%, rgba(255, 255, 255, 0.14) 42%, rgba(255, 255, 255, 0.05) 62%),
+        radial-gradient(circle at 50% 45%, rgba(251, 191, 36, 0.16), transparent 24%),
+        linear-gradient(135deg, var(--pano-bg-1), var(--pano-bg-2) 46%, var(--pano-bg-3));
+    background-size: 100% 100%, 220% 100%, 100% 100%, 100% 100%;
+    animation: panorama-skeleton-sweep 1.6s linear infinite;
+}
+
+#panorama.is-loading::after {
+    left: 50%;
+    top: 50%;
+    z-index: 21;
+    width: min(440px, 58vw);
+    aspect-ratio: 2.8 / 1;
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    border-radius: 8px;
+    background:
+        linear-gradient(90deg, rgba(255, 255, 255, 0.07) 25%, rgba(255, 255, 255, 0.2) 50%, rgba(255, 255, 255, 0.07) 75%) 0 28% / 220% 18px no-repeat,
+        linear-gradient(90deg, rgba(255, 255, 255, 0.05) 25%, rgba(255, 255, 255, 0.15) 50%, rgba(255, 255, 255, 0.05) 75%) 0 54% / 220% 12px no-repeat,
+        linear-gradient(90deg, rgba(255, 255, 255, 0.04) 25%, rgba(255, 255, 255, 0.12) 50%, rgba(255, 255, 255, 0.04) 75%) 0 72% / 220% 10px no-repeat,
+        rgba(15, 23, 42, 0.52);
+    box-shadow: 0 26px 80px rgba(0, 0, 0, 0.34);
+    transform: translate(-50%, -50%);
+    animation: panorama-skeleton-card 1.6s linear infinite;
+}
+
+#panorama .pnlm-fullscreen-toggle-button {
+    transform: translateY(32px);
+}
+
+.scene-vignette {
+    position: fixed;
+    inset: 0;
+    z-index: 2;
+    pointer-events: none;
+    background:
+        linear-gradient(90deg, rgba(0, 0, 0, 0.58), transparent 36%, rgba(0, 0, 0, 0.42)),
+        linear-gradient(0deg, rgba(0, 0, 0, 0.48), transparent 45%);
+}
+
+[data-theme="light"] #panorama.is-loading::before {
+    background:
+        linear-gradient(90deg, rgba(237, 244, 251, 0.86), rgba(237, 244, 251, 0.36), rgba(237, 244, 251, 0.86)),
+        linear-gradient(110deg, rgba(15, 23, 42, 0.05) 22%, rgba(15, 23, 42, 0.12) 42%, rgba(15, 23, 42, 0.05) 62%),
+        radial-gradient(circle at 50% 45%, rgba(244, 180, 0, 0.18), transparent 24%),
+        linear-gradient(135deg, var(--pano-bg-1), var(--pano-bg-2) 46%, var(--pano-bg-3));
+    background-size: 100% 100%, 220% 100%, 100% 100%, 100% 100%;
+}
+
+[data-theme="light"] #panorama.is-loading::after {
+    border-color: rgba(15, 23, 42, 0.1);
+    background:
+        linear-gradient(90deg, rgba(15, 23, 42, 0.06) 25%, rgba(15, 23, 42, 0.14) 50%, rgba(15, 23, 42, 0.06) 75%) 0 28% / 220% 18px no-repeat,
+        linear-gradient(90deg, rgba(15, 23, 42, 0.04) 25%, rgba(15, 23, 42, 0.1) 50%, rgba(15, 23, 42, 0.04) 75%) 0 54% / 220% 12px no-repeat,
+        linear-gradient(90deg, rgba(15, 23, 42, 0.035) 25%, rgba(15, 23, 42, 0.08) 50%, rgba(15, 23, 42, 0.035) 75%) 0 72% / 220% 10px no-repeat,
+        rgba(255, 255, 255, 0.62);
+}
+
+@keyframes panorama-skeleton-sweep {
+    0% { background-position: 0 0, -220% 0, 0 0, 0 0; }
+    100% { background-position: 0 0, 220% 0, 0 0, 0 0; }
+}
+
+@keyframes panorama-skeleton-card {
+    0% {
+        background-position: -220% 28%, -220% 54%, -220% 72%, 0 0;
+        opacity: 0.82;
+    }
+    50% { opacity: 1; }
+    100% {
+        background-position: 220% 28%, 220% 54%, 220% 72%, 0 0;
+        opacity: 0.82;
+    }
+}
+
+.glass-panel {
+    border: 1px solid var(--border-subtle);
+    border-radius: 16px;
+    background: var(--bg-glass);
+    box-shadow: var(--shadow);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    transition: all 0.3s ease;
+}
+
+.hidden {
+    display: none !important;
+}
+
+[hidden] {
+    display: none !important;
+}
+
+.app-screen {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    transition:
+        opacity var(--motion-base) var(--motion-ease),
+        transform var(--motion-base) var(--motion-ease);
+    will-change: opacity, transform;
+}
+
+.app-screen.screen-entering,
+.app-screen.screen-leaving {
+    opacity: 0;
+    transform: translateY(14px) scale(0.985);
+}
+
+.app-screen.screen-leaving {
+    pointer-events: none !important;
+}

@@ -84,7 +84,7 @@ export function hasSavedProgress() {
     return Boolean(localStorage.getItem(STORAGE_KEYS.avatar));
 }
 
-export function persistState() {
+function persistState() {
     localStorage.setItem(STORAGE_KEYS.avatar, state.selectedAvatar.id);
     localStorage.setItem(STORAGE_KEYS.avatarImagePath, state.avatarImagePath);
     localStorage.setItem(STORAGE_KEYS.avatarImageUrl, state.avatarImageUrl);

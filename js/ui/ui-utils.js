@@ -1,7 +1,3 @@
-/**
- * UI Utilities for VKU 360 Quest
- */
-
 export function showSkeleton(containerId, count = 3) {
     const container = document.getElementById(containerId);
     if (!container) return;
@@ -12,19 +8,12 @@ export function showSkeleton(containerId, count = 3) {
             <div class="skeleton-text"></div>
             <div class="skeleton-text short"></div>
         </div>
-    `).join('');
+    `).join("");
 
     container.innerHTML = skeletons;
 }
 
-export function hideSkeleton(containerId, htmlContent) {
-    const container = document.getElementById(containerId);
-    if (!container) return;
-    container.innerHTML = htmlContent;
-}
-
-// Thêm CSS cho Skeleton vào document
-const style = document.createElement('style');
+const style = document.createElement("style");
 style.textContent = `
     .skeleton-card {
         background: rgba(30, 41, 59, 0.4);

@@ -1,0 +1,1289 @@
+
+@keyframes pulse-glow {
+    0% { box-shadow: 0 0 0 0 rgba(255, 200, 77, 0.4); }
+    70% { box-shadow: 0 0 0 10px rgba(255, 200, 77, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(255, 200, 77, 0); }
+}
+
+#next-step,
+#start-new-tour-btn,
+#resume-tour {
+    animation: pulse-glow 2s infinite;
+}
+
+/* Hieu ung song dinh vi cho diem ban do hien tai */
+@keyframes radar-ping {
+    0% { transform: scale(1); opacity: 0.8; }
+    100% { transform: scale(2.5); opacity: 0; }
+}
+
+@keyframes route-step-in {
+    from {
+        opacity: 0;
+        transform: translateX(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes route-icon-pop {
+    0%, 100% {
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(251, 191, 36, 0.36);
+    }
+    50% {
+        transform: scale(1.08);
+        box-shadow: 0 0 0 8px rgba(251, 191, 36, 0);
+    }
+}
+
+@keyframes story-refresh-in {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.story-panel.story-panel-refreshed > .scene-meta,
+.story-panel.story-panel-refreshed > .dialog-row,
+.story-panel.story-panel-refreshed > h2,
+.story-panel.story-panel-refreshed > p,
+.story-panel.story-panel-refreshed > .intel-block,
+.story-panel.story-panel-refreshed > .mission-block,
+.story-panel.story-panel-refreshed > .story-actions {
+    animation: story-refresh-in 360ms var(--motion-ease) both;
+}
+
+.story-panel.story-panel-refreshed > .dialog-row { animation-delay: 35ms; }
+.story-panel.story-panel-refreshed > h2 { animation-delay: 70ms; }
+.story-panel.story-panel-refreshed > p { animation-delay: 105ms; }
+.story-panel.story-panel-refreshed > .intel-block { animation-delay: 140ms; }
+.story-panel.story-panel-refreshed > .mission-block { animation-delay: 175ms; }
+.story-panel.story-panel-refreshed > .story-actions { animation-delay: 210ms; }
+.map-dot.current::before {
+    content: '';
+    position: absolute;
+    inset: -4px;
+    border-radius: 50%;
+    background: var(--gold);
+    z-index: -1;
+    animation: radar-ping 1.5s cubic-bezier(0, 0, 0.2, 1) infinite;
+}
+
+/* An hien giao dien o che do dien anh */
+.ui-hidden {
+    opacity: 0;
+    pointer-events: none;
+}
+.tour-app > * {
+    transition: opacity 0.8s ease-in-out;
+}
+
+/* Nghieng 3D cho the avatar */
+.avatar-card {
+    transition: transform 0.1s ease-out, border-color 160ms ease, background 160ms ease;
+    transform-style: preserve-3d;
+    will-change: transform;
+}
+.avatar-card:hover {
+    z-index: 10;
+}
+.avatar-card.selected {
+    transform: translateY(-4px) scale(1.02);
+}
+
+/* Vong tien do */
+.profile-avatar-wrapper {
+    position: relative;
+    width: 76px;
+    height: 76px;
+    display: grid;
+    place-items: center;
+}
+.profile-avatar-wrapper .profile-avatar {
+    position: relative;
+    z-index: 2;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%; 
+}
+.circular-progress {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    transform: rotate(-90deg);
+}
+.circular-progress circle {
+    fill: none;
+    stroke-width: 4;
+}
+.circular-progress .bg {
+    stroke: rgba(255, 255, 255, 0.1);
+}
+.circular-progress .fg {
+    stroke: var(--gold);
+    stroke-linecap: round;
+    transition: stroke-dashoffset 0.6s ease;
+}
+
+.profile-progress {
+    display: inline-block;
+    margin-top: 4px;
+    color: var(--gold);
+    font-size: 0.72rem;
+    font-weight: 800;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.001ms !important;
+        animation-iteration-count: 1 !important;
+        scroll-behavior: auto !important;
+        transition-duration: 0.001ms !important;
+    }
+}
+
+/* Toi uu bang truot duoi va bo cuc mobile */
+@media (max-width: 880px) {
+    .tour-app {
+        display: flex;
+        flex-direction: column;
+        padding: 12px;
+        pointer-events: none;
+    }
+    
+    .tour-app > * {
+        pointer-events: auto;
+    }
+
+    .topbar {
+        border-radius: 12px;
+        padding: 8px 12px;
+        margin-bottom: 12px;
+        flex-wrap: nowrap;
+    }
+
+    .topbar-brand {
+        flex: 1;
+        overflow: hidden;
+    }
+    
+    .topbar-brand strong {
+        font-size: 0.9rem;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        overflow: hidden;
+    }
+    
+    .topbar-brand span:last-child {
+        font-size: 0.75rem;
+    }
+
+    .quest-panel {
+        position: absolute;
+        top: 76px;
+        left: 12px;
+        width: 240px;
+        max-height: calc(100vh - 80px - 50vh); /* Chua khoang trong cho bang truot duoi */
+        z-index: 20;
+        padding: 10px;
+        border-radius: 16px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    }
+    
+    .profile-card {
+        grid-template-columns: 46px 1fr;
+        gap: 10px;
+    }
+
+    .profile-avatar-wrapper {
+        width: 46px;
+        height: 46px;
+    }
+
+    .profile-avatar-wrapper .profile-avatar {
+        width: 36px;
+        height: 36px;
+    }
+
+    .profile-avatar-wrapper .profile-avatar i {
+        font-size: 1.2rem;
+    }
+    
+    .profile-card strong {
+        font-size: 0.9rem;
+    }
+    
+    .profile-card p {
+        font-size: 0.75rem;
+    }
+
+    .chapter-tab {
+        padding: 8px;
+        font-size: 0.85rem;
+    }
+
+    .route-step {
+        padding: 8px;
+        gap: 8px;
+    }
+
+    .route-icon {
+        width: 28px;
+        height: 28px;
+    }
+    
+    .route-icon i {
+        font-size: 1rem;
+    }
+
+    .route-copy strong {
+        font-size: 0.8rem;
+    }
+
+    .right-sidebar {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        z-index: 100;
+        margin: 0;
+        padding: 0;
+        pointer-events: none;
+    }
+    
+    .story-panel {
+        background: rgba(9, 19, 31, 0.92);
+        backdrop-filter: blur(24px);
+        -webkit-backdrop-filter: blur(24px);
+        border-radius: 24px 24px 0 0;
+        border-bottom: none;
+        max-height: 45vh;
+        overflow-y: auto;
+        padding: 20px 16px;
+        box-shadow: 0 -10px 40px rgba(0,0,0,0.5);
+        pointer-events: auto;
+    }
+
+    .story-panel h2 {
+        font-size: 1.35rem;
+        margin-bottom: 8px;
+    }
+
+    .story-actions {
+        position: sticky;
+        bottom: 0;
+        background: rgba(9, 19, 31, 0.95);
+        padding-top: 12px;
+        padding-bottom: 12px;
+        z-index: 10;
+        margin-left: -16px;
+        margin-right: -16px;
+        padding-left: 16px;
+        padding-right: 16px;
+        border-top: 1px solid rgba(255, 255, 255, 0.05);
+    }
+    
+    .fab-button {
+        bottom: calc(45vh + 16px); /* Noi phia tren bang truot duoi */
+        right: 16px;
+        width: 48px;
+        height: 48px;
+    }
+    
+    .fab-button i {
+        font-size: 1.4rem;
+    }
+
+    .minimap-panel {
+        display: flex !important;
+        position: fixed;
+        inset: 0;
+        z-index: 120;
+        max-height: none;
+        padding: 20px;
+        border: 0;
+        border-radius: 0;
+        background: rgba(9, 19, 31, 0.96);
+        opacity: 0;
+        pointer-events: none;
+        transform: translateY(100%);
+        transition: transform 0.28s ease, opacity 0.28s ease;
+    }
+
+    .tour-app.show-mobile-map .minimap-panel {
+        opacity: 1;
+        pointer-events: auto;
+        transform: translateY(0);
+    }
+}
+
+/* Tinh chinh theo kich thuoc man hinh */
+html {
+    height: 100%;
+}
+
+img,
+video {
+    max-width: 100%;
+}
+
+.topbar-brand,
+.route-copy,
+.minimap-title-wrap {
+    min-width: 0;
+}
+
+.topbar-actions {
+    flex-wrap: wrap;
+    justify-content: flex-end;
+}
+
+@media (max-width: 1280px) {
+    .tour-app {
+        grid-template-columns: minmax(250px, 300px) 1fr minmax(300px, 380px);
+        gap: 14px;
+        padding-inline: 14px;
+    }
+
+    .quest-panel,
+    .story-panel {
+        padding: 14px;
+    }
+}
+
+@media (max-width: 880px) {
+    body {
+        min-height: 100vh;
+        min-height: 100dvh;
+    }
+
+    .tour-app {
+        min-height: 100vh;
+        min-height: 100dvh;
+        overflow: hidden;
+        padding: 0;
+    }
+
+    .topbar {
+        top: 10px;
+        left: 10px;
+        right: 10px;
+        width: auto;
+        gap: 8px;
+        border: 1px solid var(--line) !important;
+        border-radius: 12px !important;
+        padding: 8px 10px;
+    }
+
+    .topbar-actions {
+        flex: 0 0 auto;
+        flex-wrap: nowrap;
+    }
+
+    .quest-panel {
+        top: 76px;
+        left: 10px;
+        width: min(270px, calc(100vw - 84px));
+        max-height: calc(48dvh - 82px);
+        overflow: hidden;
+    }
+
+    .route-list {
+        overscroll-behavior: contain;
+    }
+
+    .right-sidebar {
+        z-index: 80;
+    }
+
+    .story-panel {
+        max-height: min(54vh, 560px);
+        max-height: min(54dvh, 560px);
+        padding: 18px 16px calc(14px + env(safe-area-inset-bottom));
+        overscroll-behavior: contain;
+    }
+
+    .scene-meta,
+    .moments-head {
+        flex-wrap: wrap;
+    }
+
+    .dialog-row {
+        grid-template-columns: 44px 1fr;
+    }
+
+    .dialog-avatar {
+        width: 44px;
+        height: 44px;
+    }
+
+    .dialog-avatar i {
+        font-size: 1.45rem;
+    }
+
+    .story-actions {
+        padding-bottom: calc(12px + env(safe-area-inset-bottom));
+    }
+
+    #mobile-minimap-btn {
+        display: flex !important;
+        right: 14px;
+        bottom: calc(54vh + 14px);
+        bottom: calc(54dvh + 14px);
+        z-index: 90;
+    }
+
+    #close-minimap-btn {
+        display: grid !important;
+    }
+
+    .minimap-panel {
+        padding: calc(18px + env(safe-area-inset-top)) 18px calc(18px + env(safe-area-inset-bottom));
+    }
+
+    .minimap-panel .map-inner {
+        min-height: 0;
+        justify-content: center;
+    }
+
+    .map-inner img {
+        max-height: calc(100dvh - 104px);
+        object-fit: contain;
+    }
+
+    .map-dot-label {
+        display: none;
+    }
+}
+
+@media (max-width: 640px) {
+    .auth-screen,
+    .congrats-screen {
+        padding: 16px;
+        overflow-y: auto;
+    }
+
+    .auth-container,
+    .congrats-card {
+        padding: 24px 18px;
+    }
+
+    .avatar-stage {
+        gap: 20px;
+    }
+
+    .custom-avatar-section {
+        max-width: none;
+    }
+
+    .avatar-actions,
+    .congrats-actions {
+        display: grid;
+        grid-template-columns: 1fr;
+        width: 100%;
+    }
+
+    .avatar-actions > *,
+    .congrats-actions > * {
+        width: 100%;
+    }
+
+    .topbar-brand {
+        gap: 8px;
+    }
+
+    .brand-icon.compact {
+        width: 34px;
+        height: 34px;
+    }
+
+    .topbar-actions {
+        gap: 6px;
+    }
+
+    .icon-button {
+        width: 36px;
+        height: 36px;
+    }
+
+    .quest-panel {
+        width: min(300px, calc(100vw - 20px));
+        max-height: 34dvh;
+    }
+
+    .story-panel {
+        max-height: 58vh;
+        max-height: 58dvh;
+        border-radius: 18px 18px 0 0;
+    }
+
+    #mobile-minimap-btn {
+        bottom: calc(58vh + 12px);
+        bottom: calc(58dvh + 12px);
+    }
+
+    .moments-panel {
+        padding: 12px;
+    }
+}
+
+@media (max-width: 420px) {
+    .topbar {
+        top: 8px;
+        left: 8px;
+        right: 8px;
+    }
+
+    .topbar-brand strong {
+        max-width: 132px;
+    }
+
+    .topbar-brand span:last-child {
+        max-width: 132px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .topbar-actions {
+        gap: 4px;
+    }
+
+    .icon-button {
+        width: 34px;
+        height: 34px;
+    }
+
+    .icon-button i {
+        font-size: 1.12rem;
+    }
+
+    .quest-panel {
+        top: 70px;
+        padding: 9px;
+    }
+
+    .profile-card {
+        grid-template-columns: 42px 1fr;
+    }
+
+    .chapter-tabs {
+        gap: 6px;
+    }
+
+    .route-step {
+        grid-template-columns: 28px 1fr auto;
+    }
+
+    .story-panel h2 {
+        font-size: 1.25rem;
+    }
+
+    .dialog-copy {
+        padding: 10px 12px;
+    }
+}
+
+@media (min-width: 881px) {
+    .tour-app {
+        --quest-sidebar-width: clamp(280px, 22vw, 330px);
+        --story-sidebar-width: clamp(340px, 28vw, 420px);
+        display: block;
+        padding: 0;
+        pointer-events: none;
+    }
+
+    .quest-panel,
+    .right-sidebar {
+        position: fixed;
+        top: 86px;
+        bottom: 18px;
+        z-index: 42;
+        pointer-events: auto;
+        transition: width 220ms ease, transform 220ms ease, opacity 180ms ease;
+    }
+
+    .quest-panel {
+        left: 18px;
+        width: var(--quest-sidebar-width);
+        overflow: hidden;
+    }
+
+    .right-sidebar {
+        right: 18px;
+        width: var(--story-sidebar-width);
+    }
+
+    .story-panel,
+    .minimap-panel {
+        min-width: 0;
+        transition: padding 220ms ease, opacity 180ms ease;
+    }
+
+    .minimap-panel {
+        max-height: min(32vh, 280px);
+        min-height: 170px;
+        overflow: hidden;
+    }
+
+    .minimap-panel .map-inner {
+        min-height: 0;
+        overflow: auto;
+    }
+
+    .tour-app.quest-sidebar-collapsed .quest-panel {
+        width: 76px;
+        grid-template-rows: auto 1fr;
+        justify-items: center;
+        padding: 10px;
+    }
+
+    .tour-app.quest-sidebar-collapsed .profile-card {
+        grid-template-columns: 1fr;
+        justify-items: center;
+        gap: 0;
+    }
+
+    .tour-app.quest-sidebar-collapsed .profile-card > div:last-child,
+    .tour-app.quest-sidebar-collapsed .route-panel-head,
+    .tour-app.quest-sidebar-collapsed .chapter-tabs,
+    .tour-app.quest-sidebar-collapsed .route-list {
+        display: none;
+    }
+
+    .tour-app.quest-sidebar-collapsed .profile-avatar-wrapper {
+        width: 54px;
+        height: 54px;
+    }
+
+    .tour-app.quest-sidebar-collapsed .profile-avatar-wrapper .profile-avatar {
+        width: 42px;
+        height: 42px;
+    }
+
+    .tour-app.quest-sidebar-collapsed .profile-avatar-wrapper .profile-avatar i {
+        font-size: 1.35rem;
+    }
+
+    .tour-app.quest-sidebar-collapsed .quest-panel::after,
+    .tour-app.story-sidebar-collapsed .story-panel::after {
+        color: var(--gold);
+        font-size: 0.74rem;
+        font-weight: 800;
+        letter-spacing: 0;
+        text-transform: uppercase;
+        writing-mode: vertical-rl;
+    }
+
+    .tour-app.quest-sidebar-collapsed .quest-panel::after {
+        content: "Lộ trình";
+        margin-top: 16px;
+    }
+
+    .tour-app.story-sidebar-collapsed .right-sidebar {
+        width: 76px;
+    }
+
+    .tour-app.story-sidebar-collapsed .story-panel {
+        height: 100%;
+        display: grid;
+        place-items: center;
+        padding: 10px;
+        overflow: hidden;
+    }
+
+    .tour-app.story-sidebar-collapsed .story-panel > *,
+    .tour-app.story-sidebar-collapsed .minimap-panel {
+        display: none;
+    }
+
+    .tour-app.story-sidebar-collapsed .story-panel::after {
+        content: "Chặng";
+    }
+}
+
+@media (max-width: 640px) {
+    .sidebar-control {
+        display: none;
+    }
+}
+
+@media (max-width: 980px) {
+    .home-nav {
+        grid-template-columns: 1fr auto;
+    }
+
+    .home-nav-links {
+        display: none;
+    }
+
+    .home-menu-button {
+        display: grid;
+    }
+
+    .home-mobile-menu {
+        position: fixed;
+        top: 76px;
+        right: 16px;
+        z-index: 35;
+        display: grid;
+        width: min(280px, calc(100vw - 32px));
+        gap: 8px;
+        padding: 14px;
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        border-radius: 12px;
+        background: rgba(12, 20, 36, 0.96);
+        box-shadow: var(--shadow);
+        backdrop-filter: blur(18px);
+        -webkit-backdrop-filter: blur(18px);
+        opacity: 0;
+        pointer-events: none;
+        transform: translateY(-8px) scale(0.98);
+        transform-origin: top right;
+        transition: opacity 0.18s ease, transform 0.18s ease;
+    }
+
+    .home-mobile-menu-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        padding-bottom: 8px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .home-mobile-menu-head strong {
+        color: var(--ink);
+        font-size: 1rem;
+    }
+
+    .home-mobile-menu a {
+        display: flex;
+        align-items: center;
+        min-height: 42px;
+        padding: 0 12px;
+        border-radius: 8px;
+        color: var(--ink);
+        background: rgba(255, 255, 255, 0.06);
+        font-weight: 700;
+        text-decoration: none;
+    }
+
+    .home-mobile-menu a.active,
+    .home-mobile-menu a:hover {
+        color: #111827;
+        background: var(--gold);
+    }
+
+    .home-menu-backdrop {
+        position: fixed;
+        inset: 0;
+        z-index: 34;
+        display: block;
+        border: 0;
+        background: rgba(2, 8, 23, 0.34);
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.18s ease;
+    }
+
+    .home-screen.home-menu-open .home-mobile-menu,
+    .home-screen.home-menu-open .home-menu-backdrop {
+        opacity: 1;
+        pointer-events: auto;
+    }
+
+    .home-screen.home-menu-open .home-mobile-menu {
+        transform: translateY(0) scale(1);
+    }
+
+    .home-hero {
+        grid-template-columns: 1fr;
+        min-height: auto;
+        padding-top: 56px;
+    }
+
+    .home-hero-copy {
+        max-width: 760px;
+    }
+
+    .home-hero-visual {
+        min-height: 420px;
+    }
+
+    .feature-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .quest-stage-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .library-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .event-form-grid,
+    .event-photo-gallery {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .profile-stat-grid,
+    .profile-content-grid,
+    .profile-achievement-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .profile-topbar {
+        grid-template-columns: 1fr auto;
+    }
+
+    .profile-nav-links {
+        position: fixed;
+        top: 72px;
+        right: 14px;
+        z-index: 35;
+        display: grid;
+        width: min(220px, calc(100vw - 28px));
+        gap: 6px;
+        padding: 10px;
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        border-radius: 12px;
+        background: rgba(12, 20, 36, 0.96);
+        box-shadow: var(--shadow);
+        backdrop-filter: blur(18px);
+        -webkit-backdrop-filter: blur(18px);
+        opacity: 0;
+        pointer-events: none;
+        transform: translateY(-8px) scale(0.98);
+        transform-origin: top right;
+        transition: opacity 0.18s ease, transform 0.18s ease;
+    }
+
+    .profile-screen.profile-menu-open .profile-nav-links {
+        opacity: 1;
+        pointer-events: auto;
+        transform: translateY(0) scale(1);
+    }
+
+    .profile-nav-links button,
+    .profile-nav-links span {
+        display: flex;
+        align-items: center;
+        min-height: 38px;
+        padding: 0 10px;
+        border-radius: 8px;
+        color: var(--ink);
+        background: rgba(255, 255, 255, 0.06);
+        font-size: 0.88rem;
+        text-align: left;
+    }
+
+    .profile-nav-links button:hover,
+    .profile-nav-links button:focus-visible,
+    .profile-nav-links span {
+        color: #111827;
+        background: var(--gold);
+    }
+
+    .profile-nav-links span::after {
+        display: none;
+    }
+
+    .profile-menu-toggle {
+        display: grid;
+    }
+
+    .feature-wide {
+        grid-column: span 2;
+    }
+
+    .feature-quest {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 680px) {
+    .home-shell {
+        width: min(100% - 32px, 1220px);
+    }
+
+    .home-nav {
+        min-height: 64px;
+        padding: 0 16px;
+    }
+
+    .home-login-button {
+        min-width: 112px;
+        min-height: 38px;
+        font-size: 0.88rem;
+    }
+
+    .home-icon-button {
+        display: none;
+    }
+
+    .home-hero {
+        gap: 32px;
+        padding: 42px 0 56px;
+    }
+
+    .home-hero h1 {
+        margin: 26px 0 22px;
+        font-size: 3rem;
+    }
+
+    .home-hero p {
+        font-size: 1rem;
+    }
+
+    .home-hero-actions,
+    .home-primary,
+    .home-secondary {
+        width: 100%;
+    }
+
+    .home-hero-visual {
+        min-height: 320px;
+    }
+
+    .campus-card {
+        display: none;
+    }
+
+    .campus-pin {
+        width: 34px;
+        height: 34px;
+    }
+
+    .home-features {
+        padding: 32px 0 74px;
+    }
+
+    .home-dashboard-section {
+        padding: 38px 0;
+    }
+
+    .quest-stage-grid,
+    .library-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .event-form-head,
+    .event-form-grid,
+    .event-photo-gallery {
+        grid-template-columns: 1fr;
+    }
+
+    .event-form-head .home-primary {
+        width: 100%;
+    }
+
+    .leaderboard-row {
+        grid-template-columns: 54px minmax(0, 1fr);
+        gap: 8px 14px;
+        padding: 14px 18px;
+    }
+
+    .leaderboard-row.head {
+        display: none;
+    }
+
+    .leaderboard-row span:nth-child(3),
+    .leaderboard-row span:nth-child(4) {
+        grid-column: 2;
+    }
+
+    .profile-page-shell {
+        width: min(100% - 32px, 1180px);
+        padding-top: 28px;
+    }
+
+    .profile-topbar {
+        min-height: 70px;
+        padding: 0 16px;
+    }
+
+    .profile-brand {
+        font-size: 1.15rem;
+    }
+
+    .profile-nav-actions {
+        gap: 8px;
+    }
+
+    .profile-icon-button {
+        display: none;
+    }
+
+    .profile-icon-button.profile-menu-toggle {
+        display: grid;
+    }
+
+    .profile-mini-avatar {
+        width: 38px;
+        height: 38px;
+    }
+
+    .profile-hero-card {
+        grid-template-columns: 1fr;
+        justify-items: center;
+        padding: 24px;
+        text-align: center;
+    }
+
+    .profile-hero-copy h1 {
+        font-size: 2rem;
+    }
+
+    .profile-badges,
+    .profile-avatar-actions,
+    .profile-progress-row > div:first-child {
+        justify-content: center;
+    }
+
+    .profile-progress-row > div:first-child {
+        flex-direction: column;
+        gap: 6px;
+    }
+
+    .profile-stat-grid {
+        gap: 16px;
+        margin-top: 28px;
+    }
+
+    .profile-stat-grid article,
+    .profile-achievement-card {
+        min-height: 156px;
+    }
+
+    .profile-content-grid {
+        gap: 34px;
+        margin-top: 38px;
+    }
+
+    .profile-section-title {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .profile-section-title h2 {
+        font-size: 1.45rem;
+    }
+
+    .profile-activity-list {
+        padding: 26px 20px;
+    }
+
+    .profile-activity-list::before {
+        left: 31px;
+    }
+
+    .profile-activity-item {
+        gap: 18px;
+    }
+
+    .feature-grid {
+        grid-template-columns: 1fr;
+        margin-top: 38px;
+    }
+
+    .feature-wide {
+        grid-column: auto;
+    }
+
+    .feature-card {
+        min-height: 220px;
+        padding: 24px;
+    }
+
+    .quest-preview {
+        min-height: 138px;
+    }
+
+    .home-footer {
+        grid-template-columns: 1fr;
+        align-items: start;
+    }
+
+    .home-footer div {
+        grid-column: auto;
+        grid-row: auto;
+        justify-content: flex-start;
+        gap: 14px 20px;
+    }
+}
+
+@media (max-width: 420px) {
+    .home-logo {
+        font-size: 1rem;
+    }
+
+    .home-login-button {
+        min-width: 102px;
+        padding: 0 12px;
+    }
+
+    .home-hero h1 {
+        font-size: 2.58rem;
+    }
+
+    .live-pill {
+        max-width: 100%;
+        font-size: 0.72rem;
+    }
+
+    .home-hero-visual {
+        min-height: 260px;
+    }
+}
+
+.fab-button {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    z-index: 100;
+    display: grid;
+    place-items: center;
+    width: 56px;
+    height: 56px;
+    border: 0;
+    border-radius: 50%;
+    color: #111827;
+    background: var(--gold);
+    box-shadow: 0 10px 25px rgba(250, 204, 21, 0.4);
+    cursor: pointer;
+    animation: ring-pulse 2s infinite;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.fab-button:hover {
+    transform: scale(1.1);
+    background: #fde047;
+}
+
+.fab-button:active {
+    transform: scale(0.9);
+}
+
+.fab-button i {
+    font-size: 1.5rem;
+}
+
+@media (min-width: 881px) {
+    .right-sidebar {
+        bottom: calc(34px + min(32vh, 280px));
+    }
+
+    .minimap-panel {
+        position: fixed;
+        right: 18px;
+        bottom: 18px;
+        width: var(--story-sidebar-width, clamp(340px, 28vw, 420px));
+        z-index: 42;
+        pointer-events: auto;
+    }
+}
+
+@media (max-width: 880px) {
+    #toggle-quest-sidebar {
+        display: grid !important;
+    }
+
+    #toggle-story-sidebar {
+        display: none !important;
+    }
+
+    .route-panel-head {
+        display: flex;
+        justify-content: space-between;
+        gap: 16px;
+        align-items: flex-start;
+    }
+
+    .route-panel-head strong {
+        display: block;
+        color: var(--ink);
+        font-size: 1.15rem;
+    }
+
+    .route-panel-head span {
+        display: block;
+        margin-top: 4px;
+        color: var(--muted);
+        font-size: 0.85rem;
+    }
+
+    #close-route-page-btn,
+    #close-minimap-btn {
+        display: grid !important;
+        flex: 0 0 auto;
+    }
+
+    .quest-panel,
+    .minimap-panel {
+        position: fixed !important;
+        inset: 0 !important;
+        width: auto !important;
+        max-height: none !important;
+        min-height: 100dvh;
+        z-index: 120;
+        padding: calc(18px + env(safe-area-inset-top)) 18px calc(18px + env(safe-area-inset-bottom));
+        border: 0 !important;
+        border-radius: 0 !important;
+        background: rgba(9, 19, 31, 0.97) !important;
+        opacity: 0;
+        pointer-events: none;
+        transform: translateX(-100%);
+        transition: transform 0.28s ease, opacity 0.28s ease;
+    }
+
+    .quest-panel {
+        display: grid !important;
+        grid-template-rows: auto auto auto minmax(0, 1fr);
+        overflow: hidden;
+    }
+
+    .minimap-panel {
+        display: grid !important;
+        grid-template-rows: auto minmax(0, 1fr);
+        transform: translateX(100%);
+    }
+
+    .tour-app.show-route-page .quest-panel,
+    .tour-app.show-minimap-page .minimap-panel,
+    .tour-app.show-mobile-map .minimap-panel {
+        opacity: 1;
+        pointer-events: auto;
+        transform: translateX(0);
+    }
+
+    .quest-panel .route-list,
+    .minimap-panel .map-inner {
+        min-height: 0;
+        overflow: auto;
+        overscroll-behavior: contain;
+    }
+
+    .minimap-panel .map-inner {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .map-inner img {
+        max-height: calc(100dvh - 108px);
+        object-fit: contain;
+    }
+}

@@ -1,0 +1,198 @@
+/* Cac panel phu noi tren tour */
+/* Lo trinh va khoanh khac la trang rieng cua tour tren moi kich thuoc man hinh. */
+.route-panel-head,
+.moments-panel-head {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    align-items: flex-start;
+}
+
+.route-panel-head strong,
+.moments-panel-head strong {
+    display: block;
+    color: var(--ink);
+    font-size: 1.15rem;
+}
+
+.route-panel-head span,
+.moments-panel-head span {
+    display: block;
+    margin-top: 4px;
+    color: var(--muted);
+    font-size: 0.85rem;
+}
+
+#close-route-page-btn,
+#close-moments-page-btn {
+    display: grid;
+    flex: 0 0 auto;
+}
+
+.quest-panel,
+.moments-panel {
+    position: fixed !important;
+    top: 86px !important;
+    bottom: 18px !important;
+    left: 50% !important;
+    right: auto !important;
+    width: min(860px, calc(100vw - 36px)) !important;
+    max-height: none !important;
+    min-height: 0 !important;
+    z-index: 140;
+    opacity: 0;
+    pointer-events: none;
+    transform: translate(-50%, 18px) scale(0.98);
+    transition: transform 0.28s ease, opacity 0.28s ease;
+}
+
+.quest-panel {
+    grid-template-rows: auto auto auto minmax(0, 1fr);
+    padding: 18px;
+    overflow: hidden;
+}
+
+.moments-panel {
+    grid-template-rows: auto minmax(0, 1fr);
+    gap: 16px;
+    padding: 18px;
+    overflow: hidden;
+    border-radius: 16px;
+    background: rgba(19, 27, 46, 0.88);
+}
+
+.moments-panel-body {
+    min-height: 0;
+    overflow-y: auto;
+    display: grid;
+    align-content: start;
+    gap: 14px;
+    padding-right: 2px;
+    overscroll-behavior: contain;
+}
+
+.tour-app.show-route-page .quest-panel,
+.tour-app.show-moments-page .moments-panel {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translate(-50%, 0) scale(1);
+}
+
+.tour-app.show-route-page #toggle-quest-sidebar,
+.tour-app.show-moments-page #toggle-moments-page,
+.icon-button.is-active {
+    color: #0b1326;
+    background: var(--gold);
+    box-shadow: 0 0 15px rgba(251, 191, 36, 0.34);
+}
+
+.tour-app.show-route-page .quest-panel .route-list {
+    overflow-y: auto;
+    overscroll-behavior: contain;
+}
+
+@media (min-width: 881px) {
+    .quest-panel {
+        width: min(740px, calc(100vw - 36px)) !important;
+    }
+
+    .moments-panel {
+        width: min(920px, calc(100vw - 36px)) !important;
+    }
+}
+
+@media (max-width: 880px) {
+    .quest-panel,
+    .moments-panel {
+        inset: 0 !important;
+        width: auto !important;
+        min-height: 100dvh !important;
+        padding: calc(18px + env(safe-area-inset-top)) 18px calc(18px + env(safe-area-inset-bottom));
+        border: 0 !important;
+        border-radius: 0 !important;
+        background: rgba(9, 19, 31, 0.97) !important;
+        transform: translateX(-100%);
+    }
+
+    .moments-panel {
+        transform: translateX(100%);
+    }
+
+    .tour-app.show-route-page .quest-panel,
+    .tour-app.show-moments-page .moments-panel {
+        transform: translateX(0);
+    }
+}
+
+@media (max-width: 520px) {
+    .topbar-brand {
+        flex: 0 1 auto;
+    }
+
+    .topbar-brand strong {
+        display: none;
+    }
+
+    .topbar-brand span:last-child {
+        max-width: 86px;
+    }
+
+    .topbar-actions {
+        gap: 4px;
+    }
+
+    .icon-button {
+        width: 32px;
+        height: 32px;
+    }
+
+    .icon-button i {
+        font-size: 1.08rem;
+    }
+}
+
+@media (max-width: 880px) {
+    #toggle-story-sidebar {
+        display: grid !important;
+    }
+
+    .right-sidebar {
+        transition: transform 0.28s ease, opacity 0.22s ease;
+    }
+
+    .tour-app.story-panel-hidden .right-sidebar {
+        opacity: 0;
+        pointer-events: none;
+        transform: translateY(calc(100% + 18px));
+    }
+}
+
+@media (max-width: 520px) {
+    .topbar {
+        gap: 6px;
+    }
+
+    .language-switcher {
+        padding: 2px;
+    }
+
+    .language-switcher button {
+        min-width: 29px;
+        height: 28px;
+        font-size: 0.68rem;
+    }
+
+    .topbar-brand span:last-child {
+        display: none;
+    }
+
+    .topbar-actions {
+        flex: 1 1 auto;
+        justify-content: flex-end;
+    }
+
+    .icon-button {
+        width: 30px;
+        height: 30px;
+    }
+}
