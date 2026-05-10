@@ -85,6 +85,24 @@ function renderGuideTemplate(root) {
                 <p>${buildGuideContextLabel()}</p>
             </div>
             <div class="guide-chat-messages" role="log" aria-live="polite"></div>
+            <div class="guide-quick-actions" aria-label="Guide quick actions">
+                <button type="button" data-guide-quick-action="map">
+                    <i class="ph ph-map-trifold"></i>
+                    ${getCurrentLanguage() === "en" ? "Map" : "Bản đồ"}
+                </button>
+                <button type="button" data-guide-quick-action="route">
+                    <i class="ph ph-list-checks"></i>
+                    ${getCurrentLanguage() === "en" ? "Route" : "Lộ trình"}
+                </button>
+                <button type="button" data-guide-quick-action="hint">
+                    <i class="ph ph-sparkle"></i>
+                    ${getCurrentLanguage() === "en" ? "Hint" : "Gợi ý"}
+                </button>
+                <button type="button" data-guide-quick-action="next">
+                    <i class="ph ph-arrow-right"></i>
+                    ${getCurrentLanguage() === "en" ? "Next" : "Đi tiếp"}
+                </button>
+            </div>
             <form class="guide-chat-form">
                 <div class="guide-chat-composer">
                     <input
@@ -120,6 +138,11 @@ function bindGuideEvents(root) {
     root.querySelector(".guide-chat-close")?.addEventListener("click", () => {
         setGuideOpen(root, false);
     });
+    root.querySelector(".guide-quick-actions")?.addEventListener("click", (event) => {
+        const action = event.target.closest("[data-guide-quick-action]")?.dataset.guideQuickAction;
+        if (!action) return;
+        handleGuideQuickAction(root, action);
+    });
     root.querySelector(".guide-stage-card")?.addEventListener("click", (event) => {
         const action = event.target.closest("[data-guide-stage-action]")?.dataset.guideStageAction;
         if (!action) return;
@@ -143,6 +166,34 @@ function bindGuideEvents(root) {
     root.querySelector(".guide-chat-form")?.addEventListener("submit", (event) => {
         void handleGuideSubmit(root, event);
     });
+}
+
+function handleGuideQuickAction(root, action) {
+    if (action === "map") {
+        window.dispatchEvent(new CustomEvent("vku-guide-open-map"));
+        return;
+    }
+
+    if (action === "route") {
+        window.dispatchEvent(new CustomEvent("vku-guide-open-route"));
+        return;
+    }
+
+    if (action === "next") {
+        window.dispatchEvent(new CustomEvent("vku-guide-complete-step"));
+        return;
+    }
+
+    if (action === "hint") {
+        const scene = route[state.currentStep] || route[0];
+        const title = scene ? getSceneText(scene, "shortTitle") || getSceneText(scene, "title") : "";
+        const mission = scene ? getSceneText(scene, "mission") : "";
+        const text = getCurrentLanguage() === "en"
+            ? `Hint for ${title}: ${mission}`
+            : `Gợi ý cho ${title}: ${mission}`;
+        addGuideMessage(root, "assistant", text);
+        playGuidePetAnimation(root, "reviewing", 900);
+    }
 }
 
 function bindGuideDrag(root, toggle) {

@@ -155,6 +155,7 @@ export function bindControls() {
     document.getElementById("tour-logout-btn")?.addEventListener("click", handleLogout);
     document.getElementById("toggle-minimap-page")?.addEventListener("click", openMinimapPage);
     window.addEventListener("vku-guide-open-map", openMinimapPage);
+    window.addEventListener("vku-guide-open-route", openRoutePage);
     window.addEventListener("vku-guide-complete-step", goNext);
     bindMomentControls();
     bindSidebarControls();
@@ -164,9 +165,7 @@ export function bindControls() {
     });
 
     document.getElementById("close-minimap-btn")?.addEventListener("click", () => {
-        document.getElementById("tour-app")?.classList.remove("show-minimap-page", "show-mobile-map");
-        document.getElementById("toggle-minimap-page")?.classList.remove("is-active");
-        document.getElementById("toggle-minimap-page")?.setAttribute("aria-pressed", "false");
+        closeMinimapPage();
     });
 }
 
@@ -255,6 +254,26 @@ function openMinimapPage() {
     document.getElementById("toggle-moments-page")?.setAttribute("aria-pressed", "false");
     document.getElementById("toggle-minimap-page")?.classList.add("is-active");
     document.getElementById("toggle-minimap-page")?.setAttribute("aria-pressed", "true");
+}
+
+function closeMinimapPage() {
+    document.getElementById("tour-app")?.classList.remove("show-minimap-page", "show-mobile-map");
+    document.getElementById("toggle-minimap-page")?.classList.remove("is-active");
+    document.getElementById("toggle-minimap-page")?.setAttribute("aria-pressed", "false");
+}
+
+function openRoutePage() {
+    const app = document.getElementById("tour-app");
+    if (!app) return;
+
+    app.classList.add("show-route-page");
+    app.classList.remove("show-minimap-page", "show-moments-page", "show-mobile-map");
+    document.getElementById("toggle-quest-sidebar")?.classList.add("is-active");
+    document.getElementById("toggle-quest-sidebar")?.setAttribute("aria-pressed", "true");
+    document.getElementById("toggle-minimap-page")?.classList.remove("is-active");
+    document.getElementById("toggle-minimap-page")?.setAttribute("aria-pressed", "false");
+    document.getElementById("toggle-moments-page")?.classList.remove("is-active");
+    document.getElementById("toggle-moments-page")?.setAttribute("aria-pressed", "false");
 }
 
 export function startTour() {

@@ -55,6 +55,8 @@ export function renderMap() {
         dot.addEventListener("click", () => {
             navigateToStep(Number(dot.dataset.step));
             document.getElementById("tour-app")?.classList.remove("show-minimap-page", "show-mobile-map");
+            document.getElementById("toggle-minimap-page")?.classList.remove("is-active");
+            document.getElementById("toggle-minimap-page")?.setAttribute("aria-pressed", "false");
         });
     });
 }
