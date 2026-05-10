@@ -198,7 +198,7 @@ function setSubmitState(button, isSaving) {
 function renderEventPhotoCard(photo) {
     return `
         <article class="event-photo-card">
-            <img src="${escapeAttribute(photo.imageUrl)}" alt="${escapeAttribute(t("events.imageAlt", { title: photo.title || t("events.fallbackTitle") }))}">
+            <img class="img-loading-skeleton" src="${escapeAttribute(photo.imageUrl)}" alt="${escapeAttribute(t("events.imageAlt", { title: photo.title || t("events.fallbackTitle") }))}" onload="this.classList.remove('img-loading-skeleton')">
             <div class="event-photo-body">
                 <div>
                     <span>${formatEventDate(photo.createdAt)}</span>

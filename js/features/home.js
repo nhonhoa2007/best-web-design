@@ -11,11 +11,13 @@ const NOTIFICATION_TYPES = {
     moment_updated: { icon: "ph-pencil-simple", titleKey: "notification.momentUpdated" },
     reaction_received: { icon: "ph-heart", titleKey: "notification.reactionReceived" }
 };
+const DASHBOARD_CACHE_TTL = 45_000;
+let dashboardCacheContext = "";
+let dashboardCache = new Map();
 
 window.addEventListener("vku-language-change", () => {
     void renderHomeDashboard();
 });
-
 export async function renderHomeDashboard() {
     renderQuestSummary();
     await Promise.all([
@@ -106,12 +108,16 @@ async function fetchLeaderboardData() {
         return { rows: [localRow], currentRank: 1, currentProgress: localRow };
     }
 
-    const snapshot = await getDocs(collection(db, "tourProgress"));
-    const rows = [];
-    snapshot.forEach((item) => {
-        const data = item.data();
-        rows.push(normalizeProgress({ ...data, uid: data.uid || item.id }));
+    const cachedRows = await getCachedDashboardValue("leaderboard", async () => {
+        const snapshot = await getDocs(collection(db, "tourProgress"));
+        const progressRows = [];
+        snapshot.forEach((item) => {
+            const data = item.data();
+            progressRows.push(normalizeProgress({ ...data, uid: data.uid || item.id }));
+        });
+        return progressRows;
     });
+    const rows = [...cachedRows];
 
     if (!rows.some((row) => row.uid === auth.currentUser.uid)) {
         rows.push(localRow);
@@ -295,15 +301,17 @@ async function renderAchievements() {
 }
 
 async function fetchUserAchievements() {
-    const snapshot = await getDocs(query(
-        collection(db, "achievements"),
-        where("uid", "==", auth.currentUser.uid)
-    ));
-    const achievements = [];
-    snapshot.forEach((item) => achievements.push(normalizeAchievement({ id: item.id, ...item.data() })));
-    return achievements
-        .filter((achievement) => achievement.title)
-        .sort((a, b) => getTime(b.unlockedAt) - getTime(a.unlockedAt));
+    return getCachedDashboardValue("achievements", async () => {
+        const snapshot = await getDocs(query(
+            collection(db, "achievements"),
+            where("uid", "==", auth.currentUser.uid)
+        ));
+        const achievements = [];
+        snapshot.forEach((item) => achievements.push(normalizeAchievement({ id: item.id, ...item.data() })));
+        return achievements
+            .filter((achievement) => achievement.title)
+            .sort((a, b) => getTime(b.unlockedAt) - getTime(a.unlockedAt));
+    });
 }
 
 function buildAchievementsFromFirebaseData({ moments, reactionCount, leaderboardData }) {
@@ -430,33 +438,37 @@ function formatRarity(rarity) {
 async function fetchNotifications() {
     if (!auth?.currentUser || !db) return [];
 
-    try {
-        const snapshot = await getDocs(query(
-            collection(db, "notifications"),
-            where("uid", "==", auth.currentUser.uid)
-        ));
-        const notifications = [];
-        snapshot.forEach((item) => notifications.push({ id: item.id, ...item.data() }));
-        return notifications.sort((a, b) => getTime(b.createdAt) - getTime(a.createdAt));
-    } catch (error) {
-        console.warn("Notifications load error:", error);
-        return [];
-    }
+    return getCachedDashboardValue("notifications", async () => {
+        try {
+            const snapshot = await getDocs(query(
+                collection(db, "notifications"),
+                where("uid", "==", auth.currentUser.uid)
+            ));
+            const notifications = [];
+            snapshot.forEach((item) => notifications.push({ id: item.id, ...item.data() }));
+            return notifications.sort((a, b) => getTime(b.createdAt) - getTime(a.createdAt));
+        } catch (error) {
+            console.warn("Notifications load error:", error);
+            return [];
+        }
+    });
 }
 
 async function fetchReceivedReactionCount() {
     if (!auth?.currentUser || !db) return 0;
 
-    try {
-        const snapshot = await getDocs(query(
-            collection(db, "momentReactions"),
-            where("ownerUid", "==", auth.currentUser.uid)
-        ));
-        return snapshot.size;
-    } catch (error) {
-        console.warn("Reaction count load error:", error);
-        return 0;
-    }
+    return getCachedDashboardValue("reaction-count", async () => {
+        try {
+            const snapshot = await getDocs(query(
+                collection(db, "momentReactions"),
+                where("ownerUid", "==", auth.currentUser.uid)
+            ));
+            return snapshot.size;
+        } catch (error) {
+            console.warn("Reaction count load error:", error);
+            return 0;
+        }
+    });
 }
 
 function renderActivityItem(activity, index = 0) {
@@ -491,18 +503,58 @@ function buildProfileActivity(notifications, moments) {
 async function fetchOwnMoments() {
     if (!auth?.currentUser || !db) return [];
 
-    try {
-        const snapshot = await getDocs(query(
-            collection(db, "moments"),
-            where("uid", "==", auth.currentUser.uid)
-        ));
-        const moments = [];
-        snapshot.forEach((item) => moments.push({ id: item.id, ...item.data() }));
-        return moments.sort((a, b) => getTime(b.createdAt) - getTime(a.createdAt));
-    } catch (error) {
-        console.warn("Library moments load error:", error);
-        return [];
+    return getCachedDashboardValue("own-moments", async () => {
+        try {
+            const snapshot = await getDocs(query(
+                collection(db, "moments"),
+                where("uid", "==", auth.currentUser.uid)
+            ));
+            const moments = [];
+            snapshot.forEach((item) => moments.push({ id: item.id, ...item.data() }));
+            return moments.sort((a, b) => getTime(b.createdAt) - getTime(a.createdAt));
+        } catch (error) {
+            console.warn("Library moments load error:", error);
+            return [];
+        }
+    });
+}
+
+function getCachedDashboardValue(key, loader) {
+    refreshDashboardCacheContext();
+
+    const cached = dashboardCache.get(key);
+    if (cached && cached.expiresAt > Date.now()) {
+        return cached.promise;
     }
+
+    const promise = Promise.resolve()
+        .then(loader)
+        .catch((error) => {
+            dashboardCache.delete(key);
+            throw error;
+        });
+
+    dashboardCache.set(key, {
+        expiresAt: Date.now() + DASHBOARD_CACHE_TTL,
+        promise
+    });
+
+    return promise;
+}
+
+function refreshDashboardCacheContext() {
+    const nextContext = [
+        auth?.currentUser?.uid || "local",
+        Boolean(db),
+        state.currentStep,
+        state.unlockedStep,
+        state.customName
+    ].join("|");
+
+    if (nextContext === dashboardCacheContext) return;
+
+    dashboardCacheContext = nextContext;
+    dashboardCache = new Map();
 }
 
 function currentUserRank() {

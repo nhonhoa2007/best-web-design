@@ -1,12 +1,13 @@
 export const PANORAMAS = {
-    v_cong: "assets/panoramas/v_cong.jpg",
+    v_cong: "assets/panoramas/v_cong.webp",
     k_e: "assets/panoramas/k_e.webp",
     k_b: "assets/panoramas/k_b.webp",
     k_d2: "assets/panoramas/k_d2.webp",
     mountain: "assets/panoramas/k_e.webp",
     hall: "assets/panoramas/k_b.webp",
-    courtyard: "assets/panoramas/v_cong.jpg"
+    courtyard: "assets/panoramas/v_cong.webp"
 };
+
 
 export const route = [
     {

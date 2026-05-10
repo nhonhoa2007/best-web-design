@@ -1,7 +1,7 @@
 import { avatars } from "../../data/avatars.js";
 import { route } from "../../data/route.js";
 import { handleLogout } from "./auth.js";
-import { getAvatarText, getSceneText, t } from "../app/i18n.js";
+import { getAvatarText, getCurrentLanguage, getSceneText, t } from "../app/i18n.js";
 import { renderMap, setMapNavigator } from "./map.js";
 import { bindMomentControls, renderMomentsForScene, setMomentsChangeHandler } from "./moments.js";
 import {
@@ -18,6 +18,9 @@ import { showToast } from "../ui/ui.js";
 
 let viewer;
 let controlsBound = false;
+const preloadedPanoramaSources = new Set();
+let panoramaLoadingTimer = null;
+let lastGuideAnnouncementKey = "";
 
 // Cinematic & Audio States
 let idleTimer = null;
@@ -150,27 +153,27 @@ export function bindControls() {
     document.getElementById("tab-khu-v")?.addEventListener("click", () => focusZone("khu-v"));
     document.getElementById("tab-khu-k")?.addEventListener("click", () => focusZone("khu-k"));
     document.getElementById("tour-logout-btn")?.addEventListener("click", handleLogout);
+    document.getElementById("toggle-minimap-page")?.addEventListener("click", openMinimapPage);
+    window.addEventListener("vku-guide-open-map", openMinimapPage);
+    window.addEventListener("vku-guide-complete-step", goNext);
     bindMomentControls();
     bindSidebarControls();
 
     document.getElementById("mobile-minimap-btn")?.addEventListener("click", () => {
-        const app = document.getElementById("tour-app");
-        app?.classList.add("show-minimap-page");
-        app?.classList.remove("show-route-page", "show-moments-page", "show-mobile-map");
-        document.getElementById("toggle-quest-sidebar")?.classList.remove("is-active");
-        document.getElementById("toggle-quest-sidebar")?.setAttribute("aria-pressed", "false");
-        document.getElementById("toggle-moments-page")?.classList.remove("is-active");
-        document.getElementById("toggle-moments-page")?.setAttribute("aria-pressed", "false");
+        openMinimapPage();
     });
 
     document.getElementById("close-minimap-btn")?.addEventListener("click", () => {
         document.getElementById("tour-app")?.classList.remove("show-minimap-page", "show-mobile-map");
+        document.getElementById("toggle-minimap-page")?.classList.remove("is-active");
+        document.getElementById("toggle-minimap-page")?.setAttribute("aria-pressed", "false");
     });
 }
 
 function bindSidebarControls() {
     const app = document.getElementById("tour-app");
     const questButton = document.getElementById("toggle-quest-sidebar");
+    const mapButton = document.getElementById("toggle-minimap-page");
     const momentsButton = document.getElementById("toggle-moments-page");
     const storyButton = document.getElementById("toggle-story-sidebar");
     if (!app) return;
@@ -178,15 +181,18 @@ function bindSidebarControls() {
 
     const applyState = () => {
         const routeOpen = app.classList.contains("show-route-page");
+        const mapOpen = app.classList.contains("show-minimap-page") || app.classList.contains("show-mobile-map");
         const momentsOpen = app.classList.contains("show-moments-page");
         const storyHidden = app.classList.contains("story-panel-hidden");
         const storyCollapsed = app.classList.contains("story-sidebar-collapsed");
 
         questButton?.classList.toggle("is-active", routeOpen);
+        mapButton?.classList.toggle("is-active", mapOpen);
         momentsButton?.classList.toggle("is-active", momentsOpen);
         storyButton?.classList.toggle("is-active", isMobileLayout() ? !storyHidden : !storyCollapsed);
         storyButton?.classList.toggle("is-collapsed", !isMobileLayout() && storyCollapsed);
         questButton?.setAttribute("aria-pressed", String(routeOpen));
+        mapButton?.setAttribute("aria-pressed", String(mapOpen));
         momentsButton?.setAttribute("aria-pressed", String(momentsOpen));
         storyButton?.setAttribute("aria-pressed", String(isMobileLayout() ? !storyHidden : !storyCollapsed));
     };
@@ -237,11 +243,28 @@ function bindSidebarControls() {
     applyState();
 }
 
+function openMinimapPage() {
+    const app = document.getElementById("tour-app");
+    if (!app) return;
+
+    app.classList.add("show-minimap-page");
+    app.classList.remove("show-route-page", "show-moments-page", "show-mobile-map");
+    document.getElementById("toggle-quest-sidebar")?.classList.remove("is-active");
+    document.getElementById("toggle-quest-sidebar")?.setAttribute("aria-pressed", "false");
+    document.getElementById("toggle-moments-page")?.classList.remove("is-active");
+    document.getElementById("toggle-moments-page")?.setAttribute("aria-pressed", "false");
+    document.getElementById("toggle-minimap-page")?.classList.add("is-active");
+    document.getElementById("toggle-minimap-page")?.setAttribute("aria-pressed", "true");
+}
+
 export function startTour() {
     document.getElementById("avatar-screen")?.classList.add("hidden");
-    document.getElementById("tour-app")?.classList.remove("hidden");
+    const tourApp = document.getElementById("tour-app");
+    tourApp?.classList.remove("hidden", "screen-leaving");
+    tourApp?.classList.add("app-screen", "is-screen-active");
 
     if (!viewer) {
+        setPanoramaLoading(true);
         initViewer();
     }
 
@@ -250,18 +273,23 @@ export function startTour() {
 
 export function showAvatarScreen() {
     document.getElementById("tour-app")?.classList.add("hidden");
-    document.getElementById("avatar-screen")?.classList.remove("hidden");
+    document.getElementById("tour-app")?.classList.remove("is-screen-active", "screen-leaving", "screen-entering");
+    const avatarScreen = document.getElementById("avatar-screen");
+    avatarScreen?.classList.remove("hidden", "screen-leaving");
+    avatarScreen?.classList.add("app-screen", "is-screen-active");
     renderResumeButton();
 }
 
 export function restartTour() {
     resetProgress();
+    lastGuideAnnouncementKey = "";
     loadStep(0, { forceViewer: true });
     showToast(t("toast.restart"));
 }
 
 function initViewer() {
     if (!window.pannellum) {
+        setPanoramaLoading(false);
         showToast(t("toast.viewerMissing"));
         renderExperience();
         return;
@@ -301,6 +329,11 @@ function initViewer() {
 
         setCurrentStep(nextIndex);
         renderExperience();
+        announceGuideStage(route[nextIndex]);
+    });
+
+    viewer.on("load", () => {
+        setPanoramaLoading(false);
     });
 }
 
@@ -442,11 +475,14 @@ export function loadStep(index, options = {}) {
         const sceneId = route[index].id;
         const currentScene = typeof viewer.getScene === "function" ? viewer.getScene() : null;
         if (options.forceViewer || currentScene !== sceneId) {
+            setPanoramaLoading(true);
             viewer.loadScene(sceneId);
         }
     }
 
     renderExperience();
+    announceGuideStage(route[index]);
+    preloadNearbyPanoramas(index);
 }
 
 function renderExperience() {
@@ -488,6 +524,10 @@ function renderProfile() {
 }
 
 function renderStory(scene) {
+    const storyPanel = document.querySelector(".story-panel");
+    storyPanel?.classList.remove("story-panel-refreshed");
+    void storyPanel?.offsetWidth;
+
     document.getElementById("scene-chapter").textContent = getSceneText(scene, "chapter");
     document.getElementById("scene-reward").textContent = getSceneText(scene, "reward");
     document.getElementById("avatar-line").textContent = `${state.customName}: ${getSceneText(scene, "dialog")}`;
@@ -506,6 +546,29 @@ function renderStory(scene) {
     nextButton.innerHTML = state.currentStep === route.length - 1
         ? `${t("action.finish")} <i class="ph ph-flag-checkered"></i>`
         : `${t("action.next")} <i class="ph ph-arrow-right"></i>`;
+
+    storyPanel?.classList.add("story-panel-refreshed");
+}
+
+function announceGuideStage(scene) {
+    if (!scene) return;
+
+    const announcementKey = `${state.currentStep}:${getCurrentLanguage()}`;
+    if (announcementKey === lastGuideAnnouncementKey) return;
+    lastGuideAnnouncementKey = announcementKey;
+
+    window.dispatchEvent(new CustomEvent("vku-guide-stage", {
+        detail: {
+            step: state.currentStep,
+            total: route.length,
+            chapter: getSceneText(scene, "chapter"),
+            title: getSceneText(scene, "shortTitle") || getSceneText(scene, "title"),
+            mission: getSceneText(scene, "mission"),
+            dialog: getSceneText(scene, "dialog"),
+            zoneName: getSceneText(scene, "zoneName"),
+            isFinal: state.currentStep === route.length - 1,
+        },
+    }));
 }
 
 function renderRouteList() {
@@ -569,12 +632,39 @@ function escapeAttribute(value = "") {
         .replaceAll("`", "&#096;");
 }
 
-export function preloadPanoramas() {
-    new Set(route.map((scene) => scene.panorama)).forEach((src) => {
-        if (src) {
+function preloadNearbyPanoramas(index) {
+    [index + 1, index + 2, index - 1].forEach((sceneIndex) => {
+        const src = route[sceneIndex]?.panorama;
+        if (!src || preloadedPanoramaSources.has(src)) return;
+
+        preloadedPanoramaSources.add(src);
+        const preload = () => {
             const image = new Image();
+            image.decoding = "async";
             image.src = src;
+        };
+
+        if ("requestIdleCallback" in window) {
+            window.requestIdleCallback(preload, { timeout: 1500 });
+        } else {
+            window.setTimeout(preload, 0);
         }
     });
+}
+
+function setPanoramaLoading(isLoading) {
+    const panorama = document.getElementById("panorama");
+    if (!panorama) return;
+
+    window.clearTimeout(panoramaLoadingTimer);
+    panorama.classList.toggle("is-loading", isLoading);
+    panorama.setAttribute("aria-busy", String(isLoading));
+
+    if (isLoading) {
+        panoramaLoadingTimer = window.setTimeout(() => {
+            panorama.classList.remove("is-loading");
+            panorama.setAttribute("aria-busy", "false");
+        }, 8000);
+    }
 }
 

@@ -1,4 +1,4 @@
-import { route } from "../../data/route.js";
+        import { route } from "../../data/route.js";
 import {
     auth,
     collection,
@@ -547,7 +547,7 @@ function renderMomentCard(moment) {
     const isOwner = auth?.currentUser?.uid === moment.uid;
     const visibilityText = moment.visibility === "public" ? t("moments.publicLabel") : t("moments.privateLabel");
     const image = moment.imageUrl
-        ? `<img class="moment-image" src="${escapeAttribute(moment.imageUrl)}" alt="${escapeAttribute(t("moments.imageAlt", { sceneTitle: moment.sceneTitle }))}">`
+        ? `<img class="moment-image img-loading-skeleton" src="${escapeAttribute(moment.imageUrl)}" alt="${escapeAttribute(t("moments.imageAlt", { sceneTitle: moment.sceneTitle }))}" onload="this.classList.remove('img-loading-skeleton')">`
         : "";
 
     return `

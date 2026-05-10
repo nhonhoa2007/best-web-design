@@ -7,7 +7,7 @@ import { applyTranslations, mountLanguageSwitchers, t } from "./i18n.js";
 import { checkAndPromptNickname } from "../features/nickname.js";
 import { bindProfileControls } from "../features/profile.js";
 import { hydrateProgressFromFirebase, hydrateState } from "./state.js";
-import { bindControls, preloadPanoramas, renderAvatarOptions, renderResumeButton, startTour } from "../features/tour.js";
+import { bindControls, renderAvatarOptions, renderResumeButton, startTour } from "../features/tour.js";
 import Theme from "../features/theme.js";
 
 
@@ -36,6 +36,8 @@ const APP_SCREENS = [
     "tour-app"
 ];
 
+const SCREEN_TRANSITION_MS = 260;
+
 document.addEventListener("DOMContentLoaded", async () => {
     try {
         await loadPagePartials();
@@ -46,6 +48,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 
     Theme.init();
+    initializeScreenMotion();
     setupHomeUI();
     mountLanguageSwitchers();
     applyTranslations();
@@ -119,7 +122,6 @@ async function bootTourShell(user = null) {
     renderAvatarOptions();
     bindControls();
     renderResumeButton();
-    preloadPanoramas();
 }
 
 function setupHomeUI() {
@@ -203,8 +205,43 @@ function setupHomeUI() {
     });
 }
 
-function showScreen(activeScreenId) {
+function showScreen(nextScreenId) {
+    const nextScreen = document.getElementById(nextScreenId);
+    if (!nextScreen || nextScreen.classList.contains("is-screen-active")) return;
+
     APP_SCREENS.forEach((screenId) => {
-        document.getElementById(screenId)?.classList.toggle("hidden", screenId !== activeScreenId);
+        const screen = document.getElementById(screenId);
+        if (!screen) return;
+
+        if (screenId === nextScreenId) {
+            window.clearTimeout(Number(screen.dataset.hideTimer || 0));
+            screen.classList.remove("hidden", "screen-leaving");
+            screen.classList.add("screen-entering");
+
+            requestAnimationFrame(() => {
+                screen.classList.add("is-screen-active");
+                screen.classList.remove("screen-entering");
+            });
+            return;
+        }
+
+        if (screen.classList.contains("hidden")) {
+            screen.classList.remove("is-screen-active", "screen-entering", "screen-leaving");
+            return;
+        }
+
+        screen.classList.remove("is-screen-active", "screen-entering");
+        screen.classList.add("screen-leaving");
+        const timer = window.setTimeout(() => {
+            screen.classList.add("hidden");
+            screen.classList.remove("screen-leaving");
+        }, SCREEN_TRANSITION_MS);
+        screen.dataset.hideTimer = String(timer);
+    });
+}
+
+function initializeScreenMotion() {
+    APP_SCREENS.forEach((screenId) => {
+        document.getElementById(screenId)?.classList.add("app-screen");
     });
 }
