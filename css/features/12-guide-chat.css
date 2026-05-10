@@ -4,9 +4,15 @@
     right: 22px;
     bottom: 22px;
     z-index: 1200;
-    --guide-pet-width: 132px;
-    --guide-pet-height: 143px;
+    --guide-pet-width: 112px;
+    --guide-pet-height: 122px;
     --guide-panel-gap: 12px;
+    --guide-purple: #7c3aed;
+    --guide-purple-deep: #4c1d95;
+    --guide-lavender: #f0e7ff;
+    --guide-teal: #14b8a6;
+    --guide-ink: #24143f;
+    --guide-muted: #7c708e;
     font-family: inherit;
 }
 
@@ -353,31 +359,31 @@
     right: 0;
     bottom: calc(var(--guide-pet-height) + var(--guide-panel-gap));
     display: grid;
-    grid-template-rows: auto auto minmax(0, 1fr) auto auto;
-    width: min(390px, calc(100vw - 32px));
-    height: min(470px, calc(100vh - 150px));
+    grid-template-rows: auto minmax(0, 1fr) auto auto;
+    width: min(480px, calc(100vw - 32px));
+    height: min(420px, calc(100vh - 104px));
     overflow: hidden;
-    border: 1px solid rgba(148, 163, 184, 0.22);
-    border-radius: 8px;
-    background:
-        linear-gradient(180deg, rgba(16, 24, 39, 0.98), rgba(8, 13, 24, 0.98)),
-        #0b1220;
+    border: 1px solid rgba(124, 58, 237, 0.2);
+    border-radius: 28px;
+    background: rgba(255, 255, 255, 0.88);
+    backdrop-filter: blur(20px) saturate(180%);
     box-shadow:
-        0 26px 70px rgba(2, 8, 23, 0.48),
-        0 0 0 1px rgba(255, 255, 255, 0.04) inset;
+        0 32px 90px rgba(76, 29, 149, 0.28),
+        0 18px 36px rgba(20, 184, 166, 0.14),
+        0 0 0 1px rgba(255, 255, 255, 0.95) inset;
     opacity: 0;
     pointer-events: none;
     transform: translateY(12px) scale(0.98);
     transform-origin: bottom right;
-    transition: opacity 0.18s ease, transform 0.18s ease;
+    transition: opacity 0.25s cubic-bezier(0.16, 1, 0.3, 1), transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .guide-chat-panel::before {
     content: "";
     position: absolute;
     inset: 0 0 auto;
-    height: 4px;
-    background: linear-gradient(90deg, #ef4444, #facc15 44%, #2563eb);
+    height: 7px;
+    background: linear-gradient(90deg, #6d28d9, #22d3ee 50%, #f59e0b);
 }
 
 .guide-chat.is-docked-left .guide-chat-panel {
@@ -407,32 +413,16 @@
     align-items: center;
     justify-content: space-between;
     gap: 14px;
-    padding: 18px 18px 14px;
-    background:
-        radial-gradient(circle at 18% 0%, rgba(250, 204, 21, 0.22), transparent 34%),
-        linear-gradient(135deg, rgba(37, 99, 235, 0.2), transparent 56%);
+    padding: 24px 22px 20px;
+    background: linear-gradient(135deg, rgba(124, 58, 237, 0.08), rgba(34, 211, 238, 0.05));
+    border-bottom: 1px solid rgba(124, 58, 237, 0.1);
 }
 
 .guide-chat-brand {
     display: flex;
     align-items: center;
     min-width: 0;
-    gap: 12px;
-}
-
-.guide-chat-badge {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    flex: 0 0 auto;
-    width: 42px;
-    height: 42px;
-    border-radius: 8px;
-    color: #0f172a;
-    background: linear-gradient(135deg, #facc15, #fde68a);
-    font-size: 0.78rem;
-    font-weight: 900;
-    box-shadow: 0 12px 26px rgba(250, 204, 21, 0.24);
+    gap: 13px;
 }
 
 .guide-chat-header .guide-chat-kicker,
@@ -442,33 +432,97 @@
 }
 
 .guide-chat-header .guide-chat-kicker {
-    color: #93c5fd;
-    font-size: 0.72rem;
+    color: #6d28d9;
+    font-size: 0.74rem;
     font-weight: 800;
-    letter-spacing: 0;
+    letter-spacing: 0.02em;
     text-transform: uppercase;
+    opacity: 0.8;
 }
 
 .guide-chat-header strong {
-    margin-top: 2px;
-    color: #f8fafc;
-    font-size: 1.02rem;
+    margin-top: 1px;
+    color: #1e1b4b;
+    font-size: 1.15rem;
+    font-weight: 800;
     line-height: 1.2;
 }
 
-.guide-chat-close {
+.guide-chat-avatar {
+    position: relative;
+    width: 52px;
+    height: 52px;
     flex: 0 0 auto;
-    width: 36px;
-    height: 36px;
-    border-radius: 8px;
-    color: #dbeafe;
-    background: rgba(255, 255, 255, 0.1);
+    border-radius: 18px;
+    background: linear-gradient(145deg, #8b5cf6, #6d28d9);
+    padding: 2px;
+    box-shadow: 0 8px 20px rgba(124, 58, 237, 0.25);
+    overflow: hidden;
+}
+
+.guide-chat-avatar-pet {
+    display: block;
+    width: 100%;
+    height: 100%;
+    background-image: url("../../assets/images/pets/gugugaga-vku/spritesheet.webp");
+    background-position: 14.285714% 0; /* Frame for avatar */
+    background-size: 800% 900%;
+    background-repeat: no-repeat;
+    transform: scale(1.4);
+    transform-origin: center;
+}
+
+.guide-chat-online {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 4px;
+    color: var(--guide-teal);
+    font-size: 0.78rem;
+    font-weight: 800;
+}
+
+.guide-chat-online span {
+    width: 8px;
+    height: 8px;
+    border-radius: 999px;
+    background: #10b981;
+    position: relative;
+}
+
+.guide-chat-online span::after {
+    content: "";
+    position: absolute;
+    inset: -2px;
+    border-radius: 999px;
+    background: inherit;
+    opacity: 0.4;
+    animation: guide-online-pulse 2s infinite;
+}
+
+@keyframes guide-online-pulse {
+    0% { transform: scale(1); opacity: 0.6; }
+    70% { transform: scale(2.4); opacity: 0; }
+    100% { transform: scale(1); opacity: 0; }
+}
+
+.guide-chat-close {
+    position: absolute;
+    top: 18px;
+    right: 18px;
+    z-index: 3;
+    flex: 0 0 auto;
+    width: 38px;
+    height: 38px;
+    border-radius: 12px;
+    color: var(--guide-purple-deep);
+    background: rgba(124, 58, 237, 0.08);
     transition: background 0.16s ease, transform 0.16s ease;
 }
 
 .guide-chat-close:hover,
 .guide-chat-close:focus-visible {
-    background: rgba(255, 255, 255, 0.18);
+    background: rgba(124, 58, 237, 0.15);
     transform: translateY(-1px);
     outline: none;
 }
@@ -477,28 +531,29 @@
     display: flex;
     align-items: center;
     gap: 9px;
-    margin: 0 18px 12px;
-    padding: 10px 12px;
-    border: 1px solid rgba(147, 197, 253, 0.16);
-    border-radius: 8px;
-    color: #bfdbfe;
-    background: rgba(15, 23, 42, 0.48);
+    margin: 18px 16px 8px;
+    padding: 10px 54px 10px 13px;
+    border: 1px solid rgba(124, 58, 237, 0.15);
+    border-radius: 16px;
+    color: var(--guide-purple-deep);
+    background: rgba(255, 255, 255, 0.6);
+    box-shadow: 0 4px 12px rgba(124, 58, 237, 0.05);
 }
 
 .guide-chat-status span {
     flex: 0 0 auto;
-    width: 8px;
-    height: 8px;
+    width: 6px;
+    height: 6px;
     border-radius: 999px;
-    background: #22c55e;
-    box-shadow: 0 0 0 5px rgba(34, 197, 94, 0.12);
+    background: #6d28d9;
+    box-shadow: 0 0 0 4px rgba(109, 40, 217, 0.1);
 }
 
 .guide-chat-status p {
     min-width: 0;
     margin: 0;
-    font-size: 0.78rem;
-    font-weight: 700;
+    font-size: 0.82rem;
+    font-weight: 750;
     line-height: 1.35;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -510,11 +565,11 @@
     flex-direction: column;
     gap: 12px;
     min-height: 0;
-    margin: 0 10px;
-    padding: 12px 8px 14px;
+    margin: 0;
+    padding: 10px 16px 12px;
     overflow-y: auto;
     scrollbar-width: thin;
-    scrollbar-color: rgba(148, 163, 184, 0.34) transparent;
+    scrollbar-color: rgba(124, 58, 237, 0.28) transparent;
 }
 
 .guide-chat-messages::-webkit-scrollbar {
@@ -527,35 +582,59 @@
 }
 
 .guide-chat-message {
-    max-width: 88%;
+    position: relative;
+    max-width: 86%;
     margin: 0;
     padding: 11px 13px;
-    border-radius: 8px;
-    font-size: 0.9rem;
+    border-radius: 18px;
+    font-size: 0.86rem;
     line-height: 1.45;
-    overflow-wrap: anywhere;
-    box-shadow: 0 10px 24px rgba(2, 8, 23, 0.14);
+    overflow-wrap: break-word;
+    word-break: normal;
+    box-shadow: 0 10px 24px rgba(76, 29, 149, 0.08);
 }
 
 .guide-chat-message.assistant {
     align-self: flex-start;
-    color: #e5edf7;
-    background: rgba(255, 255, 255, 0.1);
-    border-top-left-radius: 3px;
+    margin-left: 32px;
+    color: #1e1b4b;
+    background: #f4f0ff;
+    border: 1px solid rgba(124, 58, 237, 0.1);
+    border-top-left-radius: 4px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.04);
+}
+
+.guide-chat-message.assistant::before {
+    content: "";
+    position: absolute;
+    left: -34px;
+    top: 4px;
+    width: 26px;
+    height: 26px;
+    border-radius: 10px;
+    background-color: #6d28d9;
+    background-image: linear-gradient(145deg, #8b5cf6, #6d28d9);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 256 256'%3E%3Cpath fill='%23ffffff' d='M128 24a104 104 0 1 0 104 104A104.11 104.11 0 0 0 128 24Zm0 192a88 88 0 1 1 88-88 88.1 88.1 0 0 1-88 88Zm36-112h-72a8 8 0 0 0 0 16h72a8 8 0 0 0 0-16Zm-72 32h72a8 8 0 0 1 0 16h-72a8 8 0 0 1 0-16Z'/%3E%3C/svg%3E");
+    background-size: 16px;
+    background-position: center;
+    background-repeat: no-repeat;
+    box-shadow: 0 4px 10px rgba(124, 58, 237, 0.2);
 }
 
 .guide-chat-message.user {
     align-self: flex-end;
-    color: #0f172a;
-    background: linear-gradient(135deg, #facc15, #fde68a);
-    border-top-right-radius: 3px;
+    color: #fff;
+    background: linear-gradient(135deg, #7c3aed, #4f46e5);
+    border-top-right-radius: 4px;
+    box-shadow: 0 8px 20px rgba(124, 58, 237, 0.15);
 }
 
 .guide-quick-actions {
-    display: flex;
-    gap: 7px;
-    padding: 0 14px 10px;
-    overflow-x: auto;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+    padding: 0 16px 12px;
+    overflow: visible;
     scrollbar-width: none;
 }
 
@@ -565,42 +644,51 @@
 
 .guide-quick-actions button {
     display: inline-flex;
-    flex: 0 0 auto;
-    min-height: 34px;
+    min-width: 0;
+    min-height: 38px;
     align-items: center;
     justify-content: center;
-    gap: 6px;
-    padding: 0 10px;
-    border: 1px solid rgba(147, 197, 253, 0.18);
-    border-radius: 999px;
-    color: #dbeafe;
-    background: rgba(15, 23, 42, 0.76);
-    font-size: 0.78rem;
-    font-weight: 800;
+    gap: 8px;
+    padding: 0 14px;
+    border: 1px solid rgba(124, 58, 237, 0.15);
+    border-radius: 14px;
+    color: var(--guide-purple-deep);
+    background: #fff;
+    font-size: 0.8rem;
+    font-weight: 700;
     cursor: pointer;
     white-space: nowrap;
-    transition:
-        transform 0.16s ease,
-        color 0.16s ease,
-        background 0.16s ease,
-        border-color 0.16s ease;
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.02);
+}
+
+.guide-quick-actions button i {
+    font-size: 1.1rem;
+    color: var(--guide-purple);
+    transition: color 0.2s ease;
 }
 
 .guide-quick-actions button:hover,
 .guide-quick-actions button:focus-visible {
-    transform: translateY(-1px);
-    color: #0f172a;
-    background: #facc15;
-    border-color: #facc15;
+    transform: translateY(-2px);
+    color: #fff;
+    background: var(--guide-purple);
+    border-color: var(--guide-purple);
+    box-shadow: 0 8px 16px rgba(124, 58, 237, 0.2);
     outline: none;
+}
+
+.guide-quick-actions button:hover i {
+    color: #fff;
 }
 
 .guide-chat-message.is-typing {
     max-width: none;
-    padding: 8px 10px;
-    color: #cbd5e1;
-    background: rgba(255, 255, 255, 0.07);
-    box-shadow: none;
+    padding: 10px 14px;
+    color: var(--guide-muted);
+    background: #fff;
+    border: 1px solid rgba(124, 58, 237, 0.08);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
 }
 
 .guide-typing-indicator {
@@ -623,7 +711,7 @@
     width: 6px;
     height: 6px;
     border-radius: 999px;
-    background: #93c5fd;
+    background: var(--guide-purple);
     animation: guide-typing-dot 1s ease-in-out infinite;
 }
 
@@ -650,52 +738,58 @@
 }
 
 .guide-chat-form {
-    padding: 12px 14px 14px;
-    background:
-        linear-gradient(180deg, rgba(8, 13, 24, 0), rgba(8, 13, 24, 0.96) 32%),
-        rgba(8, 13, 24, 0.92);
+    padding: 12px 16px 16px;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0), rgba(249, 247, 255, 0.98) 28%);
 }
 
 .guide-chat-composer {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) 42px;
+    grid-template-columns: minmax(0, 1fr) 44px;
     gap: 8px;
     padding: 6px;
-    border: 1px solid rgba(147, 197, 253, 0.18);
-    border-radius: 8px;
-    background: rgba(15, 23, 42, 0.78);
-    box-shadow: 0 14px 32px rgba(2, 8, 23, 0.24);
+    border: 1px solid rgba(124, 58, 237, 0.2);
+    border-radius: 20px;
+    background: #fff;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.06);
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.guide-chat-composer:focus-within {
+    border-color: var(--guide-purple);
+    box-shadow: 0 10px 30px rgba(124, 58, 237, 0.12);
 }
 
 .guide-chat-input {
     width: 100%;
     min-width: 0;
-    height: 42px;
-    padding: 0 10px;
+    height: 44px;
+    padding: 0 16px;
     border: 0;
-    border-radius: 6px;
-    color: #f8fafc;
+    border-radius: 14px;
+    color: var(--guide-ink);
     background: transparent;
     outline: none;
     font-weight: 600;
+    font-size: 0.88rem;
 }
 
 .guide-chat-input::placeholder {
-    color: rgba(203, 213, 225, 0.7);
-}
-
-.guide-chat-input:focus {
-    box-shadow: none;
+    color: #94a3b8;
+    font-weight: 500;
 }
 
 .guide-chat-send {
-    width: 42px;
-    height: 42px;
-    border-radius: 8px;
-    color: #0f172a;
-    background: linear-gradient(135deg, #facc15, #60a5fa);
-    box-shadow: 0 12px 24px rgba(37, 99, 235, 0.24);
-    transition: transform 0.16s ease, box-shadow 0.16s ease, opacity 0.16s ease;
+    width: 44px;
+    height: 44px;
+    border-radius: 16px;
+    color: #fff;
+    background: linear-gradient(135deg, #8b5cf6, #6d28d9);
+    box-shadow: 0 8px 20px rgba(109, 40, 217, 0.25);
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.guide-chat-send i {
+    font-size: 1.25rem;
 }
 
 .guide-chat-send:hover:not(:disabled),
@@ -712,19 +806,20 @@
 }
 
 [data-theme="light"] .guide-chat-panel {
-    border-color: rgba(148, 163, 184, 0.36);
+    border-color: rgba(124, 58, 237, 0.18);
     background:
-        linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(248, 250, 252, 0.98)),
+        linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(248, 246, 255, 0.98)),
         #fff;
     box-shadow:
-        0 28px 80px rgba(30, 41, 59, 0.22),
-        0 0 0 1px rgba(255, 255, 255, 0.8) inset;
+        0 32px 90px rgba(76, 29, 149, 0.18),
+        0 18px 36px rgba(20, 184, 166, 0.1),
+        0 0 0 1px rgba(255, 255, 255, 0.92) inset;
 }
 
 [data-theme="light"] .guide-chat-header {
     background:
-        radial-gradient(circle at 18% 0%, rgba(250, 204, 21, 0.24), transparent 34%),
-        linear-gradient(135deg, rgba(37, 99, 235, 0.12), transparent 56%);
+        linear-gradient(135deg, rgba(239, 230, 255, 0.98), rgba(252, 247, 255, 0.96)),
+        #f2e8ff;
 }
 
 [data-theme="light"] .guide-chat-header strong {
@@ -742,9 +837,9 @@
 }
 
 [data-theme="light"] .guide-chat-status {
-    color: #1d4ed8;
-    border-color: rgba(37, 99, 235, 0.16);
-    background: #eff6ff;
+    color: var(--guide-purple-deep);
+    border-color: rgba(124, 58, 237, 0.12);
+    background: linear-gradient(135deg, rgba(239, 230, 255, 0.9), rgba(236, 254, 255, 0.78));
 }
 
 [data-theme="light"] .guide-chat-messages {
@@ -752,42 +847,40 @@
 }
 
 [data-theme="light"] .guide-chat-message.assistant {
-    color: #0f172a;
-    background: #eef6ff;
+    color: #37284d;
+    background: #f1eff8;
 }
 
 [data-theme="light"] .guide-quick-actions button {
-    color: #1d4ed8;
-    border-color: rgba(37, 99, 235, 0.14);
-    background: #eef6ff;
+    color: var(--guide-purple-deep);
+    border-color: rgba(124, 58, 237, 0.12);
+    background: rgba(255, 255, 255, 0.9);
 }
 
 [data-theme="light"] .guide-quick-actions button:hover,
 [data-theme="light"] .guide-quick-actions button:focus-visible {
-    color: #0f172a;
-    background: #facc15;
-    border-color: #facc15;
+    color: #fff;
+    background: var(--guide-purple);
+    border-color: var(--guide-purple);
 }
 
 [data-theme="light"] .guide-chat-message.is-typing {
-    color: #475569;
-    background: #f1f5f9;
+    color: var(--guide-muted);
+    background: #f1eff8;
 }
 
 [data-theme="light"] .guide-typing-dots i {
-    background: #2563eb;
+    background: var(--guide-purple);
 }
 
 [data-theme="light"] .guide-chat-form {
-    background:
-        linear-gradient(180deg, rgba(248, 250, 252, 0), rgba(248, 250, 252, 0.98) 32%),
-        rgba(248, 250, 252, 0.96);
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0), rgba(249, 247, 255, 0.98) 28%);
 }
 
 [data-theme="light"] .guide-chat-composer {
-    border-color: rgba(37, 99, 235, 0.14);
+    border-color: rgba(124, 58, 237, 0.15);
     background: #fff;
-    box-shadow: 0 14px 34px rgba(30, 41, 59, 0.1);
+    box-shadow: 0 16px 34px rgba(76, 29, 149, 0.12);
 }
 
 [data-theme="light"] .guide-chat-input {
@@ -802,8 +895,8 @@
     .guide-chat {
         right: 14px;
         bottom: 14px;
-        --guide-pet-width: 104px;
-        --guide-pet-height: 112px;
+        --guide-pet-width: 88px;
+        --guide-pet-height: 96px;
     }
 
     .guide-chat-toggle {
@@ -812,12 +905,13 @@
     }
 
     .guide-chat-panel {
-        width: min(360px, calc(100vw - 24px));
+        width: min(350px, calc(100vw - 24px));
         bottom: calc(var(--guide-pet-height) + var(--guide-panel-gap));
-        height: min(470px, calc(100vh - 120px));
+        height: min(430px, calc(100vh - 120px));
     }
 
     .guide-chat-header {
+        min-height: 84px;
         padding: 16px 16px 12px;
     }
 
@@ -828,6 +922,16 @@
 
     .guide-chat-message {
         max-width: 92%;
+    }
+
+    .guide-chat-message.assistant {
+        max-width: calc(100% - 38px);
+    }
+
+    .guide-quick-actions {
+        grid-template-columns: 1fr 1fr;
+        padding-right: 16px;
+        padding-left: 48px;
     }
 }
 .guide-chat-skeleton {

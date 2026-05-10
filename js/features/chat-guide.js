@@ -1,4 +1,4 @@
-import { auth, functions, httpsCallable } from "../firebase/index.js";
+import { auth, db, doc, functions, getDoc, httpsCallable, serverTimestamp, setDoc } from "../firebase/index.js";
 import { route } from "../../data/route.js";
 import { getSceneText, t, getCurrentLanguage } from "../app/i18n.js";
 import { state } from "../app/state.js";
@@ -9,8 +9,12 @@ let isMounted = false;
 let isSending = false;
 
 const GUIDE_POSITION_KEY = "vku-guide-chat-position";
+const GUIDE_HISTORY_KEY = "vku-guide-chat-history";
+const GUIDE_HISTORY_COLLECTION = "guideChatHistories";
 const GUIDE_EDGE_PADDING = 14;
 const GUIDE_DRAG_THRESHOLD = 6;
+const GUIDE_MAX_HISTORY_MESSAGES = 80;
+const GUIDE_CONTEXT_HISTORY_MESSAGES = 12;
 const GUIDE_PET_SPRITESHEET_SRC = new URL("../../assets/images/pets/gugugaga-vku/spritesheet.webp", import.meta.url).href;
 const GUIDE_STAGE_ALERT_DURATION = 9000;
 const GUIDE_PET_TEMP_CLASSES = [
@@ -25,6 +29,8 @@ let guidePetTimer = null;
 let guideAmbientTimer = null;
 let guideStageTimer = null;
 let latestStagePayload = null;
+let latestStageMessageKey = "";
+let guideHistoryCache = [];
 
 export function setupGuideChat() {
     if (isMounted) return;
@@ -41,7 +47,7 @@ export function setupGuideChat() {
     applySavedGuidePosition(root);
 
     bindGuideEvents(root);
-    addGuideMessage(root, "assistant", t("guide.welcome"));
+    restoreGuideMessages(root);
     startGuidePetMood(root);
     window.addEventListener("resize", () => clampGuidePosition(root, true));
     window.addEventListener("vku-guide-stage", (event) => {
@@ -53,7 +59,7 @@ export function setupGuideChat() {
         renderGuideTemplate(root);
         bindGuideEvents(root);
         setGuideOpen(root, isOpen);
-        addGuideMessage(root, "assistant", t("guide.welcome"));
+        restoreGuideMessages(root);
         if (latestStagePayload) {
             renderGuideStageCard(root, latestStagePayload);
         }
@@ -68,18 +74,9 @@ function renderGuideTemplate(root) {
         </button>
         <section class="guide-stage-card" aria-live="polite" aria-hidden="true"></section>
         <section class="guide-chat-panel" id="guide-chat-panel" aria-hidden="true">
-            <header class="guide-chat-header">
-                <div class="guide-chat-brand">
-                    <span class="guide-chat-badge">VKU</span>
-                    <div>
-                        <span class="guide-chat-kicker">${t("guide.title")}</span>
-                        <strong>${t("guide.subtitle")}</strong>
-                    </div>
-                </div>
-                <button class="guide-chat-close" type="button" aria-label="Close guide">
-                    <i class="ph ph-x"></i>
-                </button>
-            </header>
+            <button class="guide-chat-close" type="button" aria-label="${getCurrentLanguage() === "en" ? "Close" : "Đóng"}">
+                <i class="ph ph-x"></i>
+            </button>
             <div class="guide-chat-status">
                 <span></span>
                 <p>${buildGuideContextLabel()}</p>
@@ -94,9 +91,9 @@ function renderGuideTemplate(root) {
                     <i class="ph ph-list-checks"></i>
                     ${getCurrentLanguage() === "en" ? "Route" : "Lộ trình"}
                 </button>
-                <button type="button" data-guide-quick-action="hint">
-                    <i class="ph ph-sparkle"></i>
-                    ${getCurrentLanguage() === "en" ? "Hint" : "Gợi ý"}
+                <button type="button" data-guide-quick-action="mission">
+                    <i class="ph ph-flag"></i>
+                    ${getCurrentLanguage() === "en" ? "Mission" : "Nhiệm vụ"}
                 </button>
                 <button type="button" data-guide-quick-action="next">
                     <i class="ph ph-arrow-right"></i>
@@ -184,16 +181,30 @@ function handleGuideQuickAction(root, action) {
         return;
     }
 
-    if (action === "hint") {
-        const scene = route[state.currentStep] || route[0];
-        const title = scene ? getSceneText(scene, "shortTitle") || getSceneText(scene, "title") : "";
-        const mission = scene ? getSceneText(scene, "mission") : "";
+    if (action === "mission") {
+        const { title, mission } = getCurrentGuideSceneDetails();
         const text = getCurrentLanguage() === "en"
-            ? `Hint for ${title}: ${mission}`
-            : `Gợi ý cho ${title}: ${mission}`;
+            ? `Mission at ${title}: ${mission || "Look around this stop and continue when you're ready."}`
+            : `Nhiệm vụ ở ${title} nè: ${mission || "Bạn nhìn quanh chặng này rồi bấm đi tiếp khi sẵn sàng nha."}`;
         addGuideMessage(root, "assistant", text);
-        playGuidePetAnimation(root, "reviewing", 900);
+        playGuidePetAnimation(root, "jumping", 900);
+        return;
     }
+}
+
+function getCurrentGuideSceneDetails() {
+    const scene = route[state.currentStep] || route[0];
+    if (!scene) {
+        return {
+            title: getCurrentLanguage() === "en" ? "this stop" : "chặng này",
+            mission: "",
+        };
+    }
+
+    return {
+        title: getSceneText(scene, "shortTitle") || getSceneText(scene, "title") || (getCurrentLanguage() === "en" ? "this stop" : "chặng này"),
+        mission: String(getSceneText(scene, "mission") || "").trim(),
+    };
 }
 
 function bindGuideDrag(root, toggle) {
@@ -356,17 +367,22 @@ async function handleGuideSubmit(root, event) {
         const result = await guideCallable({
             message: currentLang === "en" ? `${message} (Please reply in English)` : message,
             language: currentLang,
+            history: buildGuideHistoryPayload(message),
             currentScene: buildCurrentScenePayload(),
             progress: {
                 currentStep: state.currentStep,
                 unlockedStep: state.unlockedStep,
             },
         });
-        thinking.textContent = result.data?.reply || t("guide.noReply");
+        thinking.textContent = normalizeGuideText(result.data?.reply || t("guide.noReply"));
+        persistGuideMessage("assistant", thinking.textContent);
+        scrollGuideMessages(root);
         playGuidePetAnimation(root, "reviewing", 1200);
     } catch (error) {
         console.error("Guide chat error:", error);
         thinking.textContent = t("guide.error");
+        persistGuideMessage("assistant", thinking.textContent);
+        scrollGuideMessages(root);
         playGuidePetAnimation(root, "failed", 1500);
     } finally {
         setSending(root, false);
@@ -409,7 +425,13 @@ function setGuideOpen(root, isOpen) {
     }
 }
 
-function addGuideMessage(root, role, text, isSkeleton = false) {
+function restoreGuideMessages(root) {
+    const history = loadGuideHistory();
+    renderGuideMessages(root, history);
+    void syncGuideHistoryFromFirebase(root);
+}
+
+function addGuideMessage(root, role, text, isSkeleton = false, shouldPersist = true) {
     const list = root.querySelector(".guide-chat-messages");
     const bubble = document.createElement("div");
     bubble.className = `guide-chat-message ${role}${isSkeleton ? " is-typing" : ""}`;
@@ -426,12 +448,137 @@ function addGuideMessage(root, role, text, isSkeleton = false) {
             </div>
         `;
     } else {
-        bubble.textContent = text;
+        bubble.textContent = normalizeGuideText(text);
+        if (shouldPersist) {
+            persistGuideMessage(role, bubble.textContent);
+        }
     }
 
     list?.appendChild(bubble);
-    list?.scrollTo({ top: list.scrollHeight, behavior: "smooth" });
+    scrollGuideMessages(root);
     return bubble;
+}
+
+function scrollGuideMessages(root, behavior = "smooth") {
+    const list = root.querySelector(".guide-chat-messages");
+    if (!list) return;
+
+    requestAnimationFrame(() => {
+        list.scrollTo({ top: list.scrollHeight, behavior });
+    });
+}
+
+function buildGuideHistoryPayload(currentMessage = "") {
+    const currentText = normalizeGuideText(currentMessage);
+    const history = guideHistoryCache.length ? guideHistoryCache : loadGuideHistory();
+    const context = history.slice();
+    const latest = context.at(-1);
+
+    if (latest?.role === "user" && latest.text === currentText) {
+        context.pop();
+    }
+
+    return context.slice(-GUIDE_CONTEXT_HISTORY_MESSAGES);
+}
+
+function persistGuideMessage(role, text) {
+    const normalizedText = normalizeGuideText(text);
+    if (!normalizedText || !["assistant", "user"].includes(role)) return;
+
+    const history = guideHistoryCache.length ? guideHistoryCache.slice() : loadGuideHistory();
+    history.push({
+        role,
+        text: normalizedText,
+        language: getCurrentLanguage(),
+        createdAt: Date.now(),
+    });
+    saveGuideHistory(history.slice(-GUIDE_MAX_HISTORY_MESSAGES));
+}
+
+function loadGuideHistory() {
+    try {
+        const parsed = JSON.parse(localStorage.getItem(getGuideHistoryStorageKey()) || "[]");
+        if (!Array.isArray(parsed)) return [];
+        guideHistoryCache = normalizeGuideHistory(parsed);
+        return guideHistoryCache;
+    } catch {
+        guideHistoryCache = [];
+        return [];
+    }
+}
+
+function normalizeGuideHistory(messages) {
+    if (!Array.isArray(messages)) return [];
+
+    return messages
+            .map((item) => ({
+                role: item?.role === "user" ? "user" : item?.role === "assistant" ? "assistant" : "",
+                text: normalizeGuideText(item?.text || "").slice(0, 1200),
+                language: typeof item?.language === "string" ? item.language : "",
+                createdAt: Number.isFinite(Number(item?.createdAt)) ? Number(item.createdAt) : 0,
+            }))
+            .filter((item) => item.role && item.text);
+}
+
+function saveGuideHistory(history) {
+    guideHistoryCache = normalizeGuideHistory(history).slice(-GUIDE_MAX_HISTORY_MESSAGES);
+    localStorage.setItem(getGuideHistoryStorageKey(), JSON.stringify(guideHistoryCache));
+    void saveGuideHistoryToFirebase(guideHistoryCache);
+}
+
+function renderGuideMessages(root, history) {
+    const list = root.querySelector(".guide-chat-messages");
+    if (list) list.innerHTML = "";
+
+    if (!history.length) {
+        addGuideMessage(root, "assistant", t("guide.welcome"), false, false);
+        return;
+    }
+
+    history.forEach((message) => {
+        addGuideMessage(root, message.role, message.text, false, false);
+    });
+}
+
+async function syncGuideHistoryFromFirebase(root) {
+    if (!auth?.currentUser || !db) return;
+
+    try {
+        const snapshot = await getDoc(doc(db, GUIDE_HISTORY_COLLECTION, auth.currentUser.uid));
+        const remoteHistory = normalizeGuideHistory(snapshot.data()?.messages || []);
+        if (!remoteHistory.length) {
+            await saveGuideHistoryToFirebase(guideHistoryCache);
+            return;
+        }
+
+        const remoteKey = JSON.stringify(remoteHistory);
+        const localKey = JSON.stringify(guideHistoryCache);
+        if (remoteKey === localKey) return;
+
+        guideHistoryCache = remoteHistory.slice(-GUIDE_MAX_HISTORY_MESSAGES);
+        localStorage.setItem(getGuideHistoryStorageKey(), JSON.stringify(guideHistoryCache));
+        renderGuideMessages(root, guideHistoryCache);
+    } catch (error) {
+        console.warn("Guide history sync failed:", error);
+    }
+}
+
+async function saveGuideHistoryToFirebase(history) {
+    if (!auth?.currentUser || !db) return;
+
+    try {
+        await setDoc(doc(db, GUIDE_HISTORY_COLLECTION, auth.currentUser.uid), {
+            uid: auth.currentUser.uid,
+            messages: normalizeGuideHistory(history).slice(-GUIDE_MAX_HISTORY_MESSAGES),
+            updatedAt: serverTimestamp(),
+        }, { merge: true });
+    } catch (error) {
+        console.warn("Guide history save failed:", error);
+    }
+}
+
+function getGuideHistoryStorageKey() {
+    return auth?.currentUser ? `${GUIDE_HISTORY_KEY}:${auth.currentUser.uid}` : GUIDE_HISTORY_KEY;
 }
 
 function showGuideStageAlert(root, payload) {
@@ -441,6 +588,7 @@ function showGuideStageAlert(root, payload) {
     }
 
     latestStagePayload = payload;
+    announceGuideStageInChat(root, payload);
     const status = root.querySelector(".guide-chat-status p");
     if (status) status.textContent = buildGuideContextLabel();
     renderGuideStageCard(root, payload);
@@ -493,6 +641,32 @@ function renderGuideStageCard(root, payload) {
         </div>
     `;
     card.setAttribute("aria-hidden", "false");
+}
+
+function announceGuideStageInChat(root, payload) {
+    const language = getCurrentLanguage();
+    const stepNumber = Number(payload.step) + 1;
+    const messageKey = `${payload.step}:${language}`;
+    if (messageKey === latestStageMessageKey) return;
+
+    latestStageMessageKey = messageKey;
+    addGuideMessage(root, "assistant", buildGuideStageMessage(payload, stepNumber, language));
+}
+
+function buildGuideStageMessage(payload, stepNumber, language) {
+    const progressText = payload.total ? `${stepNumber}/${payload.total}` : String(stepNumber);
+    const title = payload.title || payload.chapter || t("guide.title");
+    const mission = payload.mission || payload.dialog || "";
+
+    if (language === "en") {
+        return mission
+            ? `New stop ${progressText}: ${title}. Tiny mission for you: ${mission}`
+            : `New stop ${progressText}: ${title}. Take a look around and ask me for the mission when you're ready.`;
+    }
+
+    return mission
+        ? `Tới chặng ${progressText}: ${title} rồi nè. Nhiệm vụ nhỏ của bạn là: ${mission}`
+        : `Tới chặng ${progressText}: ${title} rồi nè. Bạn nhìn quanh một vòng, cần gợi ý thì gọi mình nha.`;
 }
 
 function hideGuideStageAlert(root) {
@@ -565,4 +739,13 @@ function escapeHtml(value = "") {
         .replaceAll(">", "&gt;")
         .replaceAll('"', "&quot;")
         .replaceAll("'", "&#039;");
+}
+
+function normalizeGuideText(value = "") {
+    return String(value)
+        .replace(/\*\*([^*]+)\*\*/g, "$1")
+        .replace(/\*([^*]+)\*/g, "$1")
+        .replace(/__([^_]+)__/g, "$1")
+        .replace(/_([^_]+)_/g, "$1")
+        .trim();
 }

@@ -278,14 +278,14 @@ const TEXT = {
         "mood.peaceful": "Bình yên",
         "mood.proud": "Tự hào",
         "guide.title": "VKU Guide",
-        "guide.subtitle": "Campus assistant",
-        "guide.placeholder": "Hỏi guide về chặng hiện tại...",
-        "guide.welcome": "Mình là VKU Guide. Bạn có thể hỏi về chặng hiện tại, hướng đi tiếp theo hoặc nhiệm vụ nhỏ.",
-        "guide.needLogin": "Bạn cần đăng nhập để dùng guide.",
-        "guide.needLoginLong": "Hãy đăng nhập trước, sau đó mình sẽ hướng dẫn theo tiến độ của bạn.",
-        "guide.noFunctions": "Guide chưa được cấu hình Cloud Functions.",
-        "guide.noReply": "Mình chưa có câu trả lời phù hợp.",
-        "guide.error": "Guide hiện chưa phản hồi được. Hãy thử lại sau khi function đã deploy xong."
+        "guide.subtitle": "Bạn đồng hành campus",
+        "guide.placeholder": "Hỏi mình về chặng này nha...",
+        "guide.welcome": "Xin chào nè, mình là VKU Guide. Bạn muốn hỏi đường, xin gợi ý hay khám phá nhiệm vụ nhỏ thì nhắn mình nha.",
+        "guide.needLogin": "Bạn đăng nhập trước để mình dẫn đường nha.",
+        "guide.needLoginLong": "Bạn đăng nhập xíu nhé, rồi mình sẽ bám theo tiến độ để chỉ đường thật vừa vặn cho bạn.",
+        "guide.noFunctions": "Guide chưa được nối Cloud Functions nên mình chưa chat thật được nè.",
+        "guide.noReply": "Mình chưa nghĩ ra câu trả lời hợp lý nè.",
+        "guide.error": "Mình đang hơi kẹt tín hiệu. Bạn thử lại sau khi function deploy xong nha."
     },
     en: {
         "lang.vi": "VI",
@@ -563,14 +563,14 @@ const TEXT = {
         "mood.peaceful": "Peaceful",
         "mood.proud": "Proud",
         "guide.title": "VKU Guide",
-        "guide.subtitle": "Campus assistant",
-        "guide.placeholder": "Ask guide about current stage...",
-        "guide.welcome": "I'm VKU Guide. You can ask about the current stage, next direction, or mini missions.",
-        "guide.needLogin": "You need to sign in to use the guide.",
-        "guide.needLoginLong": "Please sign in first, then I'll guide you based on your progress.",
-        "guide.noFunctions": "Guide Cloud Functions not configured.",
-        "guide.noReply": "I don't have a suitable answer yet.",
-        "guide.error": "Guide is currently unresponsive. Please try again after the function is deployed."
+        "guide.subtitle": "Your campus buddy",
+        "guide.placeholder": "Ask me about this stop...",
+        "guide.welcome": "Hi hi, I'm VKU Guide. Ask me for directions, a tiny hint, or the next mini mission anytime.",
+        "guide.needLogin": "Sign in first so I can guide you properly.",
+        "guide.needLoginLong": "Please sign in for a moment, then I'll guide you based on your progress.",
+        "guide.noFunctions": "Guide is not connected to Cloud Functions yet, so I can't chat for real right now.",
+        "guide.noReply": "I don't have a good answer yet.",
+        "guide.error": "My signal is a little stuck. Please try again after the function is deployed."
     }
 };
 
