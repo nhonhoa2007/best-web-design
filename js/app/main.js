@@ -3,7 +3,7 @@ import { setupAuthUI } from "../features/auth.js";
 import { setupGuideChat } from "../features/chat-guide.js";
 import { bindEventControls, renderEventGallery } from "../features/events.js";
 import { renderHomeDashboard } from "../features/home.js";
-import { applyTranslations, mountLanguageSwitchers, t } from "./i18n.js";
+import { applyTranslations, mountLanguageSwitchers, translate } from "./i18n.js";
 import { checkAndPromptNickname } from "../features/nickname.js";
 import { bindProfileControls } from "../features/profile.js";
 import { hydrateProgressFromFirebase, hydrateState } from "./state.js";
@@ -87,7 +87,7 @@ async function loadPagePartials() {
         PAGE_PARTIALS.map(async (partial) => {
             const response = await fetch(partial);
             if (!response.ok) {
-                throw new Error(t("partial.error", { partial }));
+                throw new Error(translate("partial.error", { partial }));
             }
             return response.text();
         })
@@ -104,8 +104,8 @@ function showPartialLoadError(error) {
         <section class="auth-screen">
             <div class="auth-container glass-panel">
                 <div class="auth-header">
-                    <h2>${t("partial.title")}</h2>
-                    <p>${error.message}. ${t("partial.hint")}</p>
+                    <h2>${translate("partial.title")}</h2>
+                    <p>${error.message}. ${translate("partial.hint")}</p>
                 </div>
             </div>
         </section>

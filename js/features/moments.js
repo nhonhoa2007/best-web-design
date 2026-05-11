@@ -18,7 +18,7 @@ import {
     uploadBytes,
     where
 } from "../firebase/index.js";
-import { getCurrentLocale, getSceneText, t } from "../app/i18n.js";
+import { getCurrentLocale, getSceneText, translate } from "../app/i18n.js";
 import { state } from "../app/state.js";
 import { showToast } from "../ui/ui.js";
 
@@ -38,7 +38,7 @@ export function bindMomentControls() {
 
     document.getElementById("open-moment-form")?.addEventListener("click", () => {
         if (!auth?.currentUser) {
-            showToast(t("toast.needLoginMomentPost"));
+            showToast(translate("toast.needLoginMomentPost"));
             return;
         }
 
@@ -58,11 +58,11 @@ export async function renderMomentsForScene(scene = route[state.currentStep]) {
 
     if (!auth?.currentUser || !db) {
         momentCountsByScene.set(scene.id, 0);
-        countLabel.textContent = `0 ${t("unit.post")}`;
+        countLabel.textContent = `0 ${translate("unit.post")}`;
         list.innerHTML = `
             <div class="moments-empty">
                 <i class="ph ph-lock-key"></i>
-                <p>${t("moments.emptyLogin")}</p>
+                <p>${translate("moments.emptyLogin")}</p>
             </div>
         `;
         afterMomentsChange();
@@ -72,7 +72,7 @@ export async function renderMomentsForScene(scene = route[state.currentStep]) {
     list.innerHTML = `
             <div class="moments-loading">
                 <i class="ph ph-spinner-gap"></i>
-                <span>${t("moments.loading")}</span>
+                <span>${translate("moments.loading")}</span>
             </div>
     `;
 
@@ -80,13 +80,13 @@ export async function renderMomentsForScene(scene = route[state.currentStep]) {
         const moments = await fetchMomentsForScene(scene.id);
         await attachReactionSummaries(moments);
         momentCountsByScene.set(scene.id, moments.length);
-        countLabel.textContent = `${moments.length} ${t("unit.post")}`;
+        countLabel.textContent = `${moments.length} ${translate("unit.post")}`;
 
         if (!moments.length) {
             list.innerHTML = `
                 <div class="moments-empty">
                     <i class="ph ph-camera"></i>
-                    <p>${t("moments.empty")}</p>
+                    <p>${translate("moments.empty")}</p>
                 </div>
             `;
             afterMomentsChange();
@@ -98,14 +98,14 @@ export async function renderMomentsForScene(scene = route[state.currentStep]) {
     } catch (error) {
         console.error("Moment fetch error:", error);
         momentCountsByScene.set(scene.id, 0);
-        countLabel.textContent = `0 ${t("unit.post")}`;
+        countLabel.textContent = `0 ${translate("unit.post")}`;
         list.innerHTML = `
             <div class="moments-empty error">
                 <i class="ph ph-warning"></i>
-                <p>${t("moments.error")}</p>
+                <p>${translate("moments.error")}</p>
             </div>
         `;
-        showToast(t("toast.momentLoadError"));
+        showToast(translate("toast.momentLoadError"));
         afterMomentsChange();
     }
 }
@@ -209,7 +209,7 @@ async function handleMomentSubmit(event) {
     event.preventDefault();
 
     if (!auth?.currentUser || !db || !storage) {
-        showToast(t("toast.needLoginMomentSave"));
+        showToast(translate("toast.needLoginMomentSave"));
         return;
     }
 
@@ -224,14 +224,14 @@ async function handleMomentSubmit(event) {
     const file = document.getElementById("moment-photo").files[0] || null;
 
     if (!caption) {
-        showToast(t("toast.needCaption"));
+        showToast(translate("toast.needCaption"));
         return;
     }
 
     if (file && !validateImageFile(file)) return;
 
     submitButton.disabled = true;
-    submitButton.innerHTML = `<i class="ph ph-spinner-gap"></i> ${t("moments.saveLoading")}`;
+    submitButton.innerHTML = `<i class="ph ph-spinner-gap"></i> ${translate("moments.saveLoading")}`;
 
     try {
         if (editId) {
@@ -239,23 +239,23 @@ async function handleMomentSubmit(event) {
             await createNotification({
                 uid: auth.currentUser.uid,
                 type: "moment_updated",
-                title: t("notification.momentUpdated"),
-                body: t("moments.notificationUpdated", { sceneTitle: getSceneText(scene, "title") }),
+                title: translate("notification.momentUpdated"),
+                body: translate("moments.notificationUpdated", { sceneTitle: getSceneText(scene, "title") }),
                 momentId: editId,
                 sceneId: scene.id
             });
-            showToast(t("toast.momentUpdated"));
+            showToast(translate("toast.momentUpdated"));
         } else {
             const momentId = await createMoment(scene, { caption, mood, visibility, file });
             await createNotification({
                 uid: auth.currentUser.uid,
                 type: "moment_created",
-                title: t("notification.momentCreated"),
-                body: t("moments.notificationCreated", { sceneTitle: getSceneText(scene, "title") }),
+                title: translate("notification.momentCreated"),
+                body: translate("moments.notificationCreated", { sceneTitle: getSceneText(scene, "title") }),
                 momentId,
                 sceneId: scene.id
             });
-            showToast(t("toast.momentSaved"));
+            showToast(translate("toast.momentSaved"));
         }
 
         form.reset();
@@ -263,10 +263,10 @@ async function handleMomentSubmit(event) {
         await renderMomentsForScene(scene);
     } catch (error) {
         console.error("Moment save error:", error);
-        showToast(t("toast.momentSaveError"));
+        showToast(translate("toast.momentSaveError"));
     } finally {
         submitButton.disabled = false;
-        submitButton.innerHTML = `<i class="ph ph-floppy-disk"></i> ${t("tour.saveMoment")}`;
+        submitButton.innerHTML = `<i class="ph ph-floppy-disk"></i> ${translate("tour.saveMoment")}`;
     }
 }
 
@@ -346,7 +346,7 @@ async function handleMomentAction(event) {
 
 async function reactToMoment(button) {
     if (!auth?.currentUser || !db) {
-        showToast(t("toast.needLoginReaction"));
+        showToast(translate("toast.needLoginReaction"));
         return;
     }
 
@@ -366,7 +366,7 @@ async function reactToMoment(button) {
         if (previousReaction === reaction) {
             await deleteDoc(reactionRef);
             await renderMomentsForScene(route[state.currentStep]);
-            showToast(t("toast.reactionRemoved"));
+            showToast(translate("toast.reactionRemoved"));
             return;
         }
 
@@ -386,18 +386,18 @@ async function reactToMoment(button) {
             await createNotification({
                 uid: ownerUid,
                 type: "reaction_received",
-                title: t("moments.reactionTitle", { name: state.customName, reaction }),
-                body: t("moments.reactionBody", { caption: moment.caption || button.dataset.caption || t("moments.yourMoment") }),
+                title: translate("moments.reactionTitle", { name: state.customName, reaction }),
+                body: translate("moments.reactionBody", { caption: moment.caption || button.dataset.caption || translate("moments.yourMoment") }),
                 momentId,
                 sceneId: moment.sceneId || button.dataset.sceneId || ""
             });
         }
 
-        showToast(t("toast.reactionSaved"));
+        showToast(translate("toast.reactionSaved"));
         await renderMomentsForScene(route[state.currentStep]);
     } catch (error) {
         console.error("Reaction save error:", error);
-        showToast(t("toast.reactionError"));
+        showToast(translate("toast.reactionError"));
     } finally {
         button.disabled = false;
     }
@@ -428,7 +428,7 @@ async function createNotification({ uid, type, title, body, momentId = "", scene
 async function deleteMoment(momentId, imagePath) {
     if (!momentId || !auth?.currentUser || !db) return;
 
-    const confirmed = window.confirm(t("confirm.deleteMoment"));
+    const confirmed = window.confirm(translate("confirm.deleteMoment"));
     if (!confirmed) return;
 
     try {
@@ -437,11 +437,11 @@ async function deleteMoment(momentId, imagePath) {
         }
 
         await deleteDoc(doc(db, "moments", momentId));
-        showToast(t("toast.momentDeleted"));
+        showToast(translate("toast.momentDeleted"));
         await renderMomentsForScene(route[state.currentStep]);
     } catch (error) {
         console.error("Moment delete error:", error);
-        showToast(t("toast.momentDeleteError"));
+        showToast(translate("toast.momentDeleteError"));
     }
 }
 
@@ -518,7 +518,7 @@ function handlePhotoPreview(event) {
 
     const imageUrl = URL.createObjectURL(file);
     preview.classList.remove("hidden");
-    preview.innerHTML = `<img src="${imageUrl}" alt="${t("moments.previewAlt")}">`;
+    preview.innerHTML = `<img src="${imageUrl}" alt="${translate("moments.previewAlt")}">`;
 }
 
 function resetMomentPreview() {
@@ -531,12 +531,12 @@ function resetMomentPreview() {
 
 function validateImageFile(file) {
     if (!file.type.startsWith("image/")) {
-        showToast(t("toast.imageOnly"));
+        showToast(translate("toast.imageOnly"));
         return false;
     }
 
     if (file.size > MAX_IMAGE_SIZE) {
-        showToast(t("toast.photoMax"));
+        showToast(translate("toast.photoMax"));
         return false;
     }
 
@@ -545,9 +545,9 @@ function validateImageFile(file) {
 
 function renderMomentCard(moment) {
     const isOwner = auth?.currentUser?.uid === moment.uid;
-    const visibilityText = moment.visibility === "public" ? t("moments.publicLabel") : t("moments.privateLabel");
+    const visibilityText = moment.visibility === "public" ? translate("moments.publicLabel") : translate("moments.privateLabel");
     const image = moment.imageUrl
-        ? `<img class="moment-image img-loading-skeleton" src="${escapeAttribute(moment.imageUrl)}" alt="${escapeAttribute(t("moments.imageAlt", { sceneTitle: moment.sceneTitle }))}" onload="this.classList.remove('img-loading-skeleton')">`
+        ? `<img class="moment-image img-loading-skeleton" src="${escapeAttribute(moment.imageUrl)}" alt="${escapeAttribute(translate("moments.imageAlt", { sceneTitle: moment.sceneTitle }))}" onload="this.classList.remove('img-loading-skeleton')">`
         : "";
 
     return `
@@ -560,21 +560,21 @@ function renderMomentCard(moment) {
                 </div>
                 <p>${escapeHtml(moment.caption)}</p>
                 <div class="moment-card-foot">
-                    <span>${escapeHtml(moment.authorName || t("fallback.explorer"))}</span>
+                    <span>${escapeHtml(moment.authorName || translate("fallback.explorer"))}</span>
                     <span>${formatMomentDate(moment.createdAt)}</span>
                 </div>
-                <div class="moment-reactions" aria-label="${t("moments.reactLabel")}">
-                    ${renderReactionButton(moment, "👍", t("moments.like"))}
-                    ${renderReactionButton(moment, "💛", t("moments.love"))}
-                    ${renderReactionButton(moment, "🎉", t("moments.celebrate"))}
+                <div class="moment-reactions" aria-label="${translate("moments.reactLabel")}">
+                    ${renderReactionButton(moment, "👍", translate("moments.like"))}
+                    ${renderReactionButton(moment, "💛", translate("moments.love"))}
+                    ${renderReactionButton(moment, "🎉", translate("moments.celebrate"))}
                 </div>
                 ${isOwner ? `
                     <div class="moment-card-actions">
                         <button class="secondary-button compact-button" type="button" data-moment-edit="${moment.id}">
-                            <i class="ph ph-pencil-simple"></i> ${t("moments.edit")}
+                            <i class="ph ph-pencil-simple"></i> ${translate("moments.edit")}
                         </button>
                         <button class="secondary-button compact-button danger-button" type="button" data-moment-delete="${moment.id}" data-image-path="${escapeAttribute(moment.imagePath)}">
-                            <i class="ph ph-trash"></i> ${t("moments.delete")}
+                            <i class="ph ph-trash"></i> ${translate("moments.delete")}
                         </button>
                     </div>
                 ` : ""}
@@ -613,7 +613,7 @@ function getTime(value) {
 
 function formatMomentDate(value) {
     const time = getTime(value);
-    if (!time) return t("status.justNow");
+    if (!time) return translate("status.justNow");
 
     return new Intl.DateTimeFormat(getCurrentLocale(), {
         day: "2-digit",

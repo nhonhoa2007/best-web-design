@@ -1,6 +1,6 @@
 import { auth, db, doc, functions, getDoc, httpsCallable, serverTimestamp, setDoc } from "../firebase/index.js";
 import { route } from "../../data/route.js";
-import { getSceneText, t, getCurrentLanguage } from "../app/i18n.js";
+import { getSceneText, translate, getCurrentLanguage } from "../app/i18n.js";
 import { state } from "../app/state.js";
 import { showToast } from "../ui/ui.js";
 
@@ -70,7 +70,7 @@ function renderGuideTemplate(root) {
     root.innerHTML = `
         <button class="guide-chat-toggle" type="button" aria-expanded="false" aria-controls="guide-chat-panel">
             <span class="guide-chat-pet" aria-hidden="true"></span>
-            <span class="sr-only">${t("guide.title")}</span>
+            <span class="sr-only">${translate("guide.title")}</span>
         </button>
         <section class="guide-stage-card" aria-live="polite" aria-hidden="true"></section>
         <section class="guide-chat-panel" id="guide-chat-panel" aria-hidden="true">
@@ -107,7 +107,7 @@ function renderGuideTemplate(root) {
                         type="text"
                         maxlength="1000"
                         autocomplete="off"
-                        placeholder="${t("guide.placeholder")}"
+                        placeholder="${translate("guide.placeholder")}"
                         aria-label="Message"
                     >
                     <button class="guide-chat-send" type="submit" aria-label="Send">
@@ -347,14 +347,14 @@ async function handleGuideSubmit(root, event) {
     input.value = "";
 
     if (!auth?.currentUser) {
-        showToast(t("guide.needLogin"));
-        addGuideMessage(root, "assistant", t("guide.needLoginLong"));
+        showToast(translate("guide.needLogin"));
+        addGuideMessage(root, "assistant", translate("guide.needLoginLong"));
         playGuidePetAnimation(root, "failed", 1400);
         return;
     }
 
     if (!guideCallable) {
-        addGuideMessage(root, "assistant", t("guide.noFunctions"));
+        addGuideMessage(root, "assistant", translate("guide.noFunctions"));
         playGuidePetAnimation(root, "failed", 1400);
         return;
     }
@@ -374,13 +374,13 @@ async function handleGuideSubmit(root, event) {
                 unlockedStep: state.unlockedStep,
             },
         });
-        thinking.textContent = normalizeGuideText(result.data?.reply || t("guide.noReply"));
+        thinking.textContent = normalizeGuideText(result.data?.reply || translate("guide.noReply"));
         persistGuideMessage("assistant", thinking.textContent);
         scrollGuideMessages(root);
         playGuidePetAnimation(root, "reviewing", 1200);
     } catch (error) {
         console.error("Guide chat error:", error);
-        thinking.textContent = t("guide.error");
+        thinking.textContent = translate("guide.error");
         persistGuideMessage("assistant", thinking.textContent);
         scrollGuideMessages(root);
         playGuidePetAnimation(root, "failed", 1500);
@@ -531,7 +531,7 @@ function renderGuideMessages(root, history) {
     if (list) list.innerHTML = "";
 
     if (!history.length) {
-        addGuideMessage(root, "assistant", t("guide.welcome"), false, false);
+        addGuideMessage(root, "assistant", translate("guide.welcome"), false, false);
         return;
     }
 
@@ -615,7 +615,7 @@ function renderGuideStageCard(root, payload) {
         : (language === "en" ? "Continue" : "Đi tiếp");
     const mapLabel = language === "en" ? "Open map" : "Mở bản đồ";
     const dismissLabel = language === "en" ? "Close" : "Đóng";
-    const title = payload.title || payload.chapter || t("guide.title");
+    const title = payload.title || payload.chapter || translate("guide.title");
     const mission = payload.mission || payload.dialog || "";
     const progressText = payload.total ? `${Number(payload.step) + 1}/${payload.total}` : "";
 
@@ -624,7 +624,7 @@ function renderGuideStageCard(root, payload) {
             <i class="ph ph-x"></i>
         </button>
         <div class="guide-stage-meta">
-            <span>${escapeHtml(payload.chapter || t("guide.title"))}</span>
+            <span>${escapeHtml(payload.chapter || translate("guide.title"))}</span>
             ${progressText ? `<span>${escapeHtml(progressText)}</span>` : ""}
         </div>
         <strong>${escapeHtml(title)}</strong>
@@ -655,7 +655,7 @@ function announceGuideStageInChat(root, payload) {
 
 function buildGuideStageMessage(payload, stepNumber, language) {
     const progressText = payload.total ? `${stepNumber}/${payload.total}` : String(stepNumber);
-    const title = payload.title || payload.chapter || t("guide.title");
+    const title = payload.title || payload.chapter || translate("guide.title");
     const mission = payload.mission || payload.dialog || "";
 
     if (language === "en") {

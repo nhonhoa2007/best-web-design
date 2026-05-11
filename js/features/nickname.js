@@ -1,4 +1,4 @@
-import { t } from "../app/i18n.js";
+import { translate } from "../app/i18n.js";
 import { STORAGE_KEYS, saveProgressToFirebase, setProfile, state } from "../app/state.js";
 import { showToast } from "../ui/ui.js";
 
@@ -11,7 +11,7 @@ const MODAL_ID = "nickname-modal";
  */
 export function checkAndPromptNickname() {
     return new Promise((resolve) => {
-        const fallback = t("fallback.guest");
+        const fallback = translate("fallback.guest");
         const currentName = state.customName?.trim();
 
         // Already has a real, non-default name → skip
@@ -80,9 +80,9 @@ function bindModalEvents(modal, onConfirm, cleanup) {
     const MIN = 2;
 
     const validate = (val) => {
-        if (!val || val.length < MIN) return t("nickname.errorMin") || `Tên cần ít nhất ${MIN} ký tự`;
-        if (val.length > MAX) return t("nickname.errorMax") || `Tên không được quá ${MAX} ký tự`;
-        if (/^\s+$/.test(val)) return t("nickname.errorBlank") || "Tên không được chỉ có khoảng trắng";
+        if (!val || val.length < MIN) return translate("nickname.errorMin") || `Tên cần ít nhất ${MIN} ký tự`;
+        if (val.length > MAX) return translate("nickname.errorMax") || `Tên không được quá ${MAX} ký tự`;
+        if (/^\s+$/.test(val)) return translate("nickname.errorBlank") || "Tên không được chỉ có khoảng trắng";
         return null;
     };
 
@@ -115,13 +115,13 @@ function bindModalEvents(modal, onConfirm, cleanup) {
             setProfile(state.selectedAvatar, val);
             await saveProgressToFirebase();
             localStorage.setItem(NICKNAME_KEY, val);
-            showToast(t("toast.nicknameSet", { name: val }));
+            showToast(translate("toast.nicknameSet", { name: val }));
             hideModal(modal);
             onConfirm(val);
         } catch (err) {
             console.error("Nickname save error:", err);
             btn.disabled = false;
-            btn.innerHTML = `${t("nickname.confirm") || "Xác nhận"} <i class="ph ph-arrow-right"></i>`;
+            btn.innerHTML = `${translate("nickname.confirm") || "Xác nhận"} <i class="ph ph-arrow-right"></i>`;
         }
     };
 

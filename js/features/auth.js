@@ -4,7 +4,7 @@ import {
     signInWithEmailAndPassword,
     signOut
 } from "../firebase/index.js";
-import { t } from "../app/i18n.js";
+import { translate } from "../app/i18n.js";
 import { showToast } from "../ui/ui.js";
 
 let isLoginMode = true;
@@ -38,20 +38,20 @@ export function setupAuthUI() {
         const password = document.getElementById("password").value;
 
         if (!auth) {
-            showToast(t("toast.firebaseMissing"));
+            showToast(translate("toast.firebaseMissing"));
             return;
         }
 
         submitBtn.disabled = true;
-        submitBtn.textContent = isLoginMode ? t("auth.loggingIn") : t("auth.signingUp");
+        submitBtn.textContent = isLoginMode ? translate("auth.loggingIn") : translate("auth.signingUp");
 
         try {
             if (isLoginMode) {
                 await signInWithEmailAndPassword(auth, email, password);
-                showToast(t("toast.loginSuccess"));
+                showToast(translate("toast.loginSuccess"));
             } else {
                 await createUserWithEmailAndPassword(auth, email, password);
-                showToast(t("toast.signupSuccess"));
+                showToast(translate("toast.signupSuccess"));
             }
             refreshAfterAuthChange();
         } catch (error) {
@@ -59,7 +59,7 @@ export function setupAuthUI() {
             console.error("Auth Error:", error);
         } finally {
             submitBtn.disabled = false;
-            submitBtn.textContent = isLoginMode ? t("auth.loginAction") : t("auth.signupAction");
+            submitBtn.textContent = isLoginMode ? translate("auth.loginAction") : translate("auth.signupAction");
         }
     };
 }
@@ -69,10 +69,10 @@ export async function handleLogout() {
 
     try {
         await signOut(auth);
-        showToast(t("toast.logoutSuccess"));
+        showToast(translate("toast.logoutSuccess"));
         refreshAfterAuthChange();
     } catch (error) {
-        showToast(t("toast.logoutError"));
+        showToast(translate("toast.logoutError"));
         console.error("Logout Error:", error);
     }
 }
@@ -84,19 +84,19 @@ function refreshAfterAuthChange() {
 function getAuthErrorMessage(error) {
     const code = error?.code || "";
     const messages = {
-        "auth/email-already-in-use": t("auth.error.emailInUse"),
-        "auth/invalid-email": t("auth.error.invalidEmail"),
-        "auth/invalid-credential": t("auth.error.invalidCredential"),
-        "auth/network-request-failed": t("auth.error.network"),
-        "auth/operation-not-allowed": t("auth.error.operation"),
-        "auth/too-many-requests": t("auth.error.tooMany"),
-        "auth/missing-password": t("auth.error.missingPassword"),
-        "auth/weak-password": t("auth.error.weakPassword"),
-        "auth/user-not-found": t("auth.error.userNotFound"),
-        "auth/wrong-password": t("auth.error.wrongPassword")
+        "auth/email-already-in-use": translate("auth.error.emailInUse"),
+        "auth/invalid-email": translate("auth.error.invalidEmail"),
+        "auth/invalid-credential": translate("auth.error.invalidCredential"),
+        "auth/network-request-failed": translate("auth.error.network"),
+        "auth/operation-not-allowed": translate("auth.error.operation"),
+        "auth/too-many-requests": translate("auth.error.tooMany"),
+        "auth/missing-password": translate("auth.error.missingPassword"),
+        "auth/weak-password": translate("auth.error.weakPassword"),
+        "auth/user-not-found": translate("auth.error.userNotFound"),
+        "auth/wrong-password": translate("auth.error.wrongPassword")
     };
 
-    return messages[code] || error?.message || t("auth.error.default");
+    return messages[code] || error?.message || translate("auth.error.default");
 }
 
 function refreshAuthText() {
@@ -104,14 +104,14 @@ function refreshAuthText() {
     const submitBtn = document.getElementById("auth-submit-btn");
     const toggleText = document.getElementById("auth-toggle-text");
 
-    if (title) title.textContent = isLoginMode ? t("auth.loginTitle") : t("auth.signupTitle");
+    if (title) title.textContent = isLoginMode ? translate("auth.loginTitle") : translate("auth.signupTitle");
     if (submitBtn && !submitBtn.disabled) {
-        submitBtn.textContent = isLoginMode ? t("auth.loginAction") : t("auth.signupAction");
+        submitBtn.textContent = isLoginMode ? translate("auth.loginAction") : translate("auth.signupAction");
     }
     if (toggleText) {
         toggleText.innerHTML = isLoginMode
-            ? `${t("auth.needAccount")} <a href="#" id="auth-toggle-link">${t("auth.signupNow")}</a>`
-            : `${t("auth.hasAccount")} <a href="#" id="auth-toggle-link">${t("auth.loginNow")}</a>`;
+            ? `${translate("auth.needAccount")} <a href="#" id="auth-toggle-link">${translate("auth.signupNow")}</a>`
+            : `${translate("auth.hasAccount")} <a href="#" id="auth-toggle-link">${translate("auth.loginNow")}</a>`;
     }
 }
 

@@ -1015,7 +1015,7 @@ function setLanguage(language) {
     window.dispatchEvent(new CustomEvent("vku-language-change", { detail: { language: nextLanguage } }));
 }
 
-export function t(key, params = {}) {
+export function translate(key, params = {}) {
     const language = getCurrentLanguage();
     const template = TEXT[language]?.[key] ?? TEXT.vi[key] ?? key;
     return Object.entries(params).reduce((value, [name, replacement]) => {
@@ -1042,7 +1042,7 @@ export function mountLanguageSwitchers() {
             const switcher = document.createElement("div");
             switcher.className = "language-switcher";
             switcher.setAttribute("role", "group");
-            switcher.setAttribute("aria-label", t("lang.label"));
+            switcher.setAttribute("aria-label", translate("lang.label"));
             switcher.innerHTML = `
                 <button type="button" data-language-option="vi">VI</button>
                 <button type="button" data-language-option="en">EN</button>
@@ -1069,10 +1069,10 @@ export function applyTranslations() {
     document.documentElement.lang = getCurrentLanguage();
     STATIC_BINDINGS.forEach((binding) => {
         document.querySelectorAll(binding.selector).forEach((element) => {
-            const value = binding.value ?? t(binding.key);
+            const value = binding.value ?? translate(binding.key);
 
             if (binding.selector === ".home-hero h1") {
-                element.innerHTML = `${t(binding.key)} <span>${t(binding.accentKey)}</span>`;
+                element.innerHTML = `${translate(binding.key)} <span>${translate(binding.accentKey)}</span>`;
                 return;
             }
 
@@ -1109,11 +1109,11 @@ export function getSceneText(scene, field) {
     if (language === "vi") return scene[field];
 
     if (field === "chapter") {
-        return `${t("route.stage")} ${getStageNumber(scene)}`;
+        return `${translate("route.stage")} ${getStageNumber(scene)}`;
     }
 
     if (field === "zoneName") {
-        return scene.zone === "khu-v" ? t("route.zoneV") : t("route.zoneK");
+        return scene.zone === "khu-v" ? translate("route.zoneV") : translate("route.zoneK");
     }
 
     return ROUTE_EN[scene.id]?.[field] ?? scene[field];
@@ -1159,19 +1159,19 @@ export function getAvatarText(avatar, field) {
 }
 
 export function getZoneName(zone) {
-    return zone === "khu-v" ? t("route.zoneV") : t("route.zoneK");
+    return zone === "khu-v" ? translate("route.zoneV") : translate("route.zoneK");
 }
 
 function syncLanguageSwitchers() {
     const language = getCurrentLanguage();
     document.querySelectorAll(".language-switcher").forEach((switcher) => {
-        switcher.setAttribute("aria-label", t("lang.label"));
+        switcher.setAttribute("aria-label", translate("lang.label"));
     });
     document.querySelectorAll("[data-language-option]").forEach((button) => {
         const isActive = button.dataset.languageOption === language;
         button.classList.toggle("active", isActive);
         button.setAttribute("aria-pressed", String(isActive));
-        button.textContent = t(`lang.${button.dataset.languageOption}`);
+        button.textContent = translate(`lang.${button.dataset.languageOption}`);
     });
 }
 
@@ -1185,7 +1185,7 @@ function syncMoodOptions() {
 
     document.querySelectorAll("#moment-mood option").forEach((option) => {
         const key = moodMap[option.value];
-        if (key) option.textContent = t(key);
+        if (key) option.textContent = translate(key);
     });
 }
 

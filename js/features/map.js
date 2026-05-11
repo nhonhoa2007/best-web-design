@@ -1,5 +1,5 @@
 import { route } from "../../data/route.js";
-import { getSceneText, getZoneName, t } from "../app/i18n.js";
+import { getSceneText, getZoneName, translate } from "../app/i18n.js";
 import { getMomentCountByScene } from "./moments.js";
 import { state } from "../app/state.js";
 
@@ -24,10 +24,10 @@ export function renderMap() {
 
     if (!currentScene || !mapTitle || !unlockLabel || !mapImageV || !mapImageK || !dots) return;
 
-    mapTitle.textContent = t("map.title", { zone: mapZoneName });
-    unlockLabel.textContent = `${unlockedInZone}/${totalInZone} ${t("unit.pointUnlocked")}`;
-    mapImageV.alt = t("map.alt", { zone: getZoneName("khu-v") });
-    mapImageK.alt = t("map.alt", { zone: getZoneName("khu-k") });
+    mapTitle.textContent = translate("map.title", { zone: mapZoneName });
+    unlockLabel.textContent = `${unlockedInZone}/${totalInZone} ${translate("unit.pointUnlocked")}`;
+    mapImageV.alt = translate("map.alt", { zone: getZoneName("khu-v") });
+    mapImageK.alt = translate("map.alt", { zone: getZoneName("khu-k") });
     mapImageV.hidden = state.activeMapZone !== "khu-v";
     mapImageK.hidden = state.activeMapZone !== "khu-k";
 

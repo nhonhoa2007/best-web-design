@@ -1,7 +1,7 @@
 import { avatars } from "../../data/avatars.js";
 import { route } from "../../data/route.js";
 import { handleLogout } from "./auth.js";
-import { getAvatarText, getCurrentLanguage, getSceneText, t } from "../app/i18n.js";
+import { getAvatarText, getCurrentLanguage, getSceneText, translate } from "../app/i18n.js";
 import { renderMap, setMapNavigator } from "./map.js";
 import { bindMomentControls, renderMomentsForScene, setMomentsChangeHandler } from "./moments.js";
 import {
@@ -307,13 +307,13 @@ function restartTour() {
     resetProgress();
     lastGuideAnnouncementKey = "";
     loadStep(0, { forceViewer: true });
-    showToast(t("toast.restart"));
+    showToast(translate("toast.restart"));
 }
 
 function initViewer() {
     if (!window.pannellum) {
         setPanoramaLoading(false);
-        showToast(t("toast.viewerMissing"));
+        showToast(translate("toast.viewerMissing"));
         renderExperience();
         return;
     }
@@ -345,7 +345,7 @@ function initViewer() {
         if (typeof nextIndex !== "number") return;
 
         if (nextIndex > state.unlockedStep + 1) {
-            showToast(t("toast.lockedRoute"));
+            showToast(translate("toast.lockedRoute"));
             loadStep(state.currentStep, { forceViewer: true });
             return;
         }
@@ -383,11 +383,11 @@ function createHotspots(index) {
             pitch: -4,
             yaw: 32,
             type: "scene",
-            text: t("hotspot.next", { title: getSceneText(next, "shortTitle") }),
+            text: translate("hotspot.next", { title: getSceneText(next, "shortTitle") }),
             sceneId: next.id,
             cssClass: "quest-hotspot next",
             createTooltipFunc: customHotspot,
-            createTooltipArgs: t("hotspot.next", { title: getSceneText(next, "shortTitle") })
+            createTooltipArgs: translate("hotspot.next", { title: getSceneText(next, "shortTitle") })
         });
     }
 
@@ -396,11 +396,11 @@ function createHotspots(index) {
             pitch: -6,
             yaw: -34,
             type: "scene",
-            text: t("hotspot.previous", { title: getSceneText(previous, "shortTitle") }),
+            text: translate("hotspot.previous", { title: getSceneText(previous, "shortTitle") }),
             sceneId: previous.id,
             cssClass: "quest-hotspot previous",
             createTooltipFunc: customHotspot,
-            createTooltipArgs: t("hotspot.previous", { title: getSceneText(previous, "shortTitle") })
+            createTooltipArgs: translate("hotspot.previous", { title: getSceneText(previous, "shortTitle") })
         });
     }
 
@@ -483,7 +483,7 @@ function loadStep(index, options = {}) {
     if (index < 0 || index >= route.length) return;
 
     if (index > state.unlockedStep + 1) {
-        showToast(t("toast.lockedStep"));
+        showToast(translate("toast.lockedStep"));
         return;
     }
 
@@ -514,7 +514,7 @@ function renderExperience() {
 
     document.getElementById("current-zone-label").textContent = getSceneText(scene, "zoneName");
     const progressLabel = document.getElementById("progress-label");
-    if (progressLabel) progressLabel.textContent = `${state.unlockedStep + 1}/${route.length} ${t("unit.stage")}`;
+    if (progressLabel) progressLabel.textContent = `${state.unlockedStep + 1}/${route.length} ${translate("unit.stage")}`;
 
     const progressCircle = document.getElementById("progress-circle");
     if (progressCircle) {
@@ -567,8 +567,8 @@ function renderStory(scene) {
     const nextButton = document.getElementById("next-step");
     prevButton.disabled = state.currentStep === 0;
     nextButton.innerHTML = state.currentStep === route.length - 1
-        ? `${t("action.finish")} <i class="ph ph-flag-checkered"></i>`
-        : `${t("action.next")} <i class="ph ph-arrow-right"></i>`;
+        ? `${translate("action.finish")} <i class="ph ph-flag-checkered"></i>`
+        : `${translate("action.next")} <i class="ph ph-arrow-right"></i>`;
 
     storyPanel?.classList.add("story-panel-refreshed");
 }
@@ -635,8 +635,8 @@ function renderRouteList() {
 
     document.getElementById("tab-khu-v").classList.toggle("active", state.activeMapZone === "khu-v");
     document.getElementById("tab-khu-k").classList.toggle("active", state.activeMapZone === "khu-k");
-    document.getElementById("tab-khu-v").textContent = t("route.zoneV");
-    document.getElementById("tab-khu-k").textContent = t("route.zoneK");
+    document.getElementById("tab-khu-v").textContent = translate("route.zoneV");
+    document.getElementById("tab-khu-k").textContent = translate("route.zoneK");
 
     if (document.getElementById("tour-app")?.classList.contains("show-route-page")) {
         window.requestAnimationFrame(scrollCurrentRouteIntoView);

@@ -7,7 +7,7 @@ import {
     uploadBytes
 } from "../firebase/index.js";
 import { handleLogout } from "./auth.js";
-import { t } from "../app/i18n.js";
+import { translate } from "../app/i18n.js";
 import { renderHomeDashboard } from "./home.js";
 import { saveProgressToFirebase, setProfileAvatarImage, state } from "../app/state.js";
 import { showToast } from "../ui/ui.js";
@@ -34,7 +34,7 @@ async function handleAvatarUpload(event) {
     if (!file) return;
 
     if (!auth?.currentUser || !storage) {
-        showToast(t("toast.needLoginAvatar"));
+        showToast(translate("toast.needLoginAvatar"));
         input.value = "";
         return;
     }
@@ -60,10 +60,10 @@ async function handleAvatarUpload(event) {
         }
 
         await renderHomeDashboard();
-        showToast(saved ? t("toast.avatarUpdated") : t("toast.avatarUploadedUnsynced"));
+        showToast(saved ? translate("toast.avatarUpdated") : translate("toast.avatarUploadedUnsynced"));
     } catch (error) {
         console.error("Profile avatar upload error:", error);
-        showToast(t("toast.avatarUploadError"));
+        showToast(translate("toast.avatarUploadError"));
     } finally {
         input.value = "";
         setUploadState(button, status, false);
@@ -92,12 +92,12 @@ async function deletePreviousAvatar(imagePath, uid) {
 
 function validateAvatarFile(file) {
     if (!file.type.startsWith("image/")) {
-        showToast(t("toast.imageOnly"));
+        showToast(translate("toast.imageOnly"));
         return false;
     }
 
     if (file.size > MAX_AVATAR_SIZE) {
-        showToast(t("toast.avatarMax"));
+        showToast(translate("toast.avatarMax"));
         return false;
     }
 
@@ -108,11 +108,11 @@ function setUploadState(button, status, isUploading) {
     if (button) {
         button.disabled = isUploading;
         button.innerHTML = isUploading
-            ? `<i class="ph ph-spinner-gap"></i> ${t("action.uploading")}`
-            : `<i class="ph ph-camera"></i> ${t("action.uploadAvatar")}`;
+            ? `<i class="ph ph-spinner-gap"></i> ${translate("action.uploading")}`
+            : `<i class="ph ph-camera"></i> ${translate("action.uploadAvatar")}`;
     }
 
     if (status) {
-        status.textContent = isUploading ? t("profile.avatarSyncing") : "";
+        status.textContent = isUploading ? translate("profile.avatarSyncing") : "";
     }
 }

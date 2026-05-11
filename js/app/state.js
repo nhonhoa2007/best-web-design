@@ -1,7 +1,7 @@
 import { avatars } from "../../data/avatars.js";
 import { route } from "../../data/route.js";
 import { auth, db, doc, getDoc, serverTimestamp, setDoc } from "../firebase/index.js";
-import { t } from "./i18n.js";
+import { translate } from "./i18n.js";
 import { clamp } from "../ui/ui.js";
 
 export const STORAGE_KEYS = {
@@ -20,7 +20,7 @@ export const state = {
     selectedAvatar: avatars[0],
     avatarImagePath: "",
     avatarImageUrl: "",
-    customName: t("fallback.guest"),
+    customName: translate("fallback.guest"),
     currentStep: 0,
     unlockedStep: 0,
     activeMapZone: "khu-v",
@@ -39,7 +39,7 @@ export function hydrateState() {
     state.selectedAvatar = avatarById.get(savedAvatar) || avatars[0];
     state.avatarImagePath = savedAvatarImagePath || "";
     state.avatarImageUrl = savedAvatarImageUrl || "";
-    state.customName = savedName || t("fallback.guest");
+    state.customName = savedName || translate("fallback.guest");
     state.currentStep = Number.isFinite(savedCurrent) ? clamp(savedCurrent, 0, route.length - 1) : 0;
     state.unlockedStep = Number.isFinite(savedUnlocked)
         ? clamp(savedUnlocked, state.currentStep, route.length - 1)
@@ -161,7 +161,7 @@ function resetStateToDefault() {
     state.selectedAvatar = avatars[0];
     state.avatarImagePath = "";
     state.avatarImageUrl = "";
-    state.customName = t("fallback.guest");
+    state.customName = translate("fallback.guest");
     state.currentStep = 0;
     state.unlockedStep = 0;
     state.activeMapZone = route[0].zone;
@@ -178,7 +178,7 @@ function applyProgressData(data) {
     state.avatarImageUrl = typeof data.avatarImageUrl === "string" ? data.avatarImageUrl : "";
     state.customName = typeof data.customName === "string" && data.customName.trim()
         ? data.customName.trim()
-        : t("fallback.guest");
+        : translate("fallback.guest");
     state.currentStep = currentStep;
     state.unlockedStep = unlockedStep;
     state.activeMapZone = data.activeMapZone || route[currentStep]?.zone || "khu-v";

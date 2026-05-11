@@ -11,7 +11,7 @@ import {
     storage,
     uploadBytes
 } from "../firebase/index.js";
-import { getCurrentLocale, t } from "../app/i18n.js";
+import { getCurrentLocale, translate } from "../app/i18n.js";
 import { state } from "../app/state.js";
 import { showToast } from "../ui/ui.js";
 
@@ -37,25 +37,25 @@ export async function renderEventGallery() {
     if (!gallery) return;
 
     if (!auth?.currentUser || !db) {
-        gallery.innerHTML = renderEmptyState("ph-lock-key", t("events.emptyLogin"));
+        gallery.innerHTML = renderEmptyState("ph-lock-key", translate("events.emptyLogin"));
         return;
     }
 
-    gallery.innerHTML = renderEmptyState("ph-spinner-gap", t("events.loadingGallery"), "is-loading");
+    gallery.innerHTML = renderEmptyState("ph-spinner-gap", translate("events.loadingGallery"), "is-loading");
 
     try {
         const photos = await fetchEventPhotos();
 
         if (!photos.length) {
-            gallery.innerHTML = renderEmptyState("ph-images", t("events.empty"));
+            gallery.innerHTML = renderEmptyState("ph-images", translate("events.empty"));
             return;
         }
 
         gallery.innerHTML = photos.map(renderEventPhotoCard).join("");
     } catch (error) {
         console.warn("Event gallery load error:", error);
-        gallery.innerHTML = renderEmptyState("ph-warning", t("events.loadError"), "error");
-        showToast(t("toast.eventLoadError"));
+        gallery.innerHTML = renderEmptyState("ph-warning", translate("events.loadError"), "error");
+        showToast(translate("toast.eventLoadError"));
     }
 }
 
@@ -63,7 +63,7 @@ async function handleEventPhotoSubmit(event) {
     event.preventDefault();
 
     if (!auth?.currentUser || !db || !storage) {
-        showToast(t("toast.needLoginEventPhoto"));
+        showToast(translate("toast.needLoginEventPhoto"));
         return;
     }
 
@@ -77,7 +77,7 @@ async function handleEventPhotoSubmit(event) {
     const file = fileInput?.files?.[0] || null;
 
     if (!title || !caption || !file) {
-        showToast(t("toast.eventMissingFields"));
+        showToast(translate("toast.eventMissingFields"));
         return;
     }
 
@@ -90,11 +90,11 @@ async function handleEventPhotoSubmit(event) {
         form.reset();
         syncEventFileName();
         resetEventPhotoPreview();
-        showToast(t("toast.eventPhotoSaved"));
+        showToast(translate("toast.eventPhotoSaved"));
         await renderEventGallery();
     } catch (error) {
         console.error("Event photo save error:", error);
-        showToast(t("toast.eventPhotoSaveError"));
+        showToast(translate("toast.eventPhotoSaveError"));
     } finally {
         setSubmitState(submitButton, false);
     }
@@ -107,7 +107,7 @@ async function createEventPhoto({ title, caption, file }) {
 
     await setDoc(photoRef, {
         uid: user.uid,
-        authorName: state.customName || t("fallback.explorer"),
+        authorName: state.customName || translate("fallback.explorer"),
         title,
         caption,
         imageUrl: upload.imageUrl,
@@ -154,14 +154,14 @@ function handleEventPhotoPreview(event) {
 
     const imageUrl = URL.createObjectURL(file);
     preview.classList.remove("hidden");
-    preview.innerHTML = `<img src="${imageUrl}" alt="${t("events.previewAlt")}">`;
+    preview.innerHTML = `<img src="${imageUrl}" alt="${translate("events.previewAlt")}">`;
 }
 
 function syncEventFileName(file = document.getElementById("event-photo-file")?.files?.[0] || null) {
     const fileName = document.getElementById("event-photo-file-name");
     if (!fileName) return;
 
-    fileName.textContent = file ? file.name : t("events.noFileSelected");
+    fileName.textContent = file ? file.name : translate("events.noFileSelected");
 }
 
 function resetEventPhotoPreview() {
@@ -174,12 +174,12 @@ function resetEventPhotoPreview() {
 
 function validateEventImage(file) {
     if (!file.type.startsWith("image/")) {
-        showToast(t("toast.imageOnly"));
+        showToast(translate("toast.imageOnly"));
         return false;
     }
 
     if (file.size > MAX_EVENT_IMAGE_SIZE) {
-        showToast(t("toast.eventPhotoMax"));
+        showToast(translate("toast.eventPhotoMax"));
         return false;
     }
 
@@ -191,21 +191,21 @@ function setSubmitState(button, isSaving) {
 
     button.disabled = isSaving;
     button.innerHTML = isSaving
-        ? `<i class="ph ph-spinner-gap"></i> ${t("events.saving")}`
-        : `<i class="ph ph-cloud-arrow-up"></i> ${t("events.postPhoto")}`;
+        ? `<i class="ph ph-spinner-gap"></i> ${translate("events.saving")}`
+        : `<i class="ph ph-cloud-arrow-up"></i> ${translate("events.postPhoto")}`;
 }
 
 function renderEventPhotoCard(photo) {
     return `
         <article class="event-photo-card">
-            <img class="img-loading-skeleton" src="${escapeAttribute(photo.imageUrl)}" alt="${escapeAttribute(t("events.imageAlt", { title: photo.title || t("events.fallbackTitle") }))}" onload="this.classList.remove('img-loading-skeleton')">
+            <img class="img-loading-skeleton" src="${escapeAttribute(photo.imageUrl)}" alt="${escapeAttribute(translate("events.imageAlt", { title: photo.title || translate("events.fallbackTitle") }))}" onload="this.classList.remove('img-loading-skeleton')">
             <div class="event-photo-body">
                 <div>
                     <span>${formatEventDate(photo.createdAt)}</span>
-                    <strong>${escapeHtml(photo.title || t("events.fallbackTitle"))}</strong>
+                    <strong>${escapeHtml(photo.title || translate("events.fallbackTitle"))}</strong>
                 </div>
                 <p>${escapeHtml(photo.caption || "")}</p>
-                <small>${escapeHtml(photo.authorName || t("fallback.explorer"))}</small>
+                <small>${escapeHtml(photo.authorName || translate("fallback.explorer"))}</small>
             </div>
         </article>
     `;
@@ -229,7 +229,7 @@ function getTime(value) {
 
 function formatEventDate(value) {
     const time = getTime(value);
-    if (!time) return t("status.justNow");
+    if (!time) return translate("status.justNow");
 
     return new Intl.DateTimeFormat(getCurrentLocale(), {
         day: "2-digit",

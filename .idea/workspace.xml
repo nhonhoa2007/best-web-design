@@ -2,14 +2,19 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="d5447ad1-859c-4c32-8804-4bca08b5d9c9" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/css/main.css" beforeDir="false" afterPath="$PROJECT_DIR$/css/main.css" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/js/events.js" beforeDir="false" afterPath="$PROJECT_DIR$/js/events.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/js/i18n.js" beforeDir="false" afterPath="$PROJECT_DIR$/js/i18n.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/js/main.js" beforeDir="false" afterPath="$PROJECT_DIR$/js/main.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/js/moments.js" beforeDir="false" afterPath="$PROJECT_DIR$/js/moments.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pages/events.html" beforeDir="false" afterPath="$PROJECT_DIR$/pages/events.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pages/homepage.html" beforeDir="false" afterPath="$PROJECT_DIR$/pages/homepage.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pages/login.html" beforeDir="false" afterPath="$PROJECT_DIR$/pages/login.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/js/app/i18n.js" beforeDir="false" afterPath="$PROJECT_DIR$/js/app/i18n.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/js/app/main.js" beforeDir="false" afterPath="$PROJECT_DIR$/js/app/main.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/js/app/state.js" beforeDir="false" afterPath="$PROJECT_DIR$/js/app/state.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/js/features/auth.js" beforeDir="false" afterPath="$PROJECT_DIR$/js/features/auth.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/js/features/chat-guide.js" beforeDir="false" afterPath="$PROJECT_DIR$/js/features/chat-guide.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/js/features/events.js" beforeDir="false" afterPath="$PROJECT_DIR$/js/features/events.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/js/features/home.js" beforeDir="false" afterPath="$PROJECT_DIR$/js/features/home.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/js/features/map.js" beforeDir="false" afterPath="$PROJECT_DIR$/js/features/map.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/js/features/moments.js" beforeDir="false" afterPath="$PROJECT_DIR$/js/features/moments.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/js/features/nickname.js" beforeDir="false" afterPath="$PROJECT_DIR$/js/features/nickname.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/js/features/profile.js" beforeDir="false" afterPath="$PROJECT_DIR$/js/features/profile.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/js/features/tour.js" beforeDir="false" afterPath="$PROJECT_DIR$/js/features/tour.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -19,10 +24,10 @@
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
-  <component name="ProjectColorInfo"><![CDATA[{
-  "associatedIndex": 4,
-  "fromUser": false
-}]]></component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 4,
+  &quot;fromUser&quot;: false
+}</component>
   <component name="ProjectId" id="3DO6RSsnmyXNWqlGQHpG6DsZlJo" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
@@ -32,6 +37,7 @@
   "keyToString": {
     "ModuleVcsDetector.initialDetectionPerformed": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
     "RunOnceActivity.git.unshallow": "true",
     "RunOnceActivity.typescript.service.memoryLimit.init": "true",
     "codeWithMe.voiceChat.enabledByDefault": "false",
@@ -58,6 +64,7 @@
       <option name="presentableId" value="Default" />
       <updated>1778140764659</updated>
       <workItem from="1778140766490" duration="31000" />
+      <workItem from="1778461441720" duration="2992000" />
     </task>
     <servers />
   </component>
