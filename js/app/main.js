@@ -1,3 +1,4 @@
+import { inject } from '@vercel/analytics';
 import { auth, onAuthStateChanged } from "../firebase/index.js";
 import { setupAuthUI } from "../features/auth.js";
 import { setupGuideChat } from "../features/chat-guide.js";
@@ -39,6 +40,12 @@ const APP_SCREENS = [
 const SCREEN_TRANSITION_MS = 260;
 
 document.addEventListener("DOMContentLoaded", async () => {
+    // Initialize Vercel Web Analytics
+    inject({
+        mode: 'auto',
+        debug: false
+    });
+
     try {
         await loadPagePartials();
     } catch (error) {
