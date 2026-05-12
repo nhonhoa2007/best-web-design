@@ -33,6 +33,8 @@ let latestStageMessageKey = "";
 let guideHistoryCache = [];
 
 export function setupGuideChat() {
+    // Khởi tạo hệ thống chatbot Guide (linh vật hỗ trợ)
+    // Mục đích: Thiết lập giao diện chatbot, xử lý kéo thả, khôi phục lịch sử tin nhắn và lắng nghe các sự kiện thay đổi ngôn ngữ/chặng đường.
     if (isMounted) return;
     isMounted = true;
     guideCallable = functions ? httpsCallable(functions, "chatGuide") : null;
@@ -67,6 +69,8 @@ export function setupGuideChat() {
 }
 
 function renderGuideTemplate(root) {
+    // Tạo cấu trúc HTML cho chatbot Guide
+    // Mục đích: Render nút kích hoạt (linh vật), bảng điều khiển chat, các nút hành động nhanh và form nhập tin nhắn.
     root.innerHTML = `
         <button class="guide-chat-toggle" type="button" aria-expanded="false" aria-controls="guide-chat-panel">
             <span class="guide-chat-pet" aria-hidden="true"></span>
@@ -120,6 +124,8 @@ function renderGuideTemplate(root) {
 }
 
 function bindGuideEvents(root) {
+    // Gắn sự kiện cho chatbot Guide
+    // Mục đích: Xử lý nhấn nút đóng/mở, kéo thả linh vật, các nút hành động nhanh (Bản đồ, Nhiệm vụ) và gửi tin nhắn chat.
     const toggle = root.querySelector(".guide-chat-toggle");
 
     toggle?.addEventListener("click", (event) => {
@@ -166,6 +172,8 @@ function bindGuideEvents(root) {
 }
 
 function handleGuideQuickAction(root, action) {
+    // Xử lý các lệnh hành động nhanh từ chatbot
+    // Mục đích: Mở bản đồ, lộ trình, di chuyển chặng hoặc yêu cầu Guide giải thích nhiệm vụ hiện tại.
     if (action === "map") {
         window.dispatchEvent(new CustomEvent("vku-guide-open-map"));
         return;
@@ -193,6 +201,8 @@ function handleGuideQuickAction(root, action) {
 }
 
 function getCurrentGuideSceneDetails() {
+    // Lấy thông tin chặng hiện tại cho Guide
+    // Mục đích: Truy xuất tiêu đề và nhiệm vụ của địa điểm người dùng đang đứng để Guide có thể trả lời chính xác.
     const scene = route[state.currentStep] || route[0];
     if (!scene) {
         return {
@@ -208,6 +218,8 @@ function getCurrentGuideSceneDetails() {
 }
 
 function bindGuideDrag(root, toggle) {
+    // Xử lý việc kéo thả linh vật Guide trên màn hình
+    // Mục đích: Cho phép người dùng di chuyển chatbot đến vị trí thuận tiện và tránh che mất các nội dung quan trọng khác.
     if (!toggle) return;
 
     let drag = null;
@@ -269,6 +281,8 @@ function bindGuideDrag(root, toggle) {
 }
 
 function applySavedGuidePosition(root) {
+    // Khôi phục vị trí chatbot đã lưu
+    // Mục đích: Lấy tọa độ từ localStorage để đặt chatbot vào đúng vị trí người dùng đã để ở phiên làm việc trước.
     try {
         const saved = JSON.parse(localStorage.getItem(GUIDE_POSITION_KEY) || "null");
         if (!saved || !Number.isFinite(saved.left) || !Number.isFinite(saved.top)) {
@@ -283,6 +297,8 @@ function applySavedGuidePosition(root) {
 }
 
 function placeGuideChat(root, left, top) {
+    // Đặt chatbot vào một vị trí cụ thể
+    // Mục đích: Cập nhật CSS left/top và xác định phía neo (docking) để bảng chat mở ra không bị tràn khỏi màn hình.
     const { left: safeLeft, top: safeTop } = getClampedGuidePosition(root, left, top);
 
     root.style.left = `${safeLeft}px`;
@@ -293,6 +309,8 @@ function placeGuideChat(root, left, top) {
 }
 
 function clampGuidePosition(root, shouldSave = false) {
+    // Ràng buộc vị trí chatbot trong vùng nhìn thấy
+    // Mục đích: Đảm bảo chatbot không bị kéo ra ngoài rìa màn hình và lưu lại vị trí hợp lệ.
     const rect = root.getBoundingClientRect();
     placeGuideChat(root, rect.left, rect.top);
     if (shouldSave) {
@@ -301,6 +319,8 @@ function clampGuidePosition(root, shouldSave = false) {
 }
 
 function getClampedGuidePosition(root, left, top) {
+    // Tính toán tọa độ hợp lệ (không vượt quá biên)
+    // Mục đích: Đảm bảo khoảng cách an toàn (padding) giữa chatbot và các cạnh của trình duyệt.
     const rect = root.getBoundingClientRect();
     const width = rect.width || 132;
     const height = rect.height || 143;
@@ -312,11 +332,15 @@ function getClampedGuidePosition(root, left, top) {
 }
 
 function updateGuidePanelDocking(root, left = root.getBoundingClientRect().left, top = root.getBoundingClientRect().top) {
+    // Cập nhật hướng mở của bảng chat
+    // Mục đích: Tự động điều chỉnh bảng chat mở sang trái/phải hoặc lên/xuống dựa trên vị trí hiện tại của linh vật.
     root.classList.toggle("is-docked-left", left < 360);
     root.classList.toggle("is-docked-top", top < 340);
 }
 
 function saveGuidePosition(root) {
+    // Lưu vị trí chatbot vào bộ nhớ đệm
+    // Mục đích: Ghi nhớ tọa độ X, Y hiện tại vào localStorage.
     const rect = root.getBoundingClientRect();
     localStorage.setItem(GUIDE_POSITION_KEY, JSON.stringify({
         left: Math.round(rect.left),
@@ -325,17 +349,24 @@ function saveGuidePosition(root) {
 }
 
 function clamp(value, min, max) {
+    // Hàm tiện ích giới hạn giá trị số
+    // Mục đích: Giữ một con số nằm trong khoảng [min, max].
     if (max < min) return min;
     return Math.min(Math.max(value, min), max);
 }
 
 function preloadGuidePetSpritesheet() {
+    // Tải trước hình ảnh hoạt ảnh của linh vật
+    // Mục đích: Tránh tình trạng linh vật bị biến mất hoặc nhấp nháy khi thực hiện các hoạt động (nhảy, vẫy tay).
     const image = new Image();
     image.decoding = "async";
     image.src = GUIDE_PET_SPRITESHEET_SRC;
 }
 
 async function handleGuideSubmit(root, event) {
+    // Xử lý khi người dùng gửi tin nhắn cho chatbot
+    // Mục đích: Gửi nội dung tới Firebase Cloud Functions để xử lý bằng AI (Gemini) và hiển thị câu trả lời.
+    // Ghi chú Async: Hàm này 'await' phản hồi từ AI (guideCallable). Quá trình suy luận của AI tốn vài giây, 'await' giúp mã lệnh dừng lại đúng lúc để nhận câu trả lời trước khi hiển thị lên màn hình.
     event.preventDefault();
     if (isSending) return;
 
@@ -390,6 +421,8 @@ async function handleGuideSubmit(root, event) {
 }
 
 function buildCurrentScenePayload() {
+    // Tạo dữ liệu ngữ cảnh về chặng hiện tại cho AI
+    // Mục đích: Cung cấp thông tin địa danh, nhiệm vụ để AI có thể trả lời các câu hỏi liên quan đến vị trí người dùng.
     const scene = route[state.currentStep] || route[0];
     if (!scene) return null;
 
@@ -407,6 +440,8 @@ function buildCurrentScenePayload() {
 }
 
 function buildGuideContextLabel() {
+    // Tạo nhãn hiển thị ngữ cảnh chặng hiện tại
+    // Mục đích: Hiển thị tên chặng đang đứng ngay trên đầu bảng chat để người dùng dễ theo dõi.
     const scene = route[state.currentStep] || route[0];
     const sceneName = scene ? getSceneText(scene, "shortTitle") || getSceneText(scene, "title") : "";
     const prefix = getCurrentLanguage() === "en" ? "Current stop" : "Chặng hiện tại";
@@ -414,6 +449,8 @@ function buildGuideContextLabel() {
 }
 
 function setGuideOpen(root, isOpen) {
+    // Điều khiển việc đóng/mở giao diện chat
+    // Mục đích: Chuyển đổi trạng thái hiển thị của bảng chat và kích hoạt hoạt ảnh vẫy tay của linh vật khi mở.
     root.classList.toggle("is-open", isOpen);
     root.querySelector(".guide-chat-toggle")?.setAttribute("aria-expanded", String(isOpen));
     root.querySelector(".guide-chat-panel")?.setAttribute("aria-hidden", String(!isOpen));
@@ -426,12 +463,16 @@ function setGuideOpen(root, isOpen) {
 }
 
 function restoreGuideMessages(root) {
+    // Khôi phục các tin nhắn cũ
+    // Mục đích: Tải lại lịch sử chat từ localStorage và đồng bộ thêm từ Firebase (nếu đã đăng nhập).
     const history = loadGuideHistory();
     renderGuideMessages(root, history);
     void syncGuideHistoryFromFirebase(root);
 }
 
 function addGuideMessage(root, role, text, isSkeleton = false, shouldPersist = true) {
+    // Thêm một tin nhắn mới vào giao diện chat
+    // Mục đích: Tạo bong bóng chat cho người dùng hoặc Guide, hỗ trợ hiệu ứng skeleton khi đang 'suy nghĩ'.
     const list = root.querySelector(".guide-chat-messages");
     const bubble = document.createElement("div");
     bubble.className = `guide-chat-message ${role}${isSkeleton ? " is-typing" : ""}`;
@@ -460,6 +501,8 @@ function addGuideMessage(root, role, text, isSkeleton = false, shouldPersist = t
 }
 
 function scrollGuideMessages(root, behavior = "smooth") {
+    // Cuộn danh sách tin nhắn xuống cuối
+    // Mục đích: Luôn hiển thị các tin nhắn mới nhất vừa được thêm vào.
     const list = root.querySelector(".guide-chat-messages");
     if (!list) return;
 
@@ -469,6 +512,8 @@ function scrollGuideMessages(root, behavior = "smooth") {
 }
 
 function buildGuideHistoryPayload(currentMessage = "") {
+    // Chuẩn bị dữ liệu lịch sử gửi cho AI
+    // Mục đích: Lấy ra N tin nhắn gần nhất để AI hiểu được mạch hội thoại (context).
     const currentText = normalizeGuideText(currentMessage);
     const history = guideHistoryCache.length ? guideHistoryCache : loadGuideHistory();
     const context = history.slice();
@@ -482,6 +527,8 @@ function buildGuideHistoryPayload(currentMessage = "") {
 }
 
 function persistGuideMessage(role, text) {
+    // Lưu trữ tin nhắn vào bộ nhớ đệm lịch sử
+    // Mục đích: Ghi lại tin nhắn mới kèm theo mốc thời gian và ngôn ngữ vào mảng cache.
     const normalizedText = normalizeGuideText(text);
     if (!normalizedText || !["assistant", "user"].includes(role)) return;
 
@@ -496,6 +543,8 @@ function persistGuideMessage(role, text) {
 }
 
 function loadGuideHistory() {
+    // Tải lịch sử chat từ localStorage
+    // Mục đích: Truy xuất dữ liệu JSON đã lưu và chuẩn hóa chúng thành danh sách đối tượng tin nhắn hợp lệ.
     try {
         const parsed = JSON.parse(localStorage.getItem(getGuideHistoryStorageKey()) || "[]");
         if (!Array.isArray(parsed)) return [];
@@ -508,6 +557,8 @@ function loadGuideHistory() {
 }
 
 function normalizeGuideHistory(messages) {
+    // Làm sạch và chuẩn hóa dữ liệu lịch sử chat
+    // Mục đích: Đảm bảo các tin nhắn luôn có đầy đủ vai trò, nội dung văn bản và định dạng thời gian.
     if (!Array.isArray(messages)) return [];
 
     return messages
@@ -521,12 +572,16 @@ function normalizeGuideHistory(messages) {
 }
 
 function saveGuideHistory(history) {
+    // Lưu vĩnh viễn lịch sử chat
+    // Mục đích: Lưu vào localStorage và đồng bộ lên Firebase Cloud Firestore (nếu có tài khoản).
     guideHistoryCache = normalizeGuideHistory(history).slice(-GUIDE_MAX_HISTORY_MESSAGES);
     localStorage.setItem(getGuideHistoryStorageKey(), JSON.stringify(guideHistoryCache));
     void saveGuideHistoryToFirebase(guideHistoryCache);
 }
 
 function renderGuideMessages(root, history) {
+    // Vẽ lại toàn bộ danh sách tin nhắn chat
+    // Mục đích: Hiển thị lại hội thoại khi người dùng chuyển trang hoặc làm mới ứng dụng.
     const list = root.querySelector(".guide-chat-messages");
     if (list) list.innerHTML = "";
 
@@ -541,6 +596,9 @@ function renderGuideMessages(root, history) {
 }
 
 async function syncGuideHistoryFromFirebase(root) {
+    // Đồng bộ lịch sử chat từ Firebase server
+    // Mục đích: Giúp người dùng có thể xem lại lịch sử chat của mình trên nhiều thiết bị khác nhau.
+    // Ghi chú Async: Đợi (await) quá trình tải dữ liệu từ Firestore. Việc này diễn ra ngầm khi mở ứng dụng để đảm bảo lịch sử chat luôn đầy đủ.
     if (!auth?.currentUser || !db) return;
 
     try {
@@ -564,6 +622,9 @@ async function syncGuideHistoryFromFirebase(root) {
 }
 
 async function saveGuideHistoryToFirebase(history) {
+    // Lưu lịch sử chat lên Firebase server
+    // Mục đích: Sao lưu dữ liệu hội thoại lên đám mây gắn liền với tài khoản UID người dùng.
+    // Ghi chú Async: 'await' lệnh setDoc() để đảm bảo tin nhắn được ghi nhận thành công trên server trước khi kết thúc tác vụ lưu trữ.
     if (!auth?.currentUser || !db) return;
 
     try {
@@ -578,10 +639,14 @@ async function saveGuideHistoryToFirebase(history) {
 }
 
 function getGuideHistoryStorageKey() {
+    // Lấy khóa lưu trữ lịch sử tương ứng với người dùng
+    // Mục đích: Phân biệt lịch sử chat của khách (local) và người dùng đã đăng nhập (UID).
     return auth?.currentUser ? `${GUIDE_HISTORY_KEY}:${auth.currentUser.uid}` : GUIDE_HISTORY_KEY;
 }
 
 function showGuideStageAlert(root, payload) {
+    // Hiển thị thông báo chặng mới từ Guide
+    // Mục đích: Khi người dùng chuyển địa điểm, linh vật Guide sẽ hiện ra thông báo nhiệm vụ và gợi ý đi tiếp.
     const tourApp = document.getElementById("tour-app");
     if (!payload || !tourApp || tourApp.classList.contains("hidden")) {
         return;
@@ -606,6 +671,8 @@ function showGuideStageAlert(root, payload) {
 }
 
 function renderGuideStageCard(root, payload) {
+    // Vẽ thẻ thông tin chặng nhiệm vụ
+    // Mục đích: Hiển thị tiêu đề chặng, nội dung nhiệm vụ và các nút tương tác nhanh (Mở bản đồ, Hoàn thành).
     const card = root.querySelector(".guide-stage-card");
     if (!card) return;
 
@@ -644,6 +711,8 @@ function renderGuideStageCard(root, payload) {
 }
 
 function announceGuideStageInChat(root, payload) {
+    // Tự động thêm tin nhắn thông báo vào cửa sổ chat
+    // Mục đích: Ghi lại dấu mốc chặng đường ngay trong lịch sử hội thoại để người dùng có thể xem lại sau.
     const language = getCurrentLanguage();
     const stepNumber = Number(payload.step) + 1;
     const messageKey = `${payload.step}:${language}`;
@@ -654,6 +723,8 @@ function announceGuideStageInChat(root, payload) {
 }
 
 function buildGuideStageMessage(payload, stepNumber, language) {
+    // Soạn nội dung tin nhắn thông báo chặng
+    // Mục đích: Tạo ra câu nói tự nhiên của Guide (tiếng Việt/Anh) dựa trên số thứ tự chặng và nhiệm vụ tương ứng.
     const progressText = payload.total ? `${stepNumber}/${payload.total}` : String(stepNumber);
     const title = payload.title || payload.chapter || translate("guide.title");
     const mission = payload.mission || payload.dialog || "";
@@ -670,6 +741,8 @@ function buildGuideStageMessage(payload, stepNumber, language) {
 }
 
 function hideGuideStageAlert(root) {
+    // Ẩn thông báo chặng nhiệm vụ
+    // Mục đích: Gỡ bỏ thẻ thông báo khỏi màn hình sau một khoảng thời gian chờ hoặc khi người dùng nhấn đóng.
     root.classList.remove("is-stage-alert");
     root.querySelector(".guide-stage-card")?.setAttribute("aria-hidden", "true");
 
@@ -680,6 +753,8 @@ function hideGuideStageAlert(root) {
 }
 
 function setSending(root, sending) {
+    // Cập nhật trạng thái đang gửi tin nhắn
+    // Mục đích: Vô hiệu hóa ô nhập và hiển thị hiệu ứng 'thinking' của linh vật khi đang chờ AI phản hồi.
     isSending = sending;
     root.classList.toggle("is-thinking", sending);
     const input = root.querySelector(".guide-chat-input");
@@ -689,6 +764,8 @@ function setSending(root, sending) {
 }
 
 function startGuidePetMood(root) {
+    // Kích hoạt các hoạt ảnh ngẫu nhiên cho linh vật
+    // Mục đích: Làm cho linh vật Guide trông sống động hơn bằng cách thỉnh thoảng nhảy hoặc chờ đợi khi người dùng rảnh tay.
     if (guideAmbientTimer) return;
 
     const schedule = () => {
@@ -715,6 +792,8 @@ function startGuidePetMood(root) {
 }
 
 function playGuidePetAnimation(root, state, duration = 1000) {
+    // Thực hiện một hoạt ảnh cụ thể cho linh vật
+    // Mục đích: Thay đổi class CSS của linh vật trong một khoảng thời gian nhất định để thể hiện các cảm xúc (vui, buồn, suy nghĩ).
     clearTemporaryPetAnimation(root);
     root.classList.add(`is-pet-${state}`);
 
@@ -724,6 +803,8 @@ function playGuidePetAnimation(root, state, duration = 1000) {
 }
 
 function clearTemporaryPetAnimation(root) {
+    // Xóa bỏ các hoạt ảnh tạm thời
+    // Mục đích: Đưa linh vật về trạng thái đứng yên ban đầu.
     if (guidePetTimer) {
         window.clearTimeout(guidePetTimer);
         guidePetTimer = null;
@@ -733,6 +814,8 @@ function clearTemporaryPetAnimation(root) {
 }
 
 function escapeHtml(value = "") {
+    // Làm sạch chuỗi văn bản an toàn cho HTML
+    // Mục đích: Ngăn chặn XSS bằng cách mã hóa các ký tự đặc biệt như <, >, &.
     return String(value)
         .replaceAll("&", "&amp;")
         .replaceAll("<", "&lt;")
@@ -742,6 +825,8 @@ function escapeHtml(value = "") {
 }
 
 function normalizeGuideText(value = "") {
+    // Chuẩn hóa văn bản từ AI
+    // Mục đích: Loại bỏ các ký tự định dạng markdown (như **, *, __) để hiển thị văn bản thuần túy trong bong bóng chat.
     return String(value)
         .replace(/\*\*([^*]+)\*\*/g, "$1")
         .replace(/\*([^*]+)\*/g, "$1")

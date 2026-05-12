@@ -6,10 +6,14 @@ import { state } from "../app/state.js";
 let navigateToStep = () => {};
 
 export function setMapNavigator(callback) {
+    // Thiết lập bộ điều hướng bản đồ
+    // Mục đích: Đăng ký một hàm callback để thực hiện chuyển bước (step) khi người dùng nhấp vào một điểm trên bản đồ.
     navigateToStep = callback;
 }
 
 export function renderMap() {
+    // Hiển thị bản đồ khu vực tương ứng
+    // Mục đích: Cập nhật hình ảnh bản đồ (Khu V/K), hiển thị các điểm dừng (dots) và trạng thái mở khóa của chúng.
     const currentScene = route[state.currentStep];
     const mapZoneName = getZoneName(state.activeMapZone);
     const unlockedInZone = route.filter((scene, index) => {

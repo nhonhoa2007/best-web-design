@@ -19,6 +19,9 @@ window.addEventListener("vku-language-change", () => {
     void renderHomeDashboard();
 });
 export async function renderHomeDashboard() {
+    // Render toàn bộ bảng điều khiển trang chủ
+    // Mục đích: Gọi đồng thời các hàm render thành phần như tóm tắt nhiệm vụ, bảng xếp hạng, thư viện, hồ sơ và thông báo.
+    // Ghi chú Async: Sử dụng 'await Promise.all' để đợi tất cả các thành phần giao diện tải dữ liệu xong. Việc này giúp các phần của dashboard hiện ra đồng bộ và giảm thời gian chờ đợi nhờ việc tải song song.
     renderQuestSummary();
     await Promise.all([
         renderLeaderboard(),
@@ -30,6 +33,8 @@ export async function renderHomeDashboard() {
 }
 
 function renderQuestSummary() {
+    // Hiển thị tóm tắt các chặng nhiệm vụ
+    // Mục đích: Duyệt qua danh sách các địa điểm trong route và hiển thị trạng thái đã mở khóa hay chưa.
     const list = document.getElementById("quest-list") || document.getElementById("home-quest-list");
     if (!list) return;
 
@@ -51,6 +56,9 @@ function renderQuestSummary() {
 }
 
 async function renderLeaderboard() {
+    // Hiển thị bảng xếp hạng người chơi
+    // Mục đích: Tải dữ liệu từ Firebase, xử lý hiệu ứng loading và hiển thị danh sách người chơi dẫn đầu.
+    // Ghi chú Async: Hàm này 'await' fetchLeaderboardData() để lấy danh sách từ database trước khi tiến hành vẽ các hàng dữ liệu lên bảng.
     const table = document.getElementById("leaderboard-table") || document.getElementById("home-leaderboard-table");
     if (!table) return;
 
@@ -81,6 +89,8 @@ async function renderLeaderboard() {
 }
 
 function renderLeaderboardRows(table, rows, note = "") {
+    // Tạo mã HTML cho các hàng trong bảng xếp hạng
+    // Mục đích: Chuyển đổi mảng dữ liệu người chơi thành cấu trúc hàng cột để chèn vào DOM.
     const body = rows.map((row, index) => `
         <div class="leaderboard-row">
             <span>#${index + 1}</span>
@@ -103,6 +113,9 @@ function renderLeaderboardRows(table, rows, note = "") {
 }
 
 async function fetchLeaderboardData() {
+    // Lấy dữ liệu bảng xếp hạng từ Firebase
+    // Mục đích: Truy xuất tiến trình của tất cả người dùng, chuẩn hóa dữ liệu và tính toán thứ hạng của người dùng hiện tại.
+    // Ghi chú Async: 'await' quá trình lấy dữ liệu từ cache hoặc trực tiếp từ Firestore. Tác vụ này tốn thời gian vì phải xử lý lượng lớn bản ghi tiến trình của nhiều người dùng.
     const localRow = currentUserRank();
     if (!auth?.currentUser || !db) {
         return { rows: [localRow], currentRank: 1, currentProgress: localRow };
@@ -134,6 +147,9 @@ async function fetchLeaderboardData() {
 }
 
 async function renderLibrary() {
+    // Hiển thị thư viện hành trình của người dùng
+    // Mục đích: Tổng hợp số chặng đã qua, số khoảnh khắc đã lưu và hiển thị chúng dưới dạng các thẻ thông tin.
+    // Ghi chú Async: Cần đợi (await) fetchOwnMoments() để đếm chính xác số lượng khoảnh khắc người dùng đã đăng trước khi render.
     const grid = document.getElementById("library-grid") || document.getElementById("home-library-grid");
     if (!grid) return;
 
@@ -171,6 +187,9 @@ async function renderLibrary() {
 }
 
 async function renderProfile() {
+    // Hiển thị thông tin hồ sơ chi tiết của người dùng
+    // Mục đích: Cập nhật avatar, tên, cấp độ, XP và các số liệu thống kê cá nhân lên giao diện.
+    // Ghi chú Async: Sử dụng 'await Promise.all' để thu thập cùng lúc 4 loại dữ liệu (khoảnh khắc, thông báo, cảm xúc, xếp hạng). Điều này tối ưu hiệu suất vì ứng dụng không phải đợi từng cái một theo thứ tự.
     const avatar = document.getElementById("profile-home-avatar");
     const portrait = document.querySelector(".profile-portrait");
     const name = document.getElementById("profile-home-name");
@@ -216,6 +235,8 @@ async function renderProfile() {
 }
 
 async function renderNotifications() {
+    // Hiển thị danh sách thông báo và hoạt động
+    // Mục đích: Lấy các thông báo từ Firebase, cập nhật số lượng thông báo chưa đọc và render danh sách hoạt động gần đây.
     const list = document.getElementById("notification-list");
     const badge = document.getElementById("notification-badge");
     const notifications = await fetchNotifications();
@@ -248,6 +269,8 @@ async function renderNotifications() {
 }
 
 async function renderAchievements() {
+    // Hiển thị danh sách thành tựu (huy hiệu)
+    // Mục đích: Tải các thành tựu đã đạt được từ Firebase hoặc tự động tính toán dựa trên tiến trình hiện tại.
     const grid = document.getElementById("profile-achievement-grid");
     if (!grid) return;
 
@@ -301,6 +324,8 @@ async function renderAchievements() {
 }
 
 async function fetchUserAchievements() {
+    // Truy xuất danh sách thành tựu từ Firestore
+    // Mục đích: Lấy các huy hiệu mà người dùng đã mở khóa chính thức và được lưu trên server.
     return getCachedDashboardValue("achievements", async () => {
         const snapshot = await getDocs(query(
             collection(db, "achievements"),
@@ -315,6 +340,8 @@ async function fetchUserAchievements() {
 }
 
 function buildAchievementsFromFirebaseData({ moments, reactionCount, leaderboardData }) {
+    // Tự động tính toán các thành tựu dựa trên dữ liệu người dùng
+    // Mục đích: Kiểm tra các điều kiện (số chặng, số khoảnh khắc, hạng) để đề xuất các huy hiệu tương ứng.
     const progress = leaderboardData.currentProgress || currentUserRank();
     const completedQuests = progress.unlockedStep + 1;
     const achievements = [];
@@ -383,6 +410,8 @@ function buildAchievementsFromFirebaseData({ moments, reactionCount, leaderboard
 }
 
 function renderAchievementCard(achievement) {
+    // Tạo HTML cho thẻ thành tựu
+    // Mục đích: Hiển thị icon, tiêu đề và độ hiếm của huy hiệu (Rare, Epic, Legendary).
     return `
         <article class="profile-achievement-card ${escapeAttribute(achievement.rarity)}">
             <i class="ph ${escapeAttribute(achievement.icon)}"></i>
@@ -393,6 +422,8 @@ function renderAchievementCard(achievement) {
 }
 
 function renderAchievementEmpty(grid, message) {
+    // Hiển thị trạng thái trống cho phần thành tựu
+    // Mục đích: Thông báo khi người dùng chưa đăng nhập hoặc chưa đạt được thành tựu nào.
     grid.innerHTML = `
         <article class="profile-achievement-card profile-achievement-empty">
             <i class="ph ph-medal"></i>
@@ -403,6 +434,8 @@ function renderAchievementEmpty(grid, message) {
 }
 
 function normalizeAchievement(achievement) {
+    // Chuẩn hóa dữ liệu thành tựu
+    // Mục đích: Đảm bảo các trường dữ liệu như icon, tiêu đề, độ hiếm luôn có giá trị hợp lệ trước khi hiển thị.
     const rarity = normalizeRarity(achievement.rarity || achievement.tier || achievement.level);
     return {
         id: achievement.id || "",
@@ -415,17 +448,23 @@ function normalizeAchievement(achievement) {
 }
 
 function normalizeRarity(value = "rare") {
+    // Chuẩn hóa độ hiếm của thành tựu
+    // Mục đích: Phân loại thành tựu vào 4 nhóm: common, rare, epic, legendary.
     const rarity = String(value).toLowerCase();
     return ["common", "rare", "epic", "legendary"].includes(rarity) ? rarity : "rare";
 }
 
 function normalizeIcon(value = "") {
+    // Chuẩn hóa tên icon Phosphor
+    // Mục đích: Đảm bảo tên class icon luôn bắt đầu bằng 'ph-' để hiển thị đúng.
     const icon = String(value).trim();
     if (!icon) return "ph-medal";
     return icon.startsWith("ph-") ? icon : `ph-${icon}`;
 }
 
 function formatRarity(rarity) {
+    // Chuyển đổi tên độ hiếm sang văn bản hiển thị
+    // Mục đích: Trả về chuỗi văn bản tương ứng với mã độ hiếm (ví dụ: 'legendary' -> 'Legendary').
     const labels = {
         common: "Common",
         rare: "Rare",
@@ -436,6 +475,9 @@ function formatRarity(rarity) {
 }
 
 async function fetchNotifications() {
+    // Lấy thông báo từ Firebase
+    // Mục đích: Truy xuất các thông báo riêng tư của người dùng hiện tại và sắp xếp theo thời gian.
+    // Ghi chú Async: Thực hiện truy vấn bất đồng bộ tới Firestore để lấy danh sách thông báo theo UID người dùng.
     if (!auth?.currentUser || !db) return [];
 
     return getCachedDashboardValue("notifications", async () => {
@@ -455,6 +497,8 @@ async function fetchNotifications() {
 }
 
 async function fetchReceivedReactionCount() {
+    // Đếm tổng số cảm xúc người dùng đã nhận được
+    // Mục đích: Thống kê mức độ tương tác của cộng đồng với các khoảnh khắc mà người dùng đã đăng.
     if (!auth?.currentUser || !db) return 0;
 
     return getCachedDashboardValue("reaction-count", async () => {
@@ -472,6 +516,8 @@ async function fetchReceivedReactionCount() {
 }
 
 function renderActivityItem(activity, index = 0) {
+    // Tạo HTML cho một mục hoạt động gần đây
+    // Mục đích: Hiển thị tiêu đề hoạt động và thời gian diễn ra trong danh sách thông báo.
     return `
         <article class="profile-activity-item ${index === 0 ? "is-highlight" : ""}">
             <span></span>
@@ -484,6 +530,8 @@ function renderActivityItem(activity, index = 0) {
 }
 
 function buildProfileActivity(notifications, moments) {
+    // Tổng hợp các hoạt động từ thông báo và khoảnh khắc
+    // Mục đích: Tạo ra một dòng thời gian duy nhất chứa tất cả các sự kiện liên quan đến người dùng.
     const notificationActivity = notifications.map((notification) => {
         const meta = NOTIFICATION_TYPES[notification.type] || { titleKey: "notification.default" };
         return {
@@ -501,6 +549,8 @@ function buildProfileActivity(notifications, moments) {
 }
 
 async function fetchOwnMoments() {
+    // Lấy các khoảnh khắc do chính người dùng đăng
+    // Mục đích: Truy xuất dữ liệu từ Firestore để hiển thị trong thư viện cá nhân và trang hồ sơ.
     if (!auth?.currentUser || !db) return [];
 
     return getCachedDashboardValue("own-moments", async () => {
@@ -520,6 +570,8 @@ async function fetchOwnMoments() {
 }
 
 function getCachedDashboardValue(key, loader) {
+    // Lấy giá trị từ bộ nhớ đệm (cache) cho dashboard
+    // Mục đích: Giảm số lượng request tới Firebase bằng cách lưu tạm dữ liệu trong một khoảng thời gian (TTL).
     refreshDashboardCacheContext();
 
     const cached = dashboardCache.get(key);
@@ -543,6 +595,8 @@ function getCachedDashboardValue(key, loader) {
 }
 
 function refreshDashboardCacheContext() {
+    // Làm mới ngữ cảnh bộ nhớ đệm
+    // Mục đích: Xóa cache nếu người dùng thay đổi, hoặc các thông số state quan trọng bị thay đổi.
     const nextContext = [
         auth?.currentUser?.uid || "local",
         Boolean(db),
@@ -558,6 +612,8 @@ function refreshDashboardCacheContext() {
 }
 
 function currentUserRank() {
+    // Lấy thông tin xếp hạng tạm thời của người dùng hiện tại
+    // Mục đích: Cung cấp dữ liệu để hiển thị ngay lập tức khi chưa tải xong BXH toàn hệ thống.
     return normalizeProgress({
         uid: auth?.currentUser?.uid || "local",
         customName: state.customName,
@@ -566,6 +622,8 @@ function currentUserRank() {
 }
 
 function normalizeProgress(progress) {
+    // Chuẩn hóa dữ liệu tiến trình
+    // Mục đích: Tính toán điểm số (score), XP và cấp độ từ các trường dữ liệu thô của Firebase.
     const unlockedStep = clampStep(Number(progress.unlockedStep));
     const currentStep = clampStep(Number(progress.currentStep));
     const fallbackScore = (unlockedStep + 1) * 100 + Math.max(0, currentStep) * 10;
@@ -585,6 +643,8 @@ function normalizeProgress(progress) {
 }
 
 function firstFiniteNumber(...values) {
+    // Lấy số hợp lệ đầu tiên trong danh sách
+    // Mục đích: Xử lý fallback cho các trường dữ liệu có thể bị null hoặc không xác định.
     for (const value of values) {
         if (value === null || value === undefined || value === "") continue;
         const number = Number(value);
@@ -594,11 +654,15 @@ function firstFiniteNumber(...values) {
 }
 
 function clampStep(value) {
+    // Giới hạn giá trị bước trong phạm vi hợp lệ
+    // Mục đích: Đảm bảo chỉ số chặng luôn nằm trong khoảng từ 0 đến tổng số chặng của tour.
     if (!Number.isFinite(value)) return 0;
     return Math.max(0, Math.min(TOTAL_STEPS - 1, value));
 }
 
 function getTime(value) {
+    // Lấy thời gian dạng miliseconds
+    // Mục đích: Chuyển đổi đa dạng các kiểu dữ liệu thời gian sang số nguyên để so sánh.
     if (!value) return 0;
     if (typeof value.toMillis === "function") return value.toMillis();
     if (typeof value.toDate === "function") return value.toDate().getTime();
@@ -606,6 +670,8 @@ function getTime(value) {
 }
 
 function formatDate(value) {
+    // Định dạng ngày tháng hiển thị
+    // Mục đích: Trả về chuỗi ngày giờ rút gọn phù hợp với ngôn ngữ hiện tại của người dùng.
     const time = getTime(value);
     if (!time) return translate("status.justNow");
 
@@ -618,6 +684,8 @@ function formatDate(value) {
 }
 
 function formatCompact(value) {
+    // Định dạng số rút gọn (ví dụ: 1500 -> 1.5k)
+    // Mục đích: Giúp giao diện gọn gàng hơn khi hiển thị các con số lớn (XP, Điểm).
     if (value >= 1000) {
         return `${Math.round(value / 100) / 10}k`;
     }
@@ -625,11 +693,15 @@ function formatCompact(value) {
 }
 
 function setText(id, value) {
+    // Cập nhật nội dung văn bản cho một phần tử HTML
+    // Mục đích: Hàm tiện ích giúp gán giá trị nhanh cho các element theo ID.
     const element = document.getElementById(id);
     if (element) element.textContent = value;
 }
 
 function renderAvatarMarkup() {
+    // Tạo mã HTML cho avatar người dùng
+    // Mục đích: Hiển thị ảnh upload nếu có, nếu không thì hiển thị icon nhân vật đã chọn.
     if (state.avatarImageUrl) {
         return `<img class="avatar-image" src="${escapeAttribute(state.avatarImageUrl)}" alt="">`;
     }
@@ -638,6 +710,8 @@ function renderAvatarMarkup() {
 }
 
 function escapeHtml(value = "") {
+    // Làm sạch chuỗi HTML
+    // Mục đích: Ngăn chặn tấn công XSS bằng cách mã hóa các ký tự đặc biệt.
     return String(value)
         .replaceAll("&", "&amp;")
         .replaceAll("<", "&lt;")
@@ -647,5 +721,7 @@ function escapeHtml(value = "") {
 }
 
 function escapeAttribute(value = "") {
+    // Làm sạch chuỗi dùng trong thuộc tính HTML
+    // Mục đích: Đảm bảo dữ liệu không phá hỏng cấu trúc các attribute của thẻ HTML.
     return escapeHtml(value).replaceAll("`", "&#096;");
 }

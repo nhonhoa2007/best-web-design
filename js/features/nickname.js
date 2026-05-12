@@ -10,6 +10,8 @@ const MODAL_ID = "nickname-modal";
  * Resolves when the user successfully sets a name, or immediately if already set.
  */
 export function checkAndPromptNickname() {
+    // Kiểm tra và yêu cầu người dùng đặt bí danh
+    // Mục đích: Nếu người dùng chưa có tên (hoặc là khách), hiển thị hộp thoại yêu cầu đặt tên để định danh trong tour.
     return new Promise((resolve) => {
         const fallback = translate("fallback.guest");
         const currentName = state.customName?.trim();
@@ -33,6 +35,8 @@ export function checkAndPromptNickname() {
 }
 
 function showNicknameModal(onConfirm) {
+    // Hiển thị hộp thoại (modal) đặt bí danh
+    // Mục đích: Khởi tạo modal nếu chưa có, reset các trạng thái nhập liệu và hiển thị lên màn hình.
     let modal = document.getElementById(MODAL_ID);
     if (!modal) {
         modal = createModalElement();
@@ -72,6 +76,8 @@ function showNicknameModal(onConfirm) {
 }
 
 function bindModalEvents(modal, onConfirm, cleanup) {
+    // Gắn sự kiện cho hộp thoại bí danh
+    // Mục đích: Xử lý kiểm tra tính hợp lệ của tên (độ dài, khoảng trắng), gợi ý tên và gửi dữ liệu lên server.
     const input = modal.querySelector("#nickname-input");
     const btn = modal.querySelector("#nickname-confirm-btn");
     const charCount = modal.querySelector("#nickname-char-count");
@@ -100,6 +106,8 @@ function bindModalEvents(modal, onConfirm, cleanup) {
     };
 
     const onSubmit = async () => {
+        // Xử lý khi người dùng nhấn nút xác nhận đặt bí danh
+        // Ghi chú Async: Cần đợi (await) hàm saveProgressToFirebase() hoàn tất việc đồng bộ tên mới lên server trước khi đóng hộp thoại và thông báo thành công.
         const val = input.value.trim();
         const err = validate(val);
         if (err) {
@@ -137,6 +145,8 @@ function bindModalEvents(modal, onConfirm, cleanup) {
 }
 
 function hideModal(modal) {
+    // Ẩn hộp thoại bí danh
+    // Mục đích: Sử dụng hiệu ứng mờ dần để đóng hộp thoại sau khi người dùng đã đặt tên thành công.
     modal.classList.remove("nickname-modal--visible");
     modal.setAttribute("aria-hidden", "true");
     setTimeout(() => {
@@ -145,6 +155,8 @@ function hideModal(modal) {
 }
 
 function createModalElement() {
+    // Tạo cấu trúc HTML cho hộp thoại bí danh
+    // Mục đích: Xây dựng giao diện modal bao gồm ô nhập liệu, thông báo lỗi và danh sách các bí danh gợi ý nhanh.
     const el = document.createElement("div");
     el.id = MODAL_ID;
     el.className = "nickname-modal nickname-modal--hidden";

@@ -148,6 +148,9 @@ const TEXT = {
         "auth.loginNow": "Đăng nhập",
         "auth.loggingIn": "Đang đăng nhập...",
         "auth.signingUp": "Đang đăng ký...",
+        "auth.divider": "hoặc",
+        "auth.googleAction": "Tiếp tục với Google",
+        "auth.googleLoggingIn": "Đang kết nối Google...",
         "avatar.eyebrow": "Hành trình nhập vai",
         "avatar.title": "Chọn người đại diện để bắt đầu khám phá VKU",
         "avatar.body": "Đi từng khu, mở khóa từng địa điểm và thu thập ghi chú về những nơi quan trọng trong khuôn viên.",
@@ -243,8 +246,11 @@ const TEXT = {
         "auth.error.invalidEmail": "Email không hợp lệ.",
         "auth.error.invalidCredential": "Email hoặc mật khẩu không đúng.",
         "auth.error.network": "Không kết nối được Firebase. Kiểm tra mạng hoặc cấu hình project.",
-        "auth.error.operation": "Bạn chưa bật phương thức đăng nhập Email/Password trong Firebase Authentication.",
+        "auth.error.operation": "Bạn chưa bật phương thức đăng nhập này trong Firebase Authentication.",
+        "auth.error.popupBlocked": "Trình duyệt đã chặn cửa sổ đăng nhập Google. Đang chuyển sang trang xác thực.",
+        "auth.error.popupClosed": "Bạn đã đóng cửa sổ đăng nhập Google.",
         "auth.error.tooMany": "Bạn thử đăng nhập quá nhiều lần. Vui lòng chờ một lúc rồi thử lại.",
+        "auth.error.unauthorizedDomain": "Domain này chưa được thêm vào Authorized domains trong Firebase Authentication.",
         "auth.error.missingPassword": "Vui lòng nhập mật khẩu.",
         "auth.error.weakPassword": "Mật khẩu cần tối thiểu 6 ký tự.",
         "auth.error.userNotFound": "Không tìm thấy tài khoản.",
@@ -433,6 +439,9 @@ const TEXT = {
         "auth.loginNow": "Sign in",
         "auth.loggingIn": "Signing in...",
         "auth.signingUp": "Signing up...",
+        "auth.divider": "or",
+        "auth.googleAction": "Continue with Google",
+        "auth.googleLoggingIn": "Connecting to Google...",
         "avatar.eyebrow": "Role-play journey",
         "avatar.title": "Choose a representative to start exploring VKU",
         "avatar.body": "Move through each zone, unlock every location, and collect notes about important places across campus.",
@@ -528,8 +537,11 @@ const TEXT = {
         "auth.error.invalidEmail": "Invalid email.",
         "auth.error.invalidCredential": "Email or password is incorrect.",
         "auth.error.network": "Could not connect to Firebase. Check your network or project configuration.",
-        "auth.error.operation": "Email/Password sign-in is not enabled in Firebase Authentication.",
+        "auth.error.operation": "This sign-in method is not enabled in Firebase Authentication.",
+        "auth.error.popupBlocked": "The browser blocked the Google sign-in popup. Redirecting to authentication.",
+        "auth.error.popupClosed": "You closed the Google sign-in popup.",
         "auth.error.tooMany": "Too many sign-in attempts. Please wait and try again.",
+        "auth.error.unauthorizedDomain": "This domain has not been added to Firebase Authentication authorized domains.",
         "auth.error.missingPassword": "Please enter a password.",
         "auth.error.weakPassword": "Password must be at least 6 characters.",
         "auth.error.userNotFound": "Account not found.",
@@ -664,6 +676,8 @@ const STATIC_BINDINGS = [
     { selector: "#email", attr: "placeholder", key: "auth.emailPlaceholder" },
     { selector: 'label[for="password"]', key: "auth.password" },
     { selector: "#password", attr: "placeholder", key: "auth.passwordPlaceholder" },
+    { selector: "#auth-divider-text", key: "auth.divider" },
+    { selector: "#google-auth-btn span", key: "auth.googleAction" },
     { selector: ".intro-copy .eyebrow", key: "avatar.eyebrow" },
     { selector: ".intro-copy h1", key: "avatar.title" },
     { selector: ".intro-copy > p:last-child", key: "avatar.body" },
@@ -1000,15 +1014,21 @@ const ROUTE_EN = {
 const COMPACT_ROUTE_FIELDS = new Set(["body", "notes", "mission", "dialog"]);
 
 export function getCurrentLanguage() {
+    // Lấy ngôn ngữ hiện tại
+    // Mục đích: Kiểm tra ngôn ngữ đã lưu trong localStorage, nếu không có hoặc không hỗ trợ thì mặc định là tiếng Việt ('vi').
     const saved = localStorage.getItem(LANGUAGE_KEY);
     return SUPPORTED_LANGUAGES.includes(saved) ? saved : "vi";
 }
 
 export function getCurrentLocale() {
+    // Lấy mã vùng (locale) dựa trên ngôn ngữ hiện tại
+    // Mục đích: Trả về 'en-US' cho tiếng Anh và 'vi-VN' cho tiếng Việt để phục vụ định dạng số, ngày tháng.
     return getCurrentLanguage() === "en" ? "en-US" : "vi-VN";
 }
 
 function setLanguage(language) {
+    // Thiết lập ngôn ngữ mới cho ứng dụng
+    // Mục đích: Lưu ngôn ngữ vào localStorage, áp dụng bản dịch mới và phát ra sự kiện thông báo thay đổi.
     const nextLanguage = SUPPORTED_LANGUAGES.includes(language) ? language : "vi";
     localStorage.setItem(LANGUAGE_KEY, nextLanguage);
     applyTranslations();
@@ -1016,6 +1036,8 @@ function setLanguage(language) {
 }
 
 export function translate(key, params = {}) {
+    // Dịch một khóa (key) sang văn bản tương ứng
+    // Mục đích: Truy xuất văn bản từ đối tượng TEXT theo ngôn ngữ hiện tại và thay thế các tham số động nếu có.
     const language = getCurrentLanguage();
     const template = TEXT[language]?.[key] ?? TEXT.vi[key] ?? key;
     return Object.entries(params).reduce((value, [name, replacement]) => {
@@ -1024,10 +1046,14 @@ export function translate(key, params = {}) {
 }
 
 export function formatNumber(value) {
+    // Định dạng số theo chuẩn địa phương
+    // Mục đích: Hiển thị số (ví dụ: điểm XP) phù hợp với quy tắc của tiếng Anh hoặc tiếng Việt.
     return Number(value).toLocaleString(getCurrentLocale());
 }
 
 export function mountLanguageSwitchers() {
+    // Gắn bộ chuyển đổi ngôn ngữ vào giao diện
+    // Mục đích: Tìm các vùng đích trong HTML và chèn các nút chuyển đổi ngôn ngữ (VI/EN) vào đó.
     const targets = [
         ".home-nav-actions",
         ".profile-nav-actions",
@@ -1066,6 +1092,8 @@ export function mountLanguageSwitchers() {
 }
 
 export function applyTranslations() {
+    // Áp dụng bản dịch lên toàn bộ trang web
+    // Mục đích: Duyệt qua STATIC_BINDINGS để cập nhật văn bản, thuộc tính cho tất cả các phần tử HTML tương ứng.
     document.documentElement.lang = getCurrentLanguage();
     STATIC_BINDINGS.forEach((binding) => {
         document.querySelectorAll(binding.selector).forEach((element) => {
@@ -1100,6 +1128,8 @@ export function applyTranslations() {
 }
 
 export function getSceneText(scene, field) {
+    // Lấy văn bản mô tả cho một địa điểm (scene)
+    // Mục đích: Hỗ trợ đa ngôn ngữ cho các thông tin của từng chặng trong tour tham quan.
     if (!scene) return "";
     const language = getCurrentLanguage();
     if (COMPACT_ROUTE_FIELDS.has(field)) {
@@ -1120,6 +1150,8 @@ export function getSceneText(scene, field) {
 }
 
 function getCompactSceneText(scene, field, language) {
+    // Lấy văn bản rút gọn cho địa điểm
+    // Mục đích: Tạo ra các đoạn văn bản mặc định nếu dữ liệu chi tiết của địa điểm đó chưa được dịch hoàn toàn.
     const title = language === "en"
         ? (ROUTE_EN[scene.id]?.title || scene.title)
         : scene.title;
@@ -1153,16 +1185,22 @@ function getCompactSceneText(scene, field, language) {
 }
 
 export function getAvatarText(avatar, field) {
+    // Lấy văn bản liên quan đến nhân vật (avatar)
+    // Mục đích: Dịch vai trò và lời thoại của nhân vật đại diện dựa trên ngôn ngữ hiện tại.
     if (!avatar) return "";
     if (getCurrentLanguage() === "vi") return avatar[field];
     return AVATAR_EN[avatar.id]?.[field] ?? avatar[field];
 }
 
 export function getZoneName(zone) {
+    // Lấy tên khu vực (zone) đã dịch
+    // Mục đích: Trả về 'Khu V' hoặc 'Khu K' (hoặc 'Zone V/K') tùy theo cài đặt ngôn ngữ.
     return zone === "khu-v" ? translate("route.zoneV") : translate("route.zoneK");
 }
 
 function syncLanguageSwitchers() {
+    // Đồng bộ trạng thái các nút chuyển đổi ngôn ngữ
+    // Mục đích: Cập nhật class 'active' và các thuộc tính hỗ trợ (aria) cho nút tương ứng với ngôn ngữ đang dùng.
     const language = getCurrentLanguage();
     document.querySelectorAll(".language-switcher").forEach((switcher) => {
         switcher.setAttribute("aria-label", translate("lang.label"));
@@ -1176,6 +1214,8 @@ function syncLanguageSwitchers() {
 }
 
 function syncMoodOptions() {
+    // Đồng bộ văn bản cho các tùy chọn cảm xúc
+    // Mục đích: Cập nhật nhãn (label) của các mood trong form đăng khoảnh khắc khi ngôn ngữ thay đổi.
     const moodMap = {
         "Hào hứng": "mood.excited",
         "Ấn tượng": "mood.impressed",
@@ -1190,6 +1230,8 @@ function syncMoodOptions() {
 }
 
 function translateIconHtml(html, value) {
+    // Dịch nội dung HTML có chứa icon
+    // Mục đích: Giữ lại icon FontAwesome/Phosphor và chỉ thay đổi phần văn bản bên cạnh nó.
     if (!html.includes("<i")) return value;
     const template = document.createElement("template");
     template.innerHTML = html.trim();
@@ -1198,6 +1240,8 @@ function translateIconHtml(html, value) {
 }
 
 function getStageNumber(scene) {
+    // Lấy số thứ tự chặng từ dữ liệu
+    // Mục đích: Trích xuất con số từ chuỗi 'Chặng 1', 'Chặng 2' để phục vụ việc hiển thị ở bản tiếng Anh.
     const match = String(scene.chapter || "").match(/\d+/);
     return match ? match[0] : "";
 }

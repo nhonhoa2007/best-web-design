@@ -40,6 +40,9 @@ const APP_SCREENS = [
 const SCREEN_TRANSITION_MS = 260;
 
 document.addEventListener("DOMContentLoaded", async () => {
+    // Lắng nghe sự kiện khi toàn bộ nội dung HTML đã được tải xong
+    // Mục đích: Khởi tạo ứng dụng, tải các phần của trang, thiết lập UI và kiểm tra trạng thái đăng nhập.
+    // Ghi chú Async: Hàm này sử dụng 'async' vì nó cần 'await' (đợi) quá trình tải các file HTML giao diện (partials) hoàn tất trước khi thực hiện các bước khởi tạo tiếp theo.
     // Initialize Vercel Web Analytics
     inject({
         mode: 'auto',
@@ -87,6 +90,9 @@ document.addEventListener("DOMContentLoaded", async () => {
 });
 
 async function loadPagePartials() {
+    // Tải các thành phần trang (partials) từ thư mục pages
+    // Mục đích: Đọc danh sách PAGE_PARTIALS và chèn nội dung HTML của chúng vào phần tử gốc #screen-root.
+    // Ghi chú Async: Sử dụng 'async' để có thể 'await' các yêu cầu mạng (fetch). Việc dùng Promise.all cho phép tải song song nhiều file, giúp giảm thời gian chờ đợi tổng thể.
     const root = document.getElementById("screen-root");
     if (!root) return;
 
@@ -104,6 +110,8 @@ async function loadPagePartials() {
 }
 
 function showPartialLoadError(error) {
+    // Hiển thị thông báo lỗi khi không tải được các phần trang
+    // Mục đích: Cung cấp phản hồi trực quan cho người dùng nếu quá trình fetch file HTML thất bại.
     const root = document.getElementById("screen-root");
     if (!root) return;
 
@@ -120,6 +128,9 @@ function showPartialLoadError(error) {
 }
 
 async function bootTourShell(user = null) {
+    // Khởi tạo khung (shell) cho chuyến tham quan (tour)
+    // Mục đích: Đồng bộ hóa tiến trình từ Firebase hoặc local state, sau đó hiển thị các tùy chọn nhân vật và điều khiển.
+    // Ghi chú Async: Phải đợi (await) quá trình lấy dữ liệu từ Firebase (hydrateProgressFromFirebase) để đảm bảo trạng thái ứng dụng chính xác trước khi render giao diện tour.
     if (user) {
         await hydrateProgressFromFirebase(user);
     } else {
@@ -132,6 +143,8 @@ async function bootTourShell(user = null) {
 }
 
 function setupHomeUI() {
+    // Thiết lập các điều khiển giao diện người dùng cho trang chủ
+    // Mục đích: Gắn các sự kiện click cho menu di động, menu hồ sơ, chuyển đổi màn hình và nút bắt đầu tour.
     const homeScreen = document.getElementById("home-screen");
     const menuToggle = document.getElementById("home-menu-toggle");
     const menuClose = document.getElementById("home-menu-close");
@@ -213,6 +226,8 @@ function setupHomeUI() {
 }
 
 function showScreen(nextScreenId) {
+    // Hiển thị màn hình cụ thể dựa trên ID
+    // Mục đích: Thực hiện hiệu ứng chuyển cảnh (transition) giữa các màn hình, ẩn màn hình cũ và hiện màn hình mới.
     const nextScreen = document.getElementById(nextScreenId);
     if (!nextScreen || nextScreen.classList.contains("is-screen-active")) return;
 
@@ -248,6 +263,8 @@ function showScreen(nextScreenId) {
 }
 
 function initializeScreenMotion() {
+    // Khởi tạo các thuộc tính chuyển động cho màn hình
+    // Mục đích: Thêm class 'app-screen' vào tất cả các màn hình trong danh sách APP_SCREENS để áp dụng CSS chuyển cảnh.
     APP_SCREENS.forEach((screenId) => {
         document.getElementById(screenId)?.classList.add("app-screen");
     });

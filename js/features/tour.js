@@ -19,6 +19,9 @@ import { showToast } from "../ui/ui.js";
 let viewer;
 let controlsBound = false;
 const preloadedPanoramaSources = new Set();
+const panoramaHeadHints = new Set();
+const PANORAMA_WARM_CHUNK_BYTES = 768 * 1024;
+const PANORAMA_LAZY_WINDOW = [1, -1, 2];
 let panoramaLoadingTimer = null;
 let lastGuideAnnouncementKey = "";
 
@@ -28,6 +31,8 @@ let isCinematic = false;
 let isAudioPlaying = false;
 
 function resetIdleTimer() {
+    // Đặt lại bộ đếm thời gian chờ (idle timer)
+    // Mục đích: Theo dõi hoạt động của người dùng để kích hoạt chế độ điện ảnh (cinematic) khi họ không tương tác.
     if (isCinematic) {
         isCinematic = false;
         document.querySelector(".topbar")?.classList.remove("ui-hidden");
@@ -67,6 +72,8 @@ window.addEventListener("vku-language-change", () => {
 });
 
 export function renderAvatarOptions() {
+    // Hiển thị danh sách các nhân vật (avatar) để người dùng chọn
+    // Mục đích: Render các thẻ nhân vật với hiệu ứng 3D, xử lý việc chọn nhân vật và nhập tên trước khi bắt đầu hành trình.
     const container = document.getElementById("avatar-options");
     const nameInput = document.getElementById("custom-avatar-name");
     const startBtn = document.getElementById("start-new-tour-btn");
@@ -133,6 +140,8 @@ export function renderAvatarOptions() {
 }
 
 export function renderResumeButton() {
+    // Hiển thị hoặc ẩn nút 'Tiếp tục hành trình'
+    // Mục đích: Kiểm tra xem người dùng có tiến trình cũ đã lưu hay không để cung cấp tùy chọn quay lại tour.
     const resumeButton = document.getElementById("resume-tour");
     if (!resumeButton) return;
 
@@ -140,6 +149,8 @@ export function renderResumeButton() {
 }
 
 export function bindControls() {
+    // Gắn các sự kiện điều khiển chính cho tour
+    // Mục đích: Thiết lập lắng nghe cho các nút chuyển bước, đổi nhân vật, âm thanh, đăng xuất và các sự kiện từ chatbot guide.
     if (controlsBound) return;
     controlsBound = true;
 
@@ -169,6 +180,8 @@ export function bindControls() {
 }
 
 function bindSidebarControls() {
+    // Gắn sự kiện cho các thanh bên (sidebars) và trang tính năng
+    // Mục đích: Điều khiển việc đóng/mở thanh nhiệm vụ, bản đồ, khoảnh khắc và cốt truyện, đồng thời lưu trạng thái vào localStorage.
     const app = document.getElementById("tour-app");
     const questButton = document.getElementById("toggle-quest-sidebar");
     const mapButton = document.getElementById("toggle-minimap-page");
@@ -246,6 +259,8 @@ function bindSidebarControls() {
 }
 
 function openMinimapPage() {
+    // Mở trang bản đồ thu nhỏ (minimap)
+    // Mục đích: Chuyển đổi giao diện sang chế độ xem bản đồ và đóng các trang tính năng khác.
     const app = document.getElementById("tour-app");
     if (!app) return;
 
@@ -260,12 +275,16 @@ function openMinimapPage() {
 }
 
 function closeMinimapPage() {
+    // Đóng trang bản đồ thu nhỏ
+    // Mục đích: Quay lại màn hình tour panorama chính.
     document.getElementById("tour-app")?.classList.remove("show-minimap-page", "show-mobile-map");
     document.getElementById("toggle-minimap-page")?.classList.remove("is-active");
     document.getElementById("toggle-minimap-page")?.setAttribute("aria-pressed", "false");
 }
 
 function openRoutePage() {
+    // Mở trang danh sách lộ trình (nhiệm vụ)
+    // Mục đích: Hiển thị các chặng đường, chặng hiện tại và tự động cuộn đến vị trí người dùng đang đứng.
     const app = document.getElementById("tour-app");
     if (!app) return;
 
@@ -281,10 +300,14 @@ function openRoutePage() {
 }
 
 export function startTour() {
+    // Bắt đầu hành trình tour VR
+    // Mục đích: Chuyển từ màn hình chờ sang ứng dụng tour, khởi tạo bộ xem panorama và tải chặng hiện tại.
     document.getElementById("avatar-screen")?.classList.add("hidden");
     const tourApp = document.getElementById("tour-app");
     tourApp?.classList.remove("hidden", "screen-leaving");
     tourApp?.classList.add("app-screen", "is-screen-active");
+
+    preloadCurrentPanorama(state.currentStep);
 
     if (!viewer) {
         setPanoramaLoading(true);
@@ -295,6 +318,8 @@ export function startTour() {
 }
 
 function showAvatarScreen() {
+    // Hiển thị màn hình chọn nhân vật
+    // Mục đích: Cho phép người dùng quay lại bước thiết lập ban đầu để đổi nhân vật hoặc tên.
     document.getElementById("tour-app")?.classList.add("hidden");
     document.getElementById("tour-app")?.classList.remove("is-screen-active", "screen-leaving", "screen-entering");
     const avatarScreen = document.getElementById("avatar-screen");
@@ -304,6 +329,8 @@ function showAvatarScreen() {
 }
 
 function restartTour() {
+    // Bắt đầu lại hành trình từ đầu
+    // Mục đích: Xóa tiến trình cũ, đưa người dùng về chặng 0 và làm mới các trạng thái liên quan.
     resetProgress();
     lastGuideAnnouncementKey = "";
     loadStep(0, { forceViewer: true });
@@ -311,6 +338,8 @@ function restartTour() {
 }
 
 function initViewer() {
+    // Khởi tạo bộ xem panorama Pannellum
+    // Mục đích: Cấu hình các cảnh (scenes), điểm nóng (hotspots) và thiết lập lắng nghe sự kiện chuyển cảnh.
     if (!window.pannellum) {
         setPanoramaLoading(false);
         showToast(translate("toast.viewerMissing"));
@@ -324,7 +353,6 @@ function initViewer() {
             title: getSceneText(scene, "title"),
             type: "equirectangular",
             panorama: scene.panorama,
-            autoLoad: true,
             hotSpots: createHotspots(index)
         };
     });
@@ -361,6 +389,8 @@ function initViewer() {
 }
 
 function createHotspots(index) {
+    // Tạo các điểm nóng (hotspots) cho một chặng
+    // Mục đích: Tạo các nút chuyển tiếp 'Tới' và 'Lùi' giữa các địa điểm, cũng như các điểm thông tin ẩn (easter eggs).
     const hotSpots = [];
     const current = route[index];
     const next = route[index + 1];
@@ -408,6 +438,8 @@ function createHotspots(index) {
 }
 
 function customHotspot(hotSpotDiv, label) {
+    // Tùy chỉnh giao diện điểm nóng
+    // Mục đích: Tạo icon mũi tên động và nhãn văn bản cho các điểm di chuyển trong không gian 3D.
     hotSpotDiv.classList.add("custom-tooltip");
     
     hotSpotDiv.style.display = "flex";
@@ -434,6 +466,8 @@ function customHotspot(hotSpotDiv, label) {
 }
 
 function toggleAudio() {
+    // Bật hoặc tắt nhạc nền ambient
+    // Mục đích: Điều khiển việc phát âm thanh và cập nhật icon trạng thái loa trên giao diện.
     const audio = document.getElementById("ambient-audio");
     if (!audio) return;
     
@@ -450,6 +484,8 @@ function toggleAudio() {
 }
 
 function goNext() {
+    // Di chuyển tới chặng tiếp theo
+    // Mục đích: Tự động chuyển bước hoặc hiển thị màn hình chúc mừng nếu người dùng đã hoàn thành chặng cuối.
     if (state.currentStep >= route.length - 1) {
         showCongratsScreen();
         return;
@@ -459,6 +495,8 @@ function goNext() {
 }
 
 function showCongratsScreen() {
+    // Hiển thị màn hình hoàn thành hành trình
+    // Mục đích: Chúc mừng người dùng và cung cấp các tùy chọn xem lại tour hoặc bắt đầu lại.
     document.getElementById("congrats-avatar-name").textContent = state.customName;
     const congratsScreen = document.getElementById("congrats-screen");
     if (!congratsScreen) return;
@@ -480,6 +518,8 @@ function showCongratsScreen() {
 }
 
 function loadStep(index, options = {}) {
+    // Tải một chặng cụ thể trong tour
+    // Mục đích: Cập nhật trạng thái bước hiện tại, tải cảnh panorama tương ứng và kích hoạt hiệu ứng pháo hoa nếu là chặng mới.
     if (index < 0 || index >= route.length) return;
 
     if (index > state.unlockedStep + 1) {
@@ -498,6 +538,7 @@ function loadStep(index, options = {}) {
         const sceneId = route[index].id;
         const currentScene = typeof viewer.getScene === "function" ? viewer.getScene() : null;
         if (options.forceViewer || currentScene !== sceneId) {
+            preloadCurrentPanorama(index);
             setPanoramaLoading(true);
             viewer.loadScene(sceneId);
         }
@@ -509,6 +550,8 @@ function loadStep(index, options = {}) {
 }
 
 function renderExperience() {
+    // Cập nhật toàn bộ giao diện trải nghiệm tour
+    // Mục đích: Làm mới nhãn vùng, thanh tiến trình, thông tin hồ sơ, cốt truyện, khoảnh khắc và danh sách lộ trình.
     const scene = route[state.currentStep];
     const progressPercent = (state.unlockedStep + 1) / route.length;
 
@@ -531,6 +574,8 @@ function renderExperience() {
 }
 
 function renderProfile() {
+    // Cập nhật thông tin nhân vật đang sử dụng
+    // Mục đích: Hiển thị avatar, tên và vai trò của người dùng trên thanh trạng thái và hộp thoại.
     const avatarMarkup = state.avatarImageUrl
         ? `<img class="avatar-image" src="${escapeAttribute(state.avatarImageUrl)}" alt="">`
         : `<i class="ph ${state.selectedAvatar.icon}"></i>`;
@@ -547,6 +592,8 @@ function renderProfile() {
 }
 
 function renderStory(scene) {
+    // Hiển thị nội dung cốt truyện và nhiệm vụ của chặng
+    // Mục đích: Cập nhật văn bản hội thoại, mô tả địa danh, phần thưởng và danh sách các lưu ý cần thực hiện.
     const storyPanel = document.querySelector(".story-panel");
     storyPanel?.classList.remove("story-panel-refreshed");
     void storyPanel?.offsetWidth;
@@ -574,6 +621,8 @@ function renderStory(scene) {
 }
 
 function announceGuideStage(scene) {
+    // Phát thông báo chặng hiện tại tới hệ thống Guide
+    // Mục đích: Gửi sự kiện để chatbot Guide biết người dùng đang ở đâu và có thể đưa ra gợi ý tương ứng.
     if (!scene) return;
 
     const announcementKey = `${state.currentStep}:${getCurrentLanguage()}`;
@@ -595,6 +644,8 @@ function announceGuideStage(scene) {
 }
 
 function renderRouteList() {
+    // Hiển thị danh sách các chặng trong lộ trình
+    // Mục đích: Liệt kê các địa điểm theo khu vực, đánh dấu trạng thái (đã đi, hiện tại, đang khóa) và cho phép di chuyển nhanh.
     const list = document.getElementById("route-list");
     const activeZoneScenes = route
         .map((scene, index) => ({ scene, index }))
@@ -644,18 +695,24 @@ function renderRouteList() {
 }
 
 function scrollCurrentRouteIntoView() {
+    // Cuộn danh sách lộ trình tới chặng hiện tại
+    // Mục đích: Đảm bảo chặng mà người dùng đang đứng luôn hiển thị ở giữa vùng nhìn thấy của danh sách.
     const list = document.getElementById("route-list");
     const current = list?.querySelector(".route-step.current");
     current?.scrollIntoView({ block: "center", inline: "nearest" });
 }
 
 function focusZone(zone) {
+    // Tập trung vào một khu vực cụ thể (V hoặc K)
+    // Mục đích: Thay đổi vùng bản đồ đang xem và cập nhật lại danh sách lộ trình tương ứng với khu vực đó.
     setActiveMapZone(zone);
     renderRouteList();
     renderMap();
 }
 
 function escapeAttribute(value = "") {
+    // Làm sạch văn bản dùng trong thuộc tính HTML
+    // Mục đích: Ngăn chặn lỗi cấu trúc thẻ khi chèn các chuỗi văn bản không an toàn vào attribute.
     return String(value)
         .replaceAll("&", "&amp;")
         .replaceAll("<", "&lt;")
@@ -666,26 +723,85 @@ function escapeAttribute(value = "") {
 }
 
 function preloadNearbyPanoramas(index) {
-    [index + 1, index + 2, index - 1].forEach((sceneIndex) => {
+    // Tải trước một phần các panorama lân cận trong lúc trình duyệt rảnh.
+    PANORAMA_LAZY_WINDOW.forEach((offset) => {
+        const sceneIndex = index + offset;
         const src = route[sceneIndex]?.panorama;
         if (!src || preloadedPanoramaSources.has(src)) return;
 
         preloadedPanoramaSources.add(src);
-        const preload = () => {
-            const image = new Image();
-            image.decoding = "async";
-            image.src = src;
-        };
-
-        if ("requestIdleCallback" in window) {
-            window.requestIdleCallback(preload, { timeout: 1500 });
-        } else {
-            window.setTimeout(preload, 0);
-        }
+        scheduleIdleWork(() => {
+            void warmPanoramaChunk(src);
+        });
     });
 }
 
+function preloadCurrentPanorama(index) {
+    const src = route[index]?.panorama;
+    if (!src) return;
+
+    addPanoramaHeadHint(src, "preload", "high");
+}
+
+function addPanoramaHeadHint(src, rel, priority = "low") {
+    const key = `${rel}:${src}`;
+    if (panoramaHeadHints.has(key)) return;
+
+    const link = document.createElement("link");
+    link.rel = rel;
+    link.as = "image";
+    link.href = src;
+    link.fetchPriority = priority;
+    link.setAttribute("fetchpriority", priority);
+    document.head.appendChild(link);
+    panoramaHeadHints.add(key);
+}
+
+function scheduleIdleWork(callback) {
+    if ("requestIdleCallback" in window) {
+        window.requestIdleCallback(callback, { timeout: 1800 });
+        return;
+    }
+
+    window.setTimeout(callback, 120);
+}
+
+async function warmPanoramaChunk(src) {
+    if (typeof fetch !== "function") return;
+
+    try {
+        const response = await fetch(src, {
+            cache: "force-cache",
+            credentials: "same-origin",
+            headers: {
+                Range: `bytes=0-${PANORAMA_WARM_CHUNK_BYTES - 1}`
+            }
+        });
+
+        if (response.status === 206) {
+            await response.arrayBuffer();
+            return;
+        }
+
+        const reader = response.body?.getReader?.();
+        if (!reader) return;
+
+        let received = 0;
+        while (received < PANORAMA_WARM_CHUNK_BYTES) {
+            const { done, value } = await reader.read();
+            if (done || !value) break;
+            received += value.byteLength;
+        }
+
+        await reader.cancel();
+    } catch (error) {
+        console.debug("Panorama lazy warm skipped:", src, error);
+    }
+}
+
 function setPanoramaLoading(isLoading) {
+    // Cập nhật trạng thái đang tải của ảnh 360
+    // Mục đích: Hiển thị vòng xoay loading trên màn hình để người dùng biết hệ thống đang xử lý ảnh dung lượng lớn.
     const panorama = document.getElementById("panorama");
     if (!panorama) return;
 
@@ -700,4 +816,3 @@ function setPanoramaLoading(isLoading) {
         }, 8000);
     }
 }
-

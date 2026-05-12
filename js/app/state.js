@@ -29,6 +29,8 @@ export const state = {
 };
 
 export function hydrateState() {
+    // Khôi phục trạng thái từ localStorage
+    // Mục đích: Tải các thông tin về avatar, tên người dùng và tiến trình đã lưu cục bộ trên trình duyệt.
     const savedAvatar = localStorage.getItem(STORAGE_KEYS.avatar);
     const savedAvatarImagePath = localStorage.getItem(STORAGE_KEYS.avatarImagePath);
     const savedAvatarImageUrl = localStorage.getItem(STORAGE_KEYS.avatarImageUrl);
@@ -49,6 +51,9 @@ export function hydrateState() {
 }
 
 export async function hydrateProgressFromFirebase(user = auth?.currentUser) {
+    // Khôi phục tiến trình từ Firebase Firestore
+    // Mục đích: Nếu người dùng đã đăng nhập, tải dữ liệu tiến trình từ server; nếu không, sẽ quay lại sử dụng local storage.
+    // Ghi chú Async: Cần đợi (await) kết quả trả về từ hàm getDoc() của Firebase. Đây là một tác vụ bất đồng bộ vì dữ liệu cần thời gian để tải về từ server qua internet.
     if (!user || !db) {
         hydrateState();
         return false;
@@ -77,6 +82,8 @@ export async function hydrateProgressFromFirebase(user = auth?.currentUser) {
 }
 
 export function hasSavedProgress() {
+    // Kiểm tra xem có tiến trình nào đã lưu hay chưa
+    // Mục đích: Xác định xem có dữ liệu trên Firebase (nếu đã đăng nhập) hoặc trong localStorage hay không.
     if (auth?.currentUser && db) {
         return state.hasRemoteProgress;
     }
@@ -85,6 +92,8 @@ export function hasSavedProgress() {
 }
 
 function persistState() {
+    // Lưu trạng thái hiện tại vào localStorage
+    // Mục đích: Ghi đè dữ liệu tiến trình cục bộ để duy trì trạng thái khi người dùng làm mới trang.
     localStorage.setItem(STORAGE_KEYS.avatar, state.selectedAvatar.id);
     localStorage.setItem(STORAGE_KEYS.avatarImagePath, state.avatarImagePath);
     localStorage.setItem(STORAGE_KEYS.avatarImageUrl, state.avatarImageUrl);
@@ -94,6 +103,9 @@ function persistState() {
 }
 
 export async function saveProgressToFirebase() {
+    // Lưu tiến trình hiện tại lên Firebase Firestore
+    // Mục đích: Đồng bộ hóa dữ liệu người dùng với server. Nếu không có kết nối hoặc chưa đăng nhập, sẽ lưu vào local.
+    // Ghi chú Async: Sử dụng 'async' để 'await' hàm setDoc(). Việc này đảm bảo ứng dụng không bị treo khi đang gửi dữ liệu lên server, và chỉ tiếp tục sau khi server xác nhận lưu thành công (hoặc lỗi).
     const user = auth?.currentUser;
     if (!user || !db) {
         persistState();
@@ -129,16 +141,22 @@ export async function saveProgressToFirebase() {
 }
 
 export function setProfile(avatar, name) {
+    // Cập nhật thông tin hồ sơ người dùng
+    // Mục đích: Thay đổi avatar và tên hiển thị trong state của ứng dụng.
     state.selectedAvatar = avatar;
     state.customName = name;
 }
 
 export function setProfileAvatarImage(imageUrl, imagePath) {
+    // Thiết lập hình ảnh đại diện tùy chỉnh
+    // Mục đích: Cập nhật URL và đường dẫn ảnh đại diện mà người dùng đã tải lên.
     state.avatarImageUrl = imageUrl || "";
     state.avatarImagePath = imagePath || "";
 }
 
 export function resetProgress() {
+    // Đặt lại tiến trình về ban đầu
+    // Mục đích: Đưa người dùng về bước 0, mở khóa lại từ đầu và cập nhật lên Firebase.
     state.currentStep = 0;
     state.unlockedStep = 0;
     state.activeMapZone = route[0].zone;
@@ -146,6 +164,8 @@ export function resetProgress() {
 }
 
 export function setCurrentStep(index) {
+    // Thiết lập bước hiện tại trong hành trình
+    // Mục đích: Cập nhật vị trí hiện tại của người dùng, mở khóa các bước tiếp theo và lưu tiến trình.
     state.currentStep = index;
     state.unlockedStep = Math.max(state.unlockedStep, index);
     state.activeMapZone = route[index].zone;
@@ -153,11 +173,15 @@ export function setCurrentStep(index) {
 }
 
 export function setActiveMapZone(zone) {
+    // Cập nhật khu vực bản đồ đang hoạt động
+    // Mục đích: Thay đổi vùng (zone) mà người dùng đang đứng trên bản đồ và lưu lại.
     state.activeMapZone = zone;
     void saveProgressToFirebase();
 }
 
 function resetStateToDefault() {
+    // Đặt lại toàn bộ state về giá trị mặc định
+    // Mục đích: Xóa bỏ các tùy chỉnh và tiến trình, đưa ứng dụng về trạng thái nguyên bản.
     state.selectedAvatar = avatars[0];
     state.avatarImagePath = "";
     state.avatarImageUrl = "";
@@ -168,6 +192,8 @@ function resetStateToDefault() {
 }
 
 function applyProgressData(data) {
+    // Áp dụng dữ liệu tiến trình vào state
+    // Mục đích: Chuyển đổi dữ liệu thô từ Firebase thành cấu trúc state mà ứng dụng có thể sử dụng.
     const savedCurrent = Number(data.currentStep);
     const savedUnlocked = Number(data.unlockedStep);
     const currentStep = Number.isFinite(savedCurrent) ? clamp(savedCurrent, 0, route.length - 1) : 0;
