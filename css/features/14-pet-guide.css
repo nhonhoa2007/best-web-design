@@ -1,6 +1,7 @@
 /* The thong bao chang cua tro ly dong hanh */
 /* Che do nhiem vu duoc dan dat boi tro ly dong hanh */
 .tour-app.pet-guide-mode .right-sidebar {
+    visibility: hidden;
     opacity: 0;
     pointer-events: none;
     transform: translateX(22px);

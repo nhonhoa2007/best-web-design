@@ -99,10 +99,6 @@ function renderGuideTemplate(root) {
                     <i class="ph ph-flag"></i>
                     ${getCurrentLanguage() === "en" ? "Mission" : "Nhiệm vụ"}
                 </button>
-                <button type="button" data-guide-quick-action="next">
-                    <i class="ph ph-arrow-right"></i>
-                    ${getCurrentLanguage() === "en" ? "Next" : "Đi tiếp"}
-                </button>
             </div>
             <form class="guide-chat-form">
                 <div class="guide-chat-composer">
@@ -181,11 +177,6 @@ function handleGuideQuickAction(root, action) {
 
     if (action === "route") {
         window.dispatchEvent(new CustomEvent("vku-guide-open-route"));
-        return;
-    }
-
-    if (action === "next") {
-        window.dispatchEvent(new CustomEvent("vku-guide-complete-step"));
         return;
     }
 

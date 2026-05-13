@@ -169,13 +169,49 @@ export function bindControls() {
     window.addEventListener("vku-guide-complete-step", goNext);
     bindMomentControls();
     bindSidebarControls();
-
-    document.getElementById("mobile-minimap-btn")?.addEventListener("click", () => {
-        openMinimapPage();
-    });
+    bindTourActionMenu();
 
     document.getElementById("close-minimap-btn")?.addEventListener("click", () => {
         closeMinimapPage();
+    });
+}
+
+function bindTourActionMenu() {
+    const actions = document.querySelector(".topbar-actions");
+    const toggle = document.getElementById("tour-action-menu-toggle");
+    const panel = document.getElementById("tour-action-menu-panel");
+    if (!actions || !toggle) return;
+
+    const setOpen = (isOpen) => {
+        actions.classList.toggle("is-open", isOpen);
+        toggle.setAttribute("aria-expanded", String(isOpen));
+        panel?.setAttribute("aria-hidden", String(!isOpen));
+    };
+
+    panel?.setAttribute("aria-hidden", "true");
+
+    toggle.addEventListener("click", (event) => {
+        event.stopPropagation();
+        setOpen(!actions.classList.contains("is-open"));
+    });
+
+    actions.addEventListener("click", (event) => {
+        const button = event.target.closest("button");
+        if (!button || button === toggle) return;
+        setOpen(false);
+    });
+
+    document.addEventListener("click", (event) => {
+        if (!actions.contains(event.target)) {
+            setOpen(false);
+        }
+    });
+
+    document.addEventListener("keydown", (event) => {
+        if (event.key === "Escape") {
+            setOpen(false);
+            toggle.focus();
+        }
     });
 }
 
@@ -309,12 +345,13 @@ export function startTour() {
 
     preloadCurrentPanorama(state.currentStep);
 
+    const hadViewer = Boolean(viewer);
     if (!viewer) {
         setPanoramaLoading(true);
         initViewer();
     }
 
-    loadStep(state.currentStep, { forceViewer: true });
+    loadStep(state.currentStep, { forceViewer: hadViewer });
 }
 
 function showAvatarScreen() {
@@ -603,7 +640,10 @@ function renderStory(scene) {
     document.getElementById("avatar-line").textContent = `${state.customName}: ${getSceneText(scene, "dialog")}`;
     document.getElementById("scene-title").textContent = getSceneText(scene, "title");
     document.getElementById("scene-body").textContent = getSceneText(scene, "body");
-    document.getElementById("scene-mission").textContent = getSceneText(scene, "mission");
+    const mission = document.getElementById("scene-mission");
+    if (mission) {
+        mission.textContent = getSceneText(scene, "mission");
+    }
 
     const notes = document.getElementById("scene-notes");
     notes.innerHTML = getSceneText(scene, "notes").map((note) => `
@@ -612,10 +652,14 @@ function renderStory(scene) {
 
     const prevButton = document.getElementById("prev-step");
     const nextButton = document.getElementById("next-step");
-    prevButton.disabled = state.currentStep === 0;
-    nextButton.innerHTML = state.currentStep === route.length - 1
-        ? `${translate("action.finish")} <i class="ph ph-flag-checkered"></i>`
-        : `${translate("action.next")} <i class="ph ph-arrow-right"></i>`;
+    if (prevButton) {
+        prevButton.disabled = state.currentStep === 0;
+    }
+    if (nextButton) {
+        nextButton.innerHTML = state.currentStep === route.length - 1
+            ? `${translate("action.finish")} <i class="ph ph-flag-checkered"></i>`
+            : `${translate("action.next")} <i class="ph ph-arrow-right"></i>`;
+    }
 
     storyPanel?.classList.add("story-panel-refreshed");
 }

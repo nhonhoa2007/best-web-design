@@ -11,31 +11,40 @@
 
 
             <div class="topbar-actions">
-                <button class="theme-toggle-btn" type="button" aria-label="Switch to light theme">
+                <button class="theme-toggle-btn tour-theme-shortcut" type="button" aria-label="Switch to light theme">
                     <i class="ph ph-sun"></i>
                     <span>Light</span>
                 </button>
-                <button class="icon-button" type="button" aria-label="Về trang chủ" data-back-home>
-                    <i class="ph ph-house"></i>
+                <button id="next-step" class="primary-button tour-next-shortcut" type="button">
+                    Đi tiếp
+                    <i class="ph ph-arrow-right"></i>
                 </button>
-                <button id="toggle-moments-page" class="icon-button" type="button" aria-label="Mở khoảnh khắc" aria-pressed="false">
-                    <i class="ph ph-images"></i>
+                <button id="tour-action-menu-toggle" class="icon-button" type="button" aria-label="Mở menu thao tác" aria-expanded="false" aria-controls="tour-action-menu-panel">
+                    <i class="ph ph-list"></i>
                 </button>
-                <button id="toggle-story-sidebar" class="icon-button sidebar-control" type="button" aria-label="Mở/tắt chặng" aria-pressed="true">
-                    <i class="ph ph-sidebar-simple"></i>
-                </button>
-                <button id="toggle-audio" class="icon-button" type="button" aria-label="Bật/tắt âm thanh">
-                    <i class="ph ph-speaker-high"></i>
-                </button>
-                <button id="change-avatar" class="icon-button" type="button" aria-label="Đổi avatar">
-                    <i class="ph ph-user-switch"></i>
-                </button>
-                <button id="restart-tour" class="icon-button" type="button" aria-label="Chơi lại từ đầu">
-                    <i class="ph ph-arrow-counter-clockwise"></i>
-                </button>
-                <button id="tour-logout-btn" class="icon-button" type="button" aria-label="Đăng xuất">
-                    <i class="ph ph-sign-out"></i>
-                </button>
+                <div id="tour-action-menu-panel" class="tour-action-menu-panel" role="menu" aria-label="Menu thao tác tour">
+                    <button id="prev-step" class="icon-button" type="button" aria-label="Quay lại chặng trước">
+                        <i class="ph ph-arrow-left"></i>
+                    </button>
+                    <button class="icon-button" type="button" aria-label="Về trang chủ" data-back-home>
+                        <i class="ph ph-house"></i>
+                    </button>
+                    <button id="toggle-moments-page" class="icon-button" type="button" aria-label="Mở khoảnh khắc" aria-pressed="false">
+                        <i class="ph ph-images"></i>
+                    </button>
+                    <button id="toggle-audio" class="icon-button" type="button" aria-label="Bật/tắt âm thanh">
+                        <i class="ph ph-speaker-high"></i>
+                    </button>
+                    <button id="change-avatar" class="icon-button" type="button" aria-label="Đổi avatar">
+                        <i class="ph ph-user-switch"></i>
+                    </button>
+                    <button id="restart-tour" class="icon-button" type="button" aria-label="Chơi lại từ đầu">
+                        <i class="ph ph-arrow-counter-clockwise"></i>
+                    </button>
+                    <button id="tour-logout-btn" class="icon-button" type="button" aria-label="Đăng xuất">
+                        <i class="ph ph-sign-out"></i>
+                    </button>
+                </div>
             </div>
         </header>
 
@@ -96,21 +105,6 @@
                 <ul id="scene-notes"></ul>
             </div>
 
-            <div class="mission-block">
-                <span>Nhiệm vụ nhỏ</span>
-                <p id="scene-mission">Quan sát hướng di chuyển đến các giảng đường.</p>
-            </div>
-
-            <div class="story-actions">
-                <button id="prev-step" class="secondary-button" type="button">
-                    <i class="ph ph-arrow-left"></i>
-                    Quay lại
-                </button>
-                <button id="next-step" class="primary-button" type="button">
-                    Đi tiếp
-                    <i class="ph ph-arrow-right"></i>
-                </button>
-            </div>
         </section>
         </aside>
 
@@ -205,8 +199,4 @@
             </div>
         </section>
 
-        <!-- Nút mở bản đồ trên mobile -->
-        <button id="mobile-minimap-btn" class="fab-button hidden-desktop" type="button" aria-label="Mở bản đồ">
-            <i class="ph ph-map-trifold"></i>
-        </button>
     </main>

@@ -1,7 +1,7 @@
 import { route } from "../../data/route.js";
 import { auth, collection, db, getDocs, query, where } from "../firebase/index.js";
 import { formatNumber, getCurrentLocale, getSceneText, translate } from "../app/i18n.js";
-import { state } from "../app/state.js";
+import { avatarById, state } from "../app/state.js";
 import { showSkeleton } from "../ui/ui-utils.js";
 
 
@@ -12,6 +12,9 @@ const NOTIFICATION_TYPES = {
     reaction_received: { icon: "ph-heart", titleKey: "notification.reactionReceived" }
 };
 const DASHBOARD_CACHE_TTL = 45_000;
+const LEADERBOARD_PAGE_LIMIT = 4;
+const LEADERBOARD_HOME_LIMIT = 8;
+const LEADERBOARD_MORE_STEP = 4;
 let dashboardCacheContext = "";
 let dashboardCache = new Map();
 
@@ -81,22 +84,41 @@ async function renderLeaderboard() {
 
     try {
         const { rows } = await fetchLeaderboardData();
-        renderLeaderboardRows(table, rows.slice(0, 8));
+        const isStandaloneLeaderboard = table.id === "leaderboard-table";
+        renderLeaderboardRows(table, rows, {
+            visibleCount: isStandaloneLeaderboard ? LEADERBOARD_PAGE_LIMIT : LEADERBOARD_HOME_LIMIT
+        });
     } catch (error) {
         console.warn("Leaderboard load error:", error);
-        renderLeaderboardRows(table, [currentUserRank()], translate("leaderboard.localOnly"));
+        renderLeaderboardRows(table, [currentUserRank()], {
+            note: translate("leaderboard.localOnly")
+        });
     }
 }
 
-function renderLeaderboardRows(table, rows, note = "") {
+function renderLeaderboardRows(table, rows, options = {}) {
     // Tạo mã HTML cho các hàng trong bảng xếp hạng
     // Mục đích: Chuyển đổi mảng dữ liệu người chơi thành cấu trúc hàng cột để chèn vào DOM.
-    const body = rows.map((row, index) => `
+    const note = options.note || "";
+    const visibleCount = Math.min(options.visibleCount || rows.length, rows.length);
+    const visibleRows = rows.slice(0, visibleCount);
+    const hasMore = visibleCount < rows.length;
+    updateLeaderboardTopAvatar(rows[0]);
+
+    const body = visibleRows.map((row, index) => `
         <div class="leaderboard-row">
-            <span>#${index + 1}</span>
-            <strong>${escapeHtml(row.name)}</strong>
-            <span>${row.unlockedStep + 1}/${TOTAL_STEPS} ${translate("unit.stage")}</span>
-            <span>${formatNumber(row.score)}</span>
+            <span class="leaderboard-rank-badge ${index < 3 ? `rank-${index + 1}` : ""}">#${index + 1}</span>
+            <span class="leaderboard-player-cell">
+                ${renderLeaderboardAvatar(row)}
+                <strong>${escapeHtml(row.name)}</strong>
+            </span>
+            <span class="leaderboard-progress-cell">
+                <strong>${row.unlockedStep + 1}/${TOTAL_STEPS} ${translate("unit.stage")}</strong>
+                <span class="leaderboard-progress-track">
+                    <span style="width: ${getProgressPercent(row)}%"></span>
+                </span>
+            </span>
+            <span class="leaderboard-score">${formatNumber(row.score)}</span>
         </div>
     `).join("");
 
@@ -108,8 +130,52 @@ function renderLeaderboardRows(table, rows, note = "") {
             <span>${translate("leaderboard.score")}</span>
         </div>
         ${body}
+        ${hasMore ? `<button class="leaderboard-more" type="button" data-leaderboard-more>${translate("leaderboard.more")}</button>` : ""}
         ${note ? `<div class="leaderboard-note">${escapeHtml(note)}</div>` : ""}
     `;
+
+    table.querySelector("[data-leaderboard-more]")?.addEventListener("click", () => {
+        renderLeaderboardRows(table, rows, {
+            note,
+            visibleCount: Math.min(rows.length, visibleCount + LEADERBOARD_MORE_STEP)
+        });
+    });
+}
+
+function updateLeaderboardTopAvatar(row) {
+    const container = document.getElementById("leaderboard-top-avatar");
+    if (!container) return;
+
+    if (!row) {
+        container.innerHTML = `<i class="ph ph-user-circle"></i>`;
+        container.style.removeProperty("--leader-avatar-color");
+        return;
+    }
+
+    container.style.setProperty("--leader-avatar-color", getAvatarColor(row));
+    container.innerHTML = renderLeaderboardAvatar(row, "leaderboard-top-avatar-face");
+}
+
+function renderLeaderboardAvatar(row, className = "leaderboard-avatar") {
+    const imageUrl = row.avatarImageUrl || "";
+    const avatar = avatarById.get(row.avatarId) || state.selectedAvatar;
+    const color = row.avatarColor || avatar?.color || "#ffd21f";
+    const icon = avatar?.icon || "ph-user-circle";
+
+    if (imageUrl) {
+        return `<span class="${className}" style="--leader-avatar-color: ${escapeAttribute(color)}"><img src="${escapeAttribute(imageUrl)}" alt=""></span>`;
+    }
+
+    return `<span class="${className}" style="--leader-avatar-color: ${escapeAttribute(color)}"><i class="ph ${escapeAttribute(icon)}"></i></span>`;
+}
+
+function getAvatarColor(row) {
+    const avatar = avatarById.get(row.avatarId) || state.selectedAvatar;
+    return row.avatarColor || avatar?.color || "#ffd21f";
+}
+
+function getProgressPercent(row) {
+    return Math.max(0, Math.min(100, Math.round(((row.unlockedStep + 1) / TOTAL_STEPS) * 100)));
 }
 
 async function fetchLeaderboardData() {
@@ -617,6 +683,9 @@ function currentUserRank() {
     return normalizeProgress({
         uid: auth?.currentUser?.uid || "local",
         customName: state.customName,
+        avatarId: state.selectedAvatar.id,
+        avatarImageUrl: state.avatarImageUrl,
+        avatarColor: state.selectedAvatar.color,
         unlockedStep: state.unlockedStep
     });
 }
@@ -632,6 +701,9 @@ function normalizeProgress(progress) {
     return {
         uid: progress.uid || "",
         name: progress.customName || translate("fallback.explorer"),
+        avatarId: progress.avatarId || "",
+        avatarImageUrl: typeof progress.avatarImageUrl === "string" ? progress.avatarImageUrl : "",
+        avatarColor: typeof progress.avatarColor === "string" ? progress.avatarColor : "",
         currentStep,
         unlockedStep,
         score,

@@ -40,6 +40,7 @@
     max-height: none !important;
     min-height: 0 !important;
     z-index: 140;
+    visibility: hidden;
     opacity: 0;
     pointer-events: none;
     transform: translate(-50%, 18px) scale(0.98);
@@ -73,9 +74,25 @@
 
 .tour-app.show-route-page .quest-panel,
 .tour-app.show-moments-page .moments-panel {
+    visibility: visible;
     opacity: 1;
     pointer-events: auto;
     transform: translate(-50%, 0) scale(1);
+}
+
+.minimap-panel {
+    visibility: hidden;
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(18px) scale(0.98);
+    transition: transform 0.28s ease, opacity 0.28s ease;
+}
+
+.tour-app.show-minimap-page .minimap-panel {
+    visibility: visible;
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateY(0) scale(1);
 }
 
 .tour-app.show-route-page #toggle-quest-sidebar,
@@ -84,6 +101,119 @@
     color: #0b1326;
     background: var(--gold);
     box-shadow: 0 0 15px rgba(251, 191, 36, 0.34);
+}
+
+.topbar-actions {
+    position: relative;
+    isolation: isolate;
+}
+
+#tour-action-menu-toggle {
+    display: grid;
+}
+
+.tour-theme-shortcut {
+    flex: 0 0 auto;
+    height: 40px;
+}
+
+#next-step.tour-next-shortcut {
+    flex: 0 0 auto;
+    min-height: 40px;
+    height: 40px;
+    padding: 0 14px;
+    white-space: nowrap;
+}
+
+#next-step.tour-next-shortcut i {
+    font-size: 1.1rem;
+}
+
+.topbar-actions::before {
+    content: none;
+}
+
+.tour-action-menu-panel {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    width: min(260px, calc(100vw - 24px));
+    max-height: min(420px, calc(100dvh - 110px));
+    display: grid;
+    align-content: start;
+    gap: 6px;
+    padding: 10px;
+    overflow-y: auto;
+    border: 1px solid var(--border-default);
+    border-radius: 12px;
+    background: rgba(15, 23, 42, 0.94);
+    box-shadow: var(--shadow);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+    visibility: hidden;
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(-6px) scale(0.98);
+    transform-origin: top right;
+    transition: opacity 0.18s ease, transform 0.18s ease;
+}
+
+.topbar-actions.is-open .tour-action-menu-panel {
+    visibility: visible;
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateY(0) scale(1);
+}
+
+[data-theme="light"] .tour-action-menu-panel {
+    background: rgba(255, 255, 255, 0.96);
+}
+
+.tour-action-menu-panel > button {
+    width: 100%;
+    min-height: 40px;
+    height: auto;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 10px;
+    padding: 0 12px;
+    border: 0;
+    border-radius: 8px;
+    color: var(--ink);
+    background: transparent;
+    font-weight: 800;
+    transition:
+        color var(--motion-fast) ease,
+        background var(--motion-fast) ease;
+}
+
+.tour-action-menu-panel > .icon-button:not(#prev-step)::after {
+    content: attr(aria-label);
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 0.86rem;
+}
+
+.topbar-actions > #tour-action-menu-toggle::after {
+    content: "";
+}
+
+.tour-action-menu-panel > button:hover,
+.tour-action-menu-panel > button:focus-visible,
+.tour-action-menu-panel > .icon-button.is-active {
+    color: #0b1326;
+    background: var(--gold);
+    box-shadow: none;
+    outline: none;
+}
+
+.mission-block,
+.story-actions,
+#mobile-minimap-btn {
+    display: none !important;
 }
 
 .tour-app.show-route-page .quest-panel .route-list {

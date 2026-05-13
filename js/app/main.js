@@ -1,6 +1,6 @@
 import { inject } from '@vercel/analytics';
 import { auth, onAuthStateChanged } from "../firebase/index.js";
-import { setupAuthUI } from "../features/auth.js";
+import { consumePostLoginScreen, handlePendingGoogleRedirect, setupAuthUI } from "../features/auth.js";
 import { setupGuideChat } from "../features/chat-guide.js";
 import { bindEventControls, renderEventGallery } from "../features/events.js";
 import { renderHomeDashboard } from "../features/home.js";
@@ -68,9 +68,11 @@ document.addEventListener("DOMContentLoaded", async () => {
     bindProfileControls();
 
     if (auth) {
+        await handlePendingGoogleRedirect();
+
         onAuthStateChanged(auth, async (user) => {
             if (user) {
-                showScreen("home-screen");
+                showScreen(consumePostLoginScreen());
 
                 await bootTourShell(user);
                 // Prompt for nickname if user hasn't set one yet

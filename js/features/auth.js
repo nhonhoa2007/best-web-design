@@ -1,6 +1,7 @@
 import {
     auth,
     createUserWithEmailAndPassword,
+    getRedirectResult,
     GoogleAuthProvider,
     signInWithEmailAndPassword,
     signInWithPopup,
@@ -12,6 +13,19 @@ import { showToast } from "../ui/ui.js";
 
 let isLoginMode = true;
 let languageListenerBound = false;
+const POST_LOGIN_SCREEN_KEY = "vkuQuestPostLoginScreen";
+const GOOGLE_REDIRECT_PENDING_KEY = "vkuQuestGoogleRedirectPending";
+const DEFAULT_POST_LOGIN_SCREEN = "home-screen";
+const POST_LOGIN_SCREENS = new Set([
+    "home-screen",
+    "quest-screen",
+    "leaderboard-screen",
+    "library-screen",
+    "events-screen",
+    "profile-screen",
+    "avatar-screen",
+    "tour-app"
+]);
 
 export function setupAuthUI() {
     // Thiết lập giao diện xác thực (Đăng nhập/Đăng ký)
@@ -89,6 +103,7 @@ async function handleGoogleLogin() {
 
     const provider = new GoogleAuthProvider();
     provider.setCustomParameters({ prompt: "select_account" });
+    rememberPostLoginScreen();
 
     if (googleBtn) {
         googleBtn.disabled = true;
@@ -97,15 +112,21 @@ async function handleGoogleLogin() {
     if (submitBtn) submitBtn.disabled = true;
 
     try {
+        if (shouldUseRedirectForGoogleSignIn()) {
+            await startGoogleRedirectLogin(provider);
+            return;
+        }
+
         await signInWithPopup(auth, provider);
         showToast(translate("toast.loginSuccess"));
         refreshAfterAuthChange();
     } catch (error) {
-        if (error?.code === "auth/popup-blocked") {
+        if (shouldFallBackToRedirect(error)) {
             try {
-                await signInWithRedirect(auth, provider);
+                await startGoogleRedirectLogin(provider);
                 return;
             } catch (redirectError) {
+                clearPendingGoogleRedirect();
                 showToast(getAuthErrorMessage(redirectError));
                 console.error("Google Redirect Auth Error:", redirectError);
             }
@@ -120,6 +141,38 @@ async function handleGoogleLogin() {
         }
         if (submitBtn) submitBtn.disabled = false;
     }
+}
+
+export async function handlePendingGoogleRedirect() {
+    if (!auth) return false;
+
+    try {
+        const result = await getRedirectResult(auth);
+        if (result?.user) {
+            clearPendingGoogleRedirect();
+            showToast(translate("toast.loginSuccess"));
+            return true;
+        }
+
+        if (isGoogleRedirectPending() && auth.currentUser) {
+            clearPendingGoogleRedirect();
+            return true;
+        }
+
+        clearPendingGoogleRedirect();
+        return false;
+    } catch (error) {
+        clearPendingGoogleRedirect();
+        showToast(getAuthErrorMessage(error));
+        console.error("Google Redirect Result Error:", error);
+        return false;
+    }
+}
+
+export function consumePostLoginScreen() {
+    const screenId = readSessionValue(POST_LOGIN_SCREEN_KEY);
+    sessionStorageRemove(POST_LOGIN_SCREEN_KEY);
+    return POST_LOGIN_SCREENS.has(screenId) ? screenId : DEFAULT_POST_LOGIN_SCREEN;
 }
 
 export async function handleLogout() {
@@ -142,6 +195,67 @@ function refreshAfterAuthChange() {
     // Làm mới trang sau khi thay đổi trạng thái xác thực
     // Mục đích: Đảm bảo toàn bộ ứng dụng được cập nhật trạng thái mới nhất từ Firebase.
     window.location.reload();
+}
+
+async function startGoogleRedirectLogin(provider) {
+    markGoogleRedirectPending();
+    await signInWithRedirect(auth, provider);
+}
+
+function rememberPostLoginScreen() {
+    const activeScreen = document.querySelector(".app-screen.is-screen-active")?.id;
+    const screenId = POST_LOGIN_SCREENS.has(activeScreen) && activeScreen !== "auth-screen"
+        ? activeScreen
+        : DEFAULT_POST_LOGIN_SCREEN;
+    writeSessionValue(POST_LOGIN_SCREEN_KEY, screenId);
+}
+
+function markGoogleRedirectPending() {
+    writeSessionValue(GOOGLE_REDIRECT_PENDING_KEY, "1");
+}
+
+function isGoogleRedirectPending() {
+    return readSessionValue(GOOGLE_REDIRECT_PENDING_KEY) === "1";
+}
+
+function clearPendingGoogleRedirect() {
+    sessionStorageRemove(GOOGLE_REDIRECT_PENDING_KEY);
+}
+
+function shouldUseRedirectForGoogleSignIn() {
+    return window.matchMedia?.("(pointer: coarse)")?.matches || /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent);
+}
+
+function shouldFallBackToRedirect(error) {
+    return [
+        "auth/popup-blocked",
+        "auth/operation-not-supported-in-this-environment",
+        "auth/cancelled-popup-request"
+    ].includes(error?.code);
+}
+
+function readSessionValue(key) {
+    try {
+        return window.sessionStorage?.getItem(key) || "";
+    } catch (error) {
+        return "";
+    }
+}
+
+function writeSessionValue(key, value) {
+    try {
+        window.sessionStorage?.setItem(key, value);
+    } catch (error) {
+        // Auth still works without sessionStorage; the app will fall back to the home screen.
+    }
+}
+
+function sessionStorageRemove(key) {
+    try {
+        window.sessionStorage?.removeItem(key);
+    } catch (error) {
+        // Ignore storage access errors from strict browser privacy modes.
+    }
 }
 
 function getAuthErrorMessage(error) {

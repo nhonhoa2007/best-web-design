@@ -1,6 +1,7 @@
 import {
     createUserWithEmailAndPassword,
     getAuth,
+    getRedirectResult,
     GoogleAuthProvider,
     onAuthStateChanged,
     signInWithPopup,
@@ -72,6 +73,7 @@ export {
     getDoc,
     getDocs,
     getDownloadURL,
+    getRedirectResult,
     GoogleAuthProvider,
     httpsCallable,
     onAuthStateChanged,

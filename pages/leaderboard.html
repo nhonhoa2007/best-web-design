@@ -1,6 +1,9 @@
 <section id="leaderboard-screen" class="profile-screen hidden">
     <nav class="profile-topbar" aria-label="Leaderboard navigation">
-        <button class="profile-brand" type="button" data-back-home>UniQuest</button>
+        <button class="profile-brand leaderboard-brand" type="button" data-back-home>
+            <span>VKU 360</span>
+            <span>Quest</span>
+        </button>
         <div class="profile-nav-links">
             <button type="button" data-back-home>Dashboard</button>
             <button type="button" data-open-page="quest">Quests</button>
@@ -30,10 +33,15 @@
     </nav>
 
     <div class="profile-page-shell">
-        <section class="standalone-page-hero">
-            <span class="standalone-page-kicker">Live Ranking</span>
-            <h1>Bảng xếp hạng</h1>
-            <p>Theo dõi người chơi nổi bật dựa trên số chặng đã hoàn thành và khoảnh khắc đã lưu.</p>
+        <section class="standalone-page-hero leaderboard-hero">
+            <div class="leaderboard-hero-copy">
+                <span class="standalone-page-kicker">Live Ranking</span>
+                <h1>Bảng xếp hạng</h1>
+                <p>Theo dõi người chơi nổi bật dựa trên số chặng đã hoàn thành và khoảnh khắc đã lưu.</p>
+            </div>
+            <aside id="leaderboard-top-avatar" class="leaderboard-top-avatar" aria-label="Người đứng đầu bảng xếp hạng">
+                <i class="ph ph-user-circle"></i>
+            </aside>
         </section>
 
         <section class="home-dashboard-section leaderboard-section">
