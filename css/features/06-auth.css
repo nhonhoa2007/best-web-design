@@ -139,6 +139,30 @@
     padding: 14px;
 }
 
+.auth-forgot-password {
+    justify-self: end;
+    border: 0;
+    background: transparent;
+    color: var(--gold);
+    cursor: pointer;
+    font: 700 0.86rem/1 var(--font-main);
+    padding: 0;
+    text-align: right;
+}
+
+.auth-forgot-password:hover,
+.auth-forgot-password:focus-visible {
+    color: #ffda85;
+    outline: none;
+    text-decoration: underline;
+}
+
+.auth-forgot-password:disabled {
+    cursor: progress;
+    opacity: 0.65;
+    text-decoration: none;
+}
+
 .auth-divider {
     display: flex;
     align-items: center;

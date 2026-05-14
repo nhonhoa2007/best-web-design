@@ -21,8 +21,9 @@ import {
 import { getCurrentLocale, getSceneText, translate } from "../app/i18n.js";
 import { state } from "../app/state.js";
 import { showToast } from "../ui/ui.js";
+import { DEFAULT_MAX_SOURCE_SIZE, LONG_CACHE_CONTROL, optimizeImageForUpload } from "../utils/image-optimizer.js";
 
-const MAX_IMAGE_SIZE = 5 * 1024 * 1024;
+const MAX_IMAGE_SIZE = DEFAULT_MAX_SOURCE_SIZE;
 const momentCountsByScene = new Map();
 
 let controlsBound = false;
@@ -482,11 +483,19 @@ async function deleteMoment(momentId, imagePath) {
 async function uploadMomentImage(uid, momentId, file) {
     // Tải ảnh khoảnh khắc lên Firebase Storage
     // Mục đích: Lưu trữ file ảnh và trả về URL để ứng dụng có thể hiển thị ảnh đó sau này.
-    const safeName = file.name.replace(/[^\w.-]/g, "_");
+    const optimizedFile = await optimizeImageForUpload(file, {
+        maxWidth: 1600,
+        maxHeight: 1600,
+        quality: 0.82
+    });
+    const safeName = optimizedFile.name.replace(/[^\w.-]/g, "_");
     const imagePath = `moment-images/${uid}/${momentId}/${Date.now()}-${safeName}`;
     const imageRef = ref(storage, imagePath);
 
-    await uploadBytes(imageRef, file, { contentType: file.type });
+    await uploadBytes(imageRef, optimizedFile, {
+        contentType: optimizedFile.type,
+        cacheControl: LONG_CACHE_CONTROL
+    });
     const imageUrl = await getDownloadURL(imageRef);
     return { imageUrl, imagePath };
 }

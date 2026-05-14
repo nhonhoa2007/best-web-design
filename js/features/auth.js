@@ -1,8 +1,10 @@
 import {
     auth,
+    authReady,
     createUserWithEmailAndPassword,
     getRedirectResult,
     GoogleAuthProvider,
+    sendPasswordResetEmail,
     signInWithEmailAndPassword,
     signInWithPopup,
     signInWithRedirect,
@@ -16,6 +18,7 @@ let languageListenerBound = false;
 const POST_LOGIN_SCREEN_KEY = "vkuQuestPostLoginScreen";
 const GOOGLE_REDIRECT_PENDING_KEY = "vkuQuestGoogleRedirectPending";
 const DEFAULT_POST_LOGIN_SCREEN = "home-screen";
+const REDIRECT_SETTLE_TIMEOUT_MS = 2500;
 const POST_LOGIN_SCREENS = new Set([
     "home-screen",
     "quest-screen",
@@ -36,6 +39,7 @@ export function setupAuthUI() {
     const title = document.getElementById("auth-title");
     const submitBtn = document.getElementById("auth-submit-btn");
     const googleBtn = document.getElementById("google-auth-btn");
+    const forgotPasswordBtn = document.getElementById("forgot-password-btn");
 
     if (!form || !toggleLink || !toggleText || !title || !submitBtn) return;
 
@@ -54,6 +58,10 @@ export function setupAuthUI() {
 
     if (googleBtn) {
         googleBtn.onclick = handleGoogleLogin;
+    }
+
+    if (forgotPasswordBtn) {
+        forgotPasswordBtn.onclick = handlePasswordReset;
     }
 
     form.onsubmit = async (event) => {
@@ -92,6 +100,41 @@ export function setupAuthUI() {
     };
 }
 
+async function handlePasswordReset() {
+    const emailInput = document.getElementById("email");
+    const forgotPasswordBtn = document.getElementById("forgot-password-btn");
+    const email = emailInput?.value.trim() || "";
+
+    if (!auth) {
+        showToast(translate("toast.firebaseMissing"));
+        return;
+    }
+
+    if (!email) {
+        showToast(translate("auth.error.resetEmailRequired"));
+        emailInput?.focus();
+        return;
+    }
+
+    if (forgotPasswordBtn) {
+        forgotPasswordBtn.disabled = true;
+        forgotPasswordBtn.textContent = translate("auth.resetSending");
+    }
+
+    try {
+        await sendPasswordResetEmail(auth, email);
+        showToast(translate("toast.passwordResetSent"));
+    } catch (error) {
+        showToast(getAuthErrorMessage(error));
+        console.error("Password Reset Error:", error);
+    } finally {
+        if (forgotPasswordBtn) {
+            forgotPasswordBtn.disabled = false;
+            forgotPasswordBtn.textContent = translate("auth.forgotPassword");
+        }
+    }
+}
+
 async function handleGoogleLogin() {
     const submitBtn = document.getElementById("auth-submit-btn");
     const googleBtn = document.getElementById("google-auth-btn");
@@ -100,6 +143,7 @@ async function handleGoogleLogin() {
         showToast(translate("toast.firebaseMissing"));
         return;
     }
+    await authReady;
 
     const provider = new GoogleAuthProvider();
     provider.setCustomParameters({ prompt: "select_account" });
@@ -112,7 +156,7 @@ async function handleGoogleLogin() {
     if (submitBtn) submitBtn.disabled = true;
 
     try {
-        if (shouldUseRedirectForGoogleSignIn()) {
+        if (shouldUseRedirectLogin()) {
             await startGoogleRedirectLogin(provider);
             return;
         }
@@ -145,8 +189,10 @@ async function handleGoogleLogin() {
 
 export async function handlePendingGoogleRedirect() {
     if (!auth) return false;
+    await authReady;
 
     try {
+        const hadPendingRedirect = isGoogleRedirectPending();
         const result = await getRedirectResult(auth);
         if (result?.user) {
             clearPendingGoogleRedirect();
@@ -154,12 +200,15 @@ export async function handlePendingGoogleRedirect() {
             return true;
         }
 
-        if (isGoogleRedirectPending() && auth.currentUser) {
+        const redirectedUser = auth.currentUser || (hadPendingRedirect ? await waitForCurrentUser() : null);
+        if (redirectedUser) {
             clearPendingGoogleRedirect();
             return true;
         }
 
-        clearPendingGoogleRedirect();
+        if (hadPendingRedirect) {
+            clearPendingGoogleRedirect();
+        }
         return false;
     } catch (error) {
         clearPendingGoogleRedirect();
@@ -192,14 +241,21 @@ export async function handleLogout() {
 }
 
 function refreshAfterAuthChange() {
-    // Làm mới trang sau khi thay đổi trạng thái xác thực
-    // Mục đích: Đảm bảo toàn bộ ứng dụng được cập nhật trạng thái mới nhất từ Firebase.
-    window.location.reload();
+    // Notify the app shell; main.js handles screen changes through onAuthStateChanged.
+    window.dispatchEvent(new CustomEvent("vku-auth-change"));
 }
 
 async function startGoogleRedirectLogin(provider) {
     markGoogleRedirectPending();
     await signInWithRedirect(auth, provider);
+}
+
+function shouldUseRedirectLogin() {
+    const userAgent = window.navigator?.userAgent || "";
+    const isMobileUserAgent = /Android|iPhone|iPad|iPod|IEMobile|Opera Mini/i.test(userAgent);
+    const isCoarsePointer = window.matchMedia?.("(hover: none), (pointer: coarse)")?.matches;
+
+    return Boolean(isMobileUserAgent || isCoarsePointer);
 }
 
 function rememberPostLoginScreen() {
@@ -222,10 +278,6 @@ function clearPendingGoogleRedirect() {
     sessionStorageRemove(GOOGLE_REDIRECT_PENDING_KEY);
 }
 
-function shouldUseRedirectForGoogleSignIn() {
-    return window.matchMedia?.("(pointer: coarse)")?.matches || /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent);
-}
-
 function shouldFallBackToRedirect(error) {
     return [
         "auth/popup-blocked",
@@ -236,7 +288,7 @@ function shouldFallBackToRedirect(error) {
 
 function readSessionValue(key) {
     try {
-        return window.sessionStorage?.getItem(key) || "";
+        return window.sessionStorage?.getItem(key) || window.localStorage?.getItem(key) || "";
     } catch (error) {
         return "";
     }
@@ -245,17 +297,36 @@ function readSessionValue(key) {
 function writeSessionValue(key, value) {
     try {
         window.sessionStorage?.setItem(key, value);
+        window.localStorage?.setItem(key, value);
     } catch (error) {
-        // Auth still works without sessionStorage; the app will fall back to the home screen.
+        // Auth still works without browser storage; the app will fall back to the home screen.
     }
 }
 
 function sessionStorageRemove(key) {
     try {
         window.sessionStorage?.removeItem(key);
+        window.localStorage?.removeItem(key);
     } catch (error) {
         // Ignore storage access errors from strict browser privacy modes.
     }
+}
+
+function waitForCurrentUser(timeoutMs = REDIRECT_SETTLE_TIMEOUT_MS) {
+    return new Promise((resolve) => {
+        let settled = false;
+        let timer = 0;
+        let unsubscribe = () => {};
+        const finish = (user) => {
+            if (settled) return;
+            settled = true;
+            window.clearTimeout(timer);
+            unsubscribe();
+            resolve(user || null);
+        };
+        unsubscribe = auth.onAuthStateChanged(finish, () => finish(null));
+        timer = window.setTimeout(() => finish(auth.currentUser), timeoutMs);
+    });
 }
 
 function getAuthErrorMessage(error) {
@@ -287,6 +358,7 @@ function refreshAuthText() {
     const title = document.getElementById("auth-title");
     const submitBtn = document.getElementById("auth-submit-btn");
     const toggleText = document.getElementById("auth-toggle-text");
+    const forgotPasswordBtn = document.getElementById("forgot-password-btn");
 
     if (title) title.textContent = isLoginMode ? translate("auth.loginTitle") : translate("auth.signupTitle");
     if (submitBtn && !submitBtn.disabled) {
@@ -295,6 +367,12 @@ function refreshAuthText() {
     const googleBtn = document.getElementById("google-auth-btn");
     if (googleBtn && !googleBtn.disabled) {
         googleBtn.innerHTML = `<i class="ph ph-google-logo"></i> ${translate("auth.googleAction")}`;
+    }
+    if (forgotPasswordBtn) {
+        forgotPasswordBtn.hidden = !isLoginMode;
+        if (!forgotPasswordBtn.disabled) {
+            forgotPasswordBtn.textContent = translate("auth.forgotPassword");
+        }
     }
     if (toggleText) {
         toggleText.innerHTML = isLoginMode

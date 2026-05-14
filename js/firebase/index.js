@@ -1,9 +1,12 @@
 import {
+    browserLocalPersistence,
     createUserWithEmailAndPassword,
     getAuth,
     getRedirectResult,
     GoogleAuthProvider,
     onAuthStateChanged,
+    sendPasswordResetEmail,
+    setPersistence,
     signInWithPopup,
     signInWithRedirect,
     signInWithEmailAndPassword,
@@ -35,9 +38,11 @@ import {
 } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-functions.js";
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
 
+const FIREBASE_AUTH_DOMAIN = "best-web-design.firebaseapp.com";
+
 const firebaseConfig = { 
   apiKey : "AIzaSyBDV2PqxXXvyIBsgDqpQsu2m4KrOOV6oPw" , 
-  authDomain : "best-web-design.firebaseapp.com" , 
+  authDomain : getAuthDomain() , 
   projectId : "best-web-design" , 
   storageBucket : "best-web-design.firebasestorage.app" , 
   messagingSenderId : "274842395049" , 
@@ -50,10 +55,14 @@ let auth = null;
 let db = null;
 let storage = null;
 let functions = null;
+let authReady = Promise.resolve();
 
 try {
     app = initializeApp(firebaseConfig);
     auth = getAuth(app);
+    authReady = setPersistence(auth, browserLocalPersistence).catch((error) => {
+        console.error("Không thể thiết lập Firebase Auth persistence.", error);
+    });
     db = getFirestore(app);
     storage = getStorage(app);
     functions = getFunctions(app, "asia-southeast1");
@@ -61,8 +70,20 @@ try {
     console.error("Lỗi khởi tạo Firebase. Vui lòng kiểm tra firebaseConfig.", error);
 }
 
+function getAuthDomain() {
+    const hostname = window.location?.hostname || "";
+    const isIpAddress = /^(?:\d{1,3}\.){3}\d{1,3}$/.test(hostname);
+    const isLocalHost = ["", "localhost", "127.0.0.1", "::1"].includes(hostname)
+        || hostname.endsWith(".localhost")
+        || isIpAddress;
+
+    return isLocalHost ? FIREBASE_AUTH_DOMAIN : hostname;
+}
+
 export {
     auth,
+    authReady,
+    browserLocalPersistence,
     collection,
     createUserWithEmailAndPassword,
     deleteDoc,
@@ -80,6 +101,8 @@ export {
     query,
     ref,
     serverTimestamp,
+    sendPasswordResetEmail,
+    setPersistence,
     setDoc,
     signInWithPopup,
     signInWithRedirect,

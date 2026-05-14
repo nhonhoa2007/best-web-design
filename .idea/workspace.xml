@@ -2,10 +2,29 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="d5447ad1-859c-4c32-8804-4bca08b5d9c9" name="Changes" comment="final">
-      <change afterPath="$PROJECT_DIR$/explain_css.md" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/explain_js.md" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/scratch/generate_docs.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/scratch/generate_docs_v2.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/assets/panoramas/k-baigiuxe-done.webp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/assets/panoramas/k-cong.webp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/assets/panoramas/k-hanhchinh.webp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/assets/panoramas/k-hoitruond-done.webp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/assets/panoramas/k-sanpick-done.webp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/assets/panoramas/k-ttsv.webp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/js/utils/image-optimizer.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/panoramas/z7795975651945_c787c53292f10c2113aa7fc30e1f983e.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/css/features/06-auth.css" beforeDir="false" afterPath="$PROJECT_DIR$/css/features/06-auth.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/css/features/15-route-modal.css" beforeDir="false" afterPath="$PROJECT_DIR$/css/features/15-route-modal.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/route.js" beforeDir="false" afterPath="$PROJECT_DIR$/data/route.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/js/app/i18n.js" beforeDir="false" afterPath="$PROJECT_DIR$/js/app/i18n.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/js/features/auth.js" beforeDir="false" afterPath="$PROJECT_DIR$/js/features/auth.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/js/features/events.js" beforeDir="false" afterPath="$PROJECT_DIR$/js/features/events.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/js/features/moments.js" beforeDir="false" afterPath="$PROJECT_DIR$/js/features/moments.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/js/features/profile.js" beforeDir="false" afterPath="$PROJECT_DIR$/js/features/profile.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/js/firebase/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/js/firebase/index.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pages/events.html" beforeDir="false" afterPath="$PROJECT_DIR$/pages/events.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pages/login.html" beforeDir="false" afterPath="$PROJECT_DIR$/pages/login.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pages/tour.html" beforeDir="false" afterPath="$PROJECT_DIR$/pages/tour.html" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -15,18 +34,18 @@
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
-  <component name="GitHubPullRequestSearchHistory"><![CDATA[{
-  "lastFilter": {
-    "state": "OPEN",
-    "assignee": "nhonhoa2007"
+  <component name="GitHubPullRequestSearchHistory">{
+  &quot;lastFilter&quot;: {
+    &quot;state&quot;: &quot;OPEN&quot;,
+    &quot;assignee&quot;: &quot;nhonhoa2007&quot;
   }
-}]]></component>
-  <component name="GithubPullRequestsUISettings"><![CDATA[{
-  "selectedUrlAndAccountId": {
-    "url": "https://github.com/nhonhoa2007/best-web-design.git",
-    "accountId": "2fe7047e-16f5-4899-9053-07bd0b545510"
+}</component>
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;https://github.com/nhonhoa2007/best-web-design.git&quot;,
+    &quot;accountId&quot;: &quot;2fe7047e-16f5-4899-9053-07bd0b545510&quot;
   }
-}]]></component>
+}</component>
   <component name="ProjectColorInfo">{
   &quot;associatedIndex&quot;: 4,
   &quot;fromUser&quot;: false
@@ -39,6 +58,7 @@
   <component name="PropertiesComponent">{
   &quot;keyToString&quot;: {
     &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
+    &quot;Node.js.route.js.executor&quot;: &quot;Run&quot;,
     &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
@@ -49,6 +69,7 @@
     &quot;javascript.preferred.runtime.type.id&quot;: &quot;node&quot;,
     &quot;last_opened_file_path&quot;: &quot;D:/web/best-web-design&quot;,
     &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.pluginManager&quot;,
     &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
 }</component>
@@ -69,6 +90,17 @@
       <workItem from="1778140766490" duration="31000" />
       <workItem from="1778461441720" duration="2992000" />
       <workItem from="1778475050530" duration="287000" />
+      <workItem from="1778680462496" duration="994000" />
+      <workItem from="1778682567889" duration="194000" />
+      <workItem from="1778724524693" duration="2396000" />
+      <workItem from="1778742014072" duration="2041000" />
+      <workItem from="1778744111649" duration="604000" />
+      <workItem from="1778746455245" duration="176000" />
+      <workItem from="1778747589784" duration="578000" />
+      <workItem from="1778748210347" duration="796000" />
+      <workItem from="1778752970304" duration="432000" />
+      <workItem from="1778760113269" duration="200000" />
+      <workItem from="1778761330894" duration="712000" />
     </task>
     <task id="LOCAL-00001" summary="final">
       <option name="closed" value="true" />

@@ -11,8 +11,9 @@ import { translate } from "../app/i18n.js";
 import { renderHomeDashboard } from "./home.js";
 import { saveProgressToFirebase, setProfileAvatarImage, state } from "../app/state.js";
 import { showToast } from "../ui/ui.js";
+import { DEFAULT_MAX_SOURCE_SIZE, LONG_CACHE_CONTROL, optimizeImageForUpload } from "../utils/image-optimizer.js";
 
-const MAX_AVATAR_SIZE = 5 * 1024 * 1024;
+const MAX_AVATAR_SIZE = DEFAULT_MAX_SOURCE_SIZE;
 
 let controlsBound = false;
 
@@ -79,11 +80,19 @@ async function uploadProfileAvatar(uid, file) {
     // Tải ảnh đại diện lên Firebase Storage
     // Mục đích: Lưu file ảnh vào thư mục riêng của người dùng và lấy URL công khai để hiển thị.
     // Ghi chú Async: Đợi (await) quá trình tải lên (uploadBytes) kết thúc, sau đó đợi lấy URL download để trả về cho luồng xử lý chính.
-    const safeName = file.name.replace(/[^\w.-]/g, "_");
+    const optimizedFile = await optimizeImageForUpload(file, {
+        maxWidth: 512,
+        maxHeight: 512,
+        quality: 0.86
+    });
+    const safeName = optimizedFile.name.replace(/[^\w.-]/g, "_");
     const imagePath = `profile-avatars/${uid}/${Date.now()}-${safeName}`;
     const imageRef = ref(storage, imagePath);
 
-    await uploadBytes(imageRef, file, { contentType: file.type });
+    await uploadBytes(imageRef, optimizedFile, {
+        contentType: optimizedFile.type,
+        cacheControl: LONG_CACHE_CONTROL
+    });
     const imageUrl = await getDownloadURL(imageRef);
     return { imageUrl, imagePath };
 }
@@ -102,7 +111,7 @@ async function deletePreviousAvatar(imagePath, uid) {
 
 function validateAvatarFile(file) {
     // Kiểm tra tính hợp lệ của file ảnh đại diện
-    // Mục đích: Đảm bảo file đúng định dạng hình ảnh và không vượt quá dung lượng cho phép (5MB).
+    // Mục đích: Đảm bảo file đúng định dạng hình ảnh và không vượt quá dung lượng file gốc cho phép.
     if (!file.type.startsWith("image/")) {
         showToast(translate("toast.imageOnly"));
         return false;
