@@ -77,7 +77,9 @@
 [data-theme="light"] .moment-field input[type="file"],
 [data-theme="light"] #events-screen select,
 [data-theme="light"] .event-caption-wrapper textarea,
-[data-theme="light"] .input-wrapper input {
+[data-theme="light"] .input-wrapper input,
+[data-theme="light"] .input-wrapper select,
+[data-theme="light"] .input-wrapper textarea {
     border-color: rgba(15, 23, 42, 0.12);
     background: #ffffff;
     color: var(--text-primary);
@@ -102,9 +104,15 @@
 
 [data-theme="light"] #events-screen select:focus,
 [data-theme="light"] .event-caption-wrapper textarea:focus,
-[data-theme="light"] .input-wrapper input:focus {
+[data-theme="light"] .input-wrapper input:focus,
+[data-theme="light"] .input-wrapper select:focus,
+[data-theme="light"] .input-wrapper textarea:focus {
     background: #ffffff;
     box-shadow: 0 0 0 3px rgba(244, 180, 0, 0.18);
+}
+
+[data-theme="light"] .input-wrapper select {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%238a97ad' viewBox='0 0 256 256'%3E%3Cpath d='M213.66,101.66l-80,80a8,8,0,0,1-11.32,0l-80-80a8,8,0,0,1,11.32-11.32L128,164.69l74.34-74.35a8,8,0,0,1,11.32,11.32Z'%3E%3C/path%3E%3C/svg%3E");
 }
 
 [data-theme="light"] .home-hero-visual,

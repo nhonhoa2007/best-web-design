@@ -2,8 +2,9 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="d5447ad1-859c-4c32-8804-4bca08b5d9c9" name="Changes" comment="final">
-      <change beforePath="$PROJECT_DIR$/docs/VKU-360-Quest-thuyet-trinh-5-phut.pptx" beforeDir="false" afterPath="$PROJECT_DIR$/docs/VKU-360-Quest-thuyet-trinh-5-phut.pptx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/js/services/forum-service.js" beforeDir="false" afterPath="$PROJECT_DIR$/js/services/forum-service.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/css/features/06-auth.css" beforeDir="false" afterPath="$PROJECT_DIR$/css/features/06-auth.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/css/features/10-light-theme.css" beforeDir="false" afterPath="$PROJECT_DIR$/css/features/10-light-theme.css" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -83,7 +84,7 @@
       <workItem from="1778813244052" duration="8367000" />
       <workItem from="1778829113542" duration="2402000" />
       <workItem from="1778845505389" duration="1488000" />
-      <workItem from="1778848095451" duration="2442000" />
+      <workItem from="1778848095451" duration="4391000" />
     </task>
     <task id="LOCAL-00001" summary="final">
       <option name="closed" value="true" />
