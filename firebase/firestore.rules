@@ -105,6 +105,48 @@ service cloud.firestore {
       allow delete: if isOwner(resource.data.uid);
     }
 
+    match /forumThreads/{threadId} {
+      allow read: if signedIn();
+      allow create: if signedIn()
+                    && request.resource.data.uid == request.auth.uid
+                    && request.resource.data.authorName is string
+                    && hasText(request.resource.data.title, 120)
+                    && hasText(request.resource.data.body, 1200)
+                    && request.resource.data.category in ["event", "question", "club", "notice"]
+                    && request.resource.data.imageUrl is string
+                    && request.resource.data.imagePath is string
+                    && request.resource.data.replyCount == 0
+                    && request.resource.data.reactionCount == 0;
+      allow update: if signedIn()
+                    && request.resource.data.uid == resource.data.uid
+                    && request.resource.data.authorName == resource.data.authorName
+                    && request.resource.data.title == resource.data.title
+                    && request.resource.data.body == resource.data.body
+                    && request.resource.data.category == resource.data.category
+                    && request.resource.data.imageUrl == resource.data.imageUrl
+                    && request.resource.data.imagePath == resource.data.imagePath
+                    && request.resource.data.reactionCount == resource.data.reactionCount
+                    && request.resource.data.createdAt == resource.data.createdAt
+                    && request.resource.data.replyCount is number
+                    && request.resource.data.replyCount >= resource.data.replyCount;
+      allow delete: if isOwner(resource.data.uid);
+    }
+
+    match /forumReplies/{replyId} {
+      allow read: if signedIn();
+      allow create: if signedIn()
+                    && request.resource.data.uid == request.auth.uid
+                    && request.resource.data.authorName is string
+                    && request.resource.data.threadId is string
+                    && exists(/databases/$(database)/documents/forumThreads/$(request.resource.data.threadId))
+                    && hasText(request.resource.data.body, 800);
+      allow update: if isOwner(resource.data.uid)
+                    && request.resource.data.uid == resource.data.uid
+                    && request.resource.data.threadId == resource.data.threadId
+                    && hasText(request.resource.data.body, 800);
+      allow delete: if isOwner(resource.data.uid);
+    }
+
     match /{document=**} {
       allow read, write: if false;
     }

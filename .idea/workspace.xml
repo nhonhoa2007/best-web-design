@@ -2,28 +2,54 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="d5447ad1-859c-4c32-8804-4bca08b5d9c9" name="Changes" comment="final">
-      <change afterPath="$PROJECT_DIR$/assets/panoramas/k-baigiuxe-done.webp" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/assets/panoramas/k-cong.webp" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/assets/panoramas/k-hanhchinh.webp" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/assets/panoramas/k-hoitruond-done.webp" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/assets/panoramas/k-sanpick-done.webp" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/assets/panoramas/k-ttsv.webp" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/js/utils/image-optimizer.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/panoramas/z7795975651945_c787c53292f10c2113aa7fc30e1f983e.jpg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/css/features/06-auth.css" beforeDir="false" afterPath="$PROJECT_DIR$/css/features/06-auth.css" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/css/features/15-route-modal.css" beforeDir="false" afterPath="$PROJECT_DIR$/css/features/15-route-modal.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/panoramas/k-b.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/panoramas/k-baigiuxe-done.webp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/panoramas/k-baigiuxe.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/panoramas/k-c.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/panoramas/k-c.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/panoramas/k-cong.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/panoramas/k-cong.webp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/panoramas/k-hanhchinh.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/assets/panoramas/k-hanhchinh.jpg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/panoramas/k-hanhchinh.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/panoramas/k-hanhchinh.webp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/panoramas/k-hoitruond-done.webp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/panoramas/k-hoitruong.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/panoramas/k-sanpick-done.webp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/panoramas/k-thuvien.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/panoramas/k-ttsv.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/panoramas/k-ttsv.webp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/panoramas/k_b.webp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/panoramas/k_d2.webp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/panoramas/k_e.webp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/panoramas/ktx.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/panoramas/ktx.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/panoramas/test.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/panoramas/v_cong.webp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/css/features/01-home-dashboard-events.css" beforeDir="false" afterPath="$PROJECT_DIR$/css/features/01-home-dashboard-events.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/css/features/02-profile-pages.css" beforeDir="false" afterPath="$PROJECT_DIR$/css/features/02-profile-pages.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/css/features/08-motion-responsive.css" beforeDir="false" afterPath="$PROJECT_DIR$/css/features/08-motion-responsive.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/css/features/09-tour-overlays.css" beforeDir="false" afterPath="$PROJECT_DIR$/css/features/09-tour-overlays.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/css/features/11-theme-language.css" beforeDir="false" afterPath="$PROJECT_DIR$/css/features/11-theme-language.css" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/data/route.js" beforeDir="false" afterPath="$PROJECT_DIR$/data/route.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/image_plan.md" beforeDir="false" afterPath="$PROJECT_DIR$/docs/image_plan.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/firebase/firestore.rules" beforeDir="false" afterPath="$PROJECT_DIR$/firebase/firestore.rules" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/firebase/storage.rules" beforeDir="false" afterPath="$PROJECT_DIR$/firebase/storage.rules" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/index.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/js/app/i18n.js" beforeDir="false" afterPath="$PROJECT_DIR$/js/app/i18n.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/js/app/main.js" beforeDir="false" afterPath="$PROJECT_DIR$/js/app/main.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/js/app/state.js" beforeDir="false" afterPath="$PROJECT_DIR$/js/app/state.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/js/features/auth.js" beforeDir="false" afterPath="$PROJECT_DIR$/js/features/auth.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/js/features/events.js" beforeDir="false" afterPath="$PROJECT_DIR$/js/features/events.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/js/features/moments.js" beforeDir="false" afterPath="$PROJECT_DIR$/js/features/moments.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/js/features/map.js" beforeDir="false" afterPath="$PROJECT_DIR$/js/features/map.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/js/features/profile.js" beforeDir="false" afterPath="$PROJECT_DIR$/js/features/profile.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/js/firebase/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/js/firebase/index.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/js/features/tour.js" beforeDir="false" afterPath="$PROJECT_DIR$/js/features/tour.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/pages/events.html" beforeDir="false" afterPath="$PROJECT_DIR$/pages/events.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pages/login.html" beforeDir="false" afterPath="$PROJECT_DIR$/pages/login.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pages/homepage.html" beforeDir="false" afterPath="$PROJECT_DIR$/pages/homepage.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pages/leaderboard.html" beforeDir="false" afterPath="$PROJECT_DIR$/pages/leaderboard.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pages/library.html" beforeDir="false" afterPath="$PROJECT_DIR$/pages/library.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pages/profile.html" beforeDir="false" afterPath="$PROJECT_DIR$/pages/profile.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pages/quest.html" beforeDir="false" afterPath="$PROJECT_DIR$/pages/quest.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/pages/tour.html" beforeDir="false" afterPath="$PROJECT_DIR$/pages/tour.html" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -100,7 +126,11 @@
       <workItem from="1778748210347" duration="796000" />
       <workItem from="1778752970304" duration="432000" />
       <workItem from="1778760113269" duration="200000" />
-      <workItem from="1778761330894" duration="712000" />
+      <workItem from="1778761330894" duration="5783000" />
+      <workItem from="1778813244052" duration="8367000" />
+      <workItem from="1778829113542" duration="2402000" />
+      <workItem from="1778845505389" duration="1488000" />
+      <workItem from="1778848095451" duration="1712000" />
     </task>
     <task id="LOCAL-00001" summary="final">
       <option name="closed" value="true" />

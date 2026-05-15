@@ -17,8 +17,10 @@ let isLoginMode = true;
 let languageListenerBound = false;
 const POST_LOGIN_SCREEN_KEY = "vkuQuestPostLoginScreen";
 const GOOGLE_REDIRECT_PENDING_KEY = "vkuQuestGoogleRedirectPending";
+const GOOGLE_REDIRECT_STARTED_AT_KEY = "vkuQuestGoogleRedirectStartedAt";
 const DEFAULT_POST_LOGIN_SCREEN = "home-screen";
-const REDIRECT_SETTLE_TIMEOUT_MS = 2500;
+const REDIRECT_SETTLE_TIMEOUT_MS = 10000;
+const REDIRECT_PENDING_MAX_AGE_MS = 2 * 60 * 1000;
 const POST_LOGIN_SCREENS = new Set([
     "home-screen",
     "quest-screen",
@@ -156,11 +158,6 @@ async function handleGoogleLogin() {
     if (submitBtn) submitBtn.disabled = true;
 
     try {
-        if (shouldUseRedirectLogin()) {
-            await startGoogleRedirectLogin(provider);
-            return;
-        }
-
         await signInWithPopup(auth, provider);
         showToast(translate("toast.loginSuccess"));
         refreshAfterAuthChange();
@@ -250,14 +247,6 @@ async function startGoogleRedirectLogin(provider) {
     await signInWithRedirect(auth, provider);
 }
 
-function shouldUseRedirectLogin() {
-    const userAgent = window.navigator?.userAgent || "";
-    const isMobileUserAgent = /Android|iPhone|iPad|iPod|IEMobile|Opera Mini/i.test(userAgent);
-    const isCoarsePointer = window.matchMedia?.("(hover: none), (pointer: coarse)")?.matches;
-
-    return Boolean(isMobileUserAgent || isCoarsePointer);
-}
-
 function rememberPostLoginScreen() {
     const activeScreen = document.querySelector(".app-screen.is-screen-active")?.id;
     const screenId = POST_LOGIN_SCREENS.has(activeScreen) && activeScreen !== "auth-screen"
@@ -268,14 +257,26 @@ function rememberPostLoginScreen() {
 
 function markGoogleRedirectPending() {
     writeSessionValue(GOOGLE_REDIRECT_PENDING_KEY, "1");
+    writeSessionValue(GOOGLE_REDIRECT_STARTED_AT_KEY, String(Date.now()));
 }
 
 function isGoogleRedirectPending() {
-    return readSessionValue(GOOGLE_REDIRECT_PENDING_KEY) === "1";
+    if (readSessionValue(GOOGLE_REDIRECT_PENDING_KEY) !== "1") {
+        return false;
+    }
+
+    const startedAt = Number(readSessionValue(GOOGLE_REDIRECT_STARTED_AT_KEY));
+    if (Number.isFinite(startedAt) && Date.now() - startedAt > REDIRECT_PENDING_MAX_AGE_MS) {
+        clearPendingGoogleRedirect();
+        return false;
+    }
+
+    return true;
 }
 
 function clearPendingGoogleRedirect() {
     sessionStorageRemove(GOOGLE_REDIRECT_PENDING_KEY);
+    sessionStorageRemove(GOOGLE_REDIRECT_STARTED_AT_KEY);
 }
 
 function shouldFallBackToRedirect(error) {

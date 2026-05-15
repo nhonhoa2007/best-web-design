@@ -24,6 +24,8 @@ const PANORAMA_WARM_CHUNK_BYTES = 768 * 1024;
 const PANORAMA_LAZY_WINDOW = [1, -1, 2];
 let panoramaLoadingTimer = null;
 let lastGuideAnnouncementKey = "";
+const AMBIENT_AUDIO_VOLUME = 0.34;
+const AMBIENT_AUDIO_PREF_KEY = "vkuQuestAmbientAudioEnabled";
 
 // Cinematic & Audio States
 let idleTimer = null;
@@ -344,6 +346,7 @@ export function startTour() {
     tourApp?.classList.add("app-screen", "is-screen-active");
 
     preloadCurrentPanorama(state.currentStep);
+    tryStartAmbientAudio();
 
     const hadViewer = Boolean(viewer);
     if (!viewer) {
@@ -505,19 +508,73 @@ function customHotspot(hotSpotDiv, label) {
 function toggleAudio() {
     // Bật hoặc tắt nhạc nền ambient
     // Mục đích: Điều khiển việc phát âm thanh và cập nhật icon trạng thái loa trên giao diện.
-    const audio = document.getElementById("ambient-audio");
+    setAmbientAudioEnabled(!isAudioPlaying);
+}
+
+function tryStartAmbientAudio() {
+    if (localStorage.getItem(AMBIENT_AUDIO_PREF_KEY) === "false") {
+        updateAudioButton(false);
+        return;
+    }
+
+    setAmbientAudioEnabled(true, { persist: false });
+}
+
+function setAmbientAudioEnabled(enabled, options = {}) {
+    const audio = getAmbientAudio();
     if (!audio) return;
-    
-    const icon = document.querySelector("#toggle-audio i");
-    if (isAudioPlaying) {
+
+    if (!enabled) {
         audio.pause();
         isAudioPlaying = false;
-        if (icon) icon.className = "ph ph-speaker-slash";
-    } else {
-        audio.play().catch(() => {});
-        isAudioPlaying = true;
-        if (icon) icon.className = "ph ph-speaker-high";
+        if (options.persist !== false) {
+            localStorage.setItem(AMBIENT_AUDIO_PREF_KEY, "false");
+        }
+        updateAudioButton(false);
+        return;
     }
+
+    const playPromise = audio.play();
+    if (options.persist !== false) {
+        localStorage.setItem(AMBIENT_AUDIO_PREF_KEY, "true");
+    }
+
+    if (!playPromise?.then) {
+        isAudioPlaying = true;
+        updateAudioButton(true);
+        return;
+    }
+
+    playPromise
+        .then(() => {
+            isAudioPlaying = true;
+            updateAudioButton(true);
+        })
+        .catch((error) => {
+            isAudioPlaying = false;
+            updateAudioButton(false);
+            console.debug("Ambient audio start skipped:", error);
+        });
+}
+
+function getAmbientAudio() {
+    const audio = document.getElementById("ambient-audio");
+    if (!audio) return null;
+
+    audio.loop = true;
+    audio.volume = AMBIENT_AUDIO_VOLUME;
+    return audio;
+}
+
+function updateAudioButton(isPlaying) {
+    const icon = document.querySelector("#toggle-audio i");
+    const button = document.getElementById("toggle-audio");
+
+    if (icon) {
+        icon.className = isPlaying ? "ph ph-speaker-high" : "ph ph-speaker-slash";
+    }
+    button?.classList.toggle("is-active", isPlaying);
+    button?.setAttribute("aria-pressed", String(isPlaying));
 }
 
 function goNext() {

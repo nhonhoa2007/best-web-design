@@ -52,3 +52,112 @@
         display: none;
     }
 }
+
+.topbar-actions {
+    --tour-control-height: 50px;
+    --tour-control-radius: 12px;
+    align-items: center;
+}
+
+.topbar-actions > .language-switcher,
+.topbar-actions > .theme-toggle-btn,
+.topbar-actions > .tour-next-shortcut,
+.topbar-actions > #next-step.tour-next-shortcut,
+.topbar-actions > #tour-action-menu-toggle {
+    height: var(--tour-control-height);
+    min-height: var(--tour-control-height);
+    max-height: var(--tour-control-height);
+    border-radius: var(--tour-control-radius);
+    box-sizing: border-box;
+}
+
+.topbar-actions > .language-switcher {
+    padding: 4px;
+}
+
+.topbar-actions > .language-switcher button {
+    min-width: 48px;
+    height: calc(var(--tour-control-height) - 8px);
+    border-radius: calc(var(--tour-control-radius) - 4px);
+    font-size: 1rem;
+}
+
+.topbar-actions > .theme-toggle-btn {
+    min-width: 108px;
+    padding: 0 16px;
+    gap: 8px;
+    font-size: 1rem;
+}
+
+.topbar-actions > .theme-toggle-btn i,
+.topbar-actions > .tour-next-shortcut i,
+.topbar-actions > #next-step.tour-next-shortcut i,
+.topbar-actions > #tour-action-menu-toggle i {
+    font-size: 1.35rem;
+}
+
+.topbar-actions > .tour-next-shortcut,
+.topbar-actions > #next-step.tour-next-shortcut {
+    padding: 0 22px;
+    font-size: 1.05rem;
+}
+
+.topbar-actions > #tour-action-menu-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: var(--tour-control-height);
+    min-width: var(--tour-control-height);
+    padding: 0;
+    line-height: 0;
+}
+
+.topbar-actions > .tour-action-menu-panel > button {
+    height: var(--tour-control-height);
+    min-height: var(--tour-control-height);
+    max-height: var(--tour-control-height);
+    box-sizing: border-box;
+}
+
+.topbar-actions > #tour-action-menu-toggle i {
+    display: inline-flex;
+}
+
+.topbar-actions > #tour-action-menu-toggle::before {
+    display: none;
+}
+
+@media (max-width: 640px) {
+    .topbar-actions {
+        --tour-control-height: 40px;
+        --tour-control-radius: 10px;
+        gap: 6px;
+    }
+
+    .topbar-actions > .language-switcher button {
+        min-width: 34px;
+        font-size: 0.78rem;
+    }
+
+    .topbar-actions > .theme-toggle-btn {
+        min-width: var(--tour-control-height);
+        padding: 0;
+    }
+
+    .topbar-actions > .theme-toggle-btn span {
+        display: none;
+    }
+
+    .topbar-actions > .tour-next-shortcut,
+    .topbar-actions > #next-step.tour-next-shortcut {
+        padding: 0 14px;
+        font-size: 0.92rem;
+    }
+
+    .topbar-actions > .theme-toggle-btn i,
+    .topbar-actions > .tour-next-shortcut i,
+    .topbar-actions > #next-step.tour-next-shortcut i,
+    .topbar-actions > #tour-action-menu-toggle i {
+        font-size: 1.18rem;
+    }
+}

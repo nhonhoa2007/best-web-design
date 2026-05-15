@@ -767,22 +767,30 @@ video {
         font-size: 1rem;
     }
 
-    .home-mobile-menu a {
+    .home-mobile-menu a,
+    .home-mobile-menu button {
         display: flex;
         align-items: center;
+        gap: 8px;
         min-height: 42px;
         padding: 0 12px;
+        border: 0;
         border-radius: 8px;
         color: var(--ink);
         background: rgba(255, 255, 255, 0.06);
+        cursor: pointer;
+        font: inherit;
         font-weight: 700;
         text-decoration: none;
     }
 
     .home-mobile-menu a.active,
-    .home-mobile-menu a:hover {
+    .home-mobile-menu a:hover,
+    .home-mobile-menu button:hover,
+    .home-mobile-menu button:focus-visible {
         color: #111827;
         background: var(--gold);
+        outline: none;
     }
 
     .home-menu-backdrop {
@@ -838,6 +846,15 @@ video {
         grid-template-columns: 1fr 1fr;
     }
 
+    .forum-layout {
+        grid-template-columns: 1fr;
+    }
+
+    .forum-thread-detail {
+        position: static;
+        max-height: none;
+    }
+
     .profile-stat-grid,
     .profile-content-grid,
     .profile-achievement-grid {
@@ -887,6 +904,10 @@ video {
         background: rgba(255, 255, 255, 0.06);
         font-size: 0.88rem;
         text-align: left;
+    }
+
+    .profile-nav-links .profile-mobile-logout {
+        display: flex;
     }
 
     .profile-nav-links button:hover,
@@ -989,6 +1010,33 @@ video {
         width: 100%;
     }
 
+    .forum-section-title {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .forum-filter-tabs {
+        justify-content: flex-start;
+    }
+
+    .forum-thread-card,
+    .forum-thread-card.has-image {
+        grid-template-columns: 1fr;
+    }
+
+    .forum-thread-thumb {
+        min-height: 190px;
+        aspect-ratio: 16 / 9;
+    }
+
+    .forum-thread-stats {
+        grid-auto-flow: column;
+        align-content: center;
+        justify-content: space-between;
+        justify-items: start;
+        border-top: 1px solid var(--border-subtle);
+    }
+
     .leaderboard-row {
         grid-template-columns: 54px minmax(0, 1fr);
         gap: 8px 14px;
@@ -1078,6 +1126,10 @@ video {
 
     .profile-icon-button {
         display: none;
+    }
+
+    #profile-logout-btn {
+        display: grid;
     }
 
     .profile-icon-button.profile-menu-toggle {

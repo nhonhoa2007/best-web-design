@@ -1,5 +1,5 @@
 <section id="events-screen" class="profile-screen hidden">
-    <nav class="profile-topbar" aria-label="Events navigation">
+    <nav class="profile-topbar" aria-label="Forum navigation">
         <button class="profile-brand" type="button" data-back-home>VKU 360 Quest</button>
         <div class="profile-nav-links">
             <button type="button" data-back-home>Dashboard</button>
@@ -7,7 +7,8 @@
             <button type="button" data-open-page="leaderboard">Leaderboard</button>
             <button type="button" data-open-page="library">Library</button>
             <button type="button" data-open-page="profile">Profile</button>
-            <span>Events</span>
+            <span>Forum</span>
+            <button class="profile-mobile-logout" type="button" data-logout>Đăng xuất</button>
         </div>
         <div class="profile-nav-actions">
             <button class="theme-toggle-btn" type="button" aria-label="Switch to light theme">
@@ -31,51 +32,64 @@
 
     <div class="profile-page-shell">
         <section class="standalone-page-hero">
-            <span class="standalone-page-kicker">Campus Events</span>
-            <h1>Ảnh sự kiện campus</h1>
-            <p>Đăng và lưu lại những khoảnh khắc về trường trong các buổi campus, check-in, orientation, hội thảo và hoạt động sinh viên.</p>
+            <span class="standalone-page-kicker">Campus Forum</span>
+            <h1>Diễn đàn sự kiện VKU</h1>
+            <p>Tạo chủ đề, đặt câu hỏi, chia sẻ thông báo và cùng thảo luận về các hoạt động trong campus.</p>
         </section>
 
         <section class="events-compose-section">
             <form id="event-photo-form" class="event-photo-form">
                 <div class="event-form-head">
                     <div>
-                        <span>Campus Album</span>
-                        <h2>Đăng ảnh mới</h2>
+                        <span>Diễn đàn</span>
+                        <h2>Tạo chủ đề mới</h2>
                     </div>
                     <button id="event-photo-submit" class="home-primary" type="submit">
-                        <i class="ph ph-cloud-arrow-up"></i>
-                        Đăng ảnh
+                        <i class="ph ph-paper-plane-tilt"></i>
+                        Đăng chủ đề
                     </button>
                 </div>
 
                 <div class="event-form-grid">
                     <div class="input-group">
-                        <label for="event-photo-title">Tên buổi campus</label>
+                        <label for="event-photo-title">Tiêu đề</label>
                         <div class="input-wrapper">
-                            <i class="ph ph-calendar-star"></i>
-                            <input id="event-photo-title" type="text" maxlength="80" placeholder="Ví dụ: Orientation Day, Open Campus..." required>
+                            <i class="ph ph-chat-circle-text"></i>
+                            <input id="event-photo-title" type="text" maxlength="120" placeholder="Ví dụ: Ai tham gia Open Campus tuần này?" required>
                         </div>
                     </div>
                     <div class="input-group">
-                        <label for="event-photo-file">Ảnh sự kiện</label>
-                        <div class="event-file-control">
-                            <input id="event-photo-file" type="file" accept="image/*" required hidden>
-                            <label class="event-file-button" for="event-photo-file">
-                                <i class="ph ph-image-square"></i>
-                                <span>Chọn ảnh</span>
-                            </label>
-                            <span id="event-photo-file-name" class="event-file-name">Chưa chọn ảnh</span>
-                            <small>Ảnh gốc tối đa 20MB, hệ thống sẽ tự nén trước khi tải lên.</small>
+                        <label for="event-forum-category">Danh mục</label>
+                        <div class="input-wrapper">
+                            <i class="ph ph-tag"></i>
+                            <select id="event-forum-category" required>
+                                <option value="event">Sự kiện</option>
+                                <option value="question">Hỏi đáp</option>
+                                <option value="club">Câu lạc bộ</option>
+                                <option value="notice">Thông báo</option>
+                            </select>
                         </div>
                     </div>
                 </div>
 
                 <div class="input-group">
-                    <label for="event-photo-caption">Caption</label>
+                    <label for="event-photo-caption">Nội dung</label>
                     <div class="input-wrapper event-caption-wrapper">
                         <i class="ph ph-note-pencil"></i>
-                        <textarea id="event-photo-caption" maxlength="220" rows="3" placeholder="Viết vài dòng về khoảnh khắc này..." required></textarea>
+                        <textarea id="event-photo-caption" maxlength="1200" rows="5" placeholder="Viết nội dung muốn thảo luận..." required></textarea>
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label for="event-photo-file">Ảnh đính kèm</label>
+                    <div class="event-file-control">
+                        <input id="event-photo-file" type="file" accept="image/*" hidden>
+                        <label class="event-file-button" for="event-photo-file">
+                            <i class="ph ph-image-square"></i>
+                            <span>Chọn ảnh</span>
+                        </label>
+                        <span id="event-photo-file-name" class="event-file-name">Chưa chọn ảnh</span>
+                        <small>Ảnh là tùy chọn, tối đa 20MB và sẽ được nén trước khi tải lên.</small>
                     </div>
                 </div>
 
@@ -84,10 +98,29 @@
         </section>
 
         <section class="events-gallery-section">
-            <div class="profile-section-title">
-                <h2>Album campus</h2>
+            <div class="profile-section-title forum-section-title">
+                <div>
+                    <h2>Chủ đề mới nhất</h2>
+                    <p id="event-forum-count">0 chủ đề</p>
+                </div>
+                <div id="event-forum-filters" class="forum-filter-tabs" aria-label="Forum categories">
+                    <button class="active" type="button" data-forum-category="all">Tất cả</button>
+                    <button type="button" data-forum-category="event">Sự kiện</button>
+                    <button type="button" data-forum-category="question">Hỏi đáp</button>
+                    <button type="button" data-forum-category="club">CLB</button>
+                    <button type="button" data-forum-category="notice">Thông báo</button>
+                </div>
             </div>
-            <div id="event-photo-gallery" class="event-photo-gallery"></div>
+
+            <div class="forum-layout">
+                <div id="event-photo-gallery" class="event-photo-gallery forum-thread-list"></div>
+                <aside id="event-forum-detail" class="forum-thread-detail" aria-live="polite">
+                    <div class="forum-detail-empty">
+                        <i class="ph ph-chats-circle"></i>
+                        <p>Chọn một chủ đề để xem thảo luận.</p>
+                    </div>
+                </aside>
+            </div>
         </section>
     </div>
 </section>

@@ -109,7 +109,9 @@
 }
 
 #tour-action-menu-toggle {
-    display: grid;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .tour-theme-shortcut {

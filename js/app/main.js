@@ -1,6 +1,6 @@
 import { inject } from '@vercel/analytics';
 import { auth, onAuthStateChanged } from "../firebase/index.js";
-import { consumePostLoginScreen, handlePendingGoogleRedirect, setupAuthUI } from "../features/auth.js";
+import { consumePostLoginScreen, handleLogout, handlePendingGoogleRedirect, setupAuthUI } from "../features/auth.js";
 import { setupGuideChat } from "../features/chat-guide.js";
 import { bindEventControls, renderEventGallery } from "../features/events.js";
 import { renderHomeDashboard } from "../features/home.js";
@@ -186,6 +186,14 @@ function setupHomeUI() {
 
     document.querySelectorAll(".profile-nav-links button").forEach((button) => {
         button.addEventListener("click", closeProfileMenus);
+    });
+
+    document.querySelectorAll("[data-logout]").forEach((button) => {
+        button.addEventListener("click", async () => {
+            setHomeMenuOpen(false);
+            closeProfileMenus();
+            await handleLogout();
+        });
     });
 
     document.querySelectorAll("[data-start-tour]").forEach((button) => {

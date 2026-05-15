@@ -13,9 +13,9 @@ Dựa trên cấu trúc toàn bộ dự án `best-web-design` và dữ liệu l�
 - [ ] **`v-cong-chinh.jpg`**: Đứng giữa cổng chính nhìn vào trong, thấy rõ biển hiệu trường và trục đường đi thẳng vào các giảng đường.
 - [ ] **`v-va.jpg`**: Đứng ở hành lang chính hoặc sân trước Giảng đường A Khu V. Cần thấy rõ bảng tên nhà.
 - [ ] **`v-vb.jpg`**: Đứng giữa sân nhìn bao quát được khối Giảng đường B Khu V.
-- [ ] **`v-bai-do-xe.jpg`**: Khu vực bãi đỗ xe, lấy góc thoáng để thấy được luồng đi bộ vào các tòa nhà.
 
 ### Lộ trình Khu K (Khu phức hợp lớn)
+- [ ] **`k-cong.jpg`**: Đứng tại cổng chính khu K nhìn vào trong, thấy rõ trục đường từ cổng đến các khu chức năng chính.
 - [ ] **`k-hanh-chinh.jpg`**: Sảnh chính của Trung tâm Hành chính. Có thể chụp ngay trước cửa hoặc bên trong sảnh để sinh viên thấy được các quầy dịch vụ.
 - [ ] **`k-hoi-truong.jpg`**: *Nên chụp bên trong* hội trường để thấy được sức chứa và độ hoành tráng, hoặc ngay quảng trường nhỏ phía trước.
 - [ ] **`k-thu-vien.jpg`**: Khu vực sảnh chính hoặc không gian tự học mở của Viện eSTI / Thư viện.

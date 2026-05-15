@@ -1,6 +1,5 @@
 import {
     auth,
-    deleteObject,
     getDownloadURL,
     ref,
     storage,
@@ -9,7 +8,7 @@ import {
 import { handleLogout } from "./auth.js";
 import { translate } from "../app/i18n.js";
 import { renderHomeDashboard } from "./home.js";
-import { saveProgressToFirebase, setProfileAvatarImage, state } from "../app/state.js";
+import { saveProgressToFirebase, setProfileAvatarImage } from "../app/state.js";
 import { showToast } from "../ui/ui.js";
 import { DEFAULT_MAX_SOURCE_SIZE, LONG_CACHE_CONTROL, optimizeImageForUpload } from "../utils/image-optimizer.js";
 
@@ -52,7 +51,6 @@ async function handleAvatarUpload(event) {
 
     const button = document.getElementById("upload-profile-avatar");
     const status = document.getElementById("profile-avatar-status");
-    const oldImagePath = state.avatarImagePath;
 
     setUploadState(button, status, true);
 
@@ -60,10 +58,6 @@ async function handleAvatarUpload(event) {
         const upload = await uploadProfileAvatar(auth.currentUser.uid, file);
         setProfileAvatarImage(upload.imageUrl, upload.imagePath);
         const saved = await saveProgressToFirebase();
-
-        if (saved && oldImagePath && oldImagePath !== upload.imagePath) {
-            await deletePreviousAvatar(oldImagePath, auth.currentUser.uid);
-        }
 
         await renderHomeDashboard();
         showToast(saved ? translate("toast.avatarUpdated") : translate("toast.avatarUploadedUnsynced"));
@@ -95,18 +89,6 @@ async function uploadProfileAvatar(uid, file) {
     });
     const imageUrl = await getDownloadURL(imageRef);
     return { imageUrl, imagePath };
-}
-
-async function deletePreviousAvatar(imagePath, uid) {
-    // Xóa ảnh đại diện cũ khỏi server
-    // Mục đích: Dọn dẹp các file ảnh không còn sử dụng trong Storage sau khi người dùng đổi avatar mới.
-    if (!imagePath.startsWith(`profile-avatars/${uid}/`)) return;
-
-    try {
-        await deleteObject(ref(storage, imagePath));
-    } catch (error) {
-        console.warn("Previous profile avatar delete skipped:", error);
-    }
 }
 
 function validateAvatarFile(file) {

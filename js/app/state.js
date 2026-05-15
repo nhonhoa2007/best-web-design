@@ -1,6 +1,6 @@
 import { avatars } from "../../data/avatars.js";
 import { route } from "../../data/route.js";
-import { auth, db, doc, getDoc, serverTimestamp, setDoc } from "../firebase/index.js";
+import { auth, db, doc, getDoc, getDownloadURL, ref, serverTimestamp, setDoc, storage } from "../firebase/index.js";
 import { translate } from "./i18n.js";
 import { clamp } from "../ui/ui.js";
 
@@ -71,6 +71,8 @@ export async function hydrateProgressFromFirebase(user = auth?.currentUser) {
         }
 
         applyProgressData(snapshot.data());
+        await refreshAvatarDownloadUrl();
+        persistState();
         state.progressLoaded = true;
         state.hasRemoteProgress = true;
         return true;
@@ -116,14 +118,17 @@ export async function saveProgressToFirebase() {
     const payload = {
         uid: user.uid,
         avatarId: state.selectedAvatar.id,
-        avatarImagePath: state.avatarImagePath,
-        avatarImageUrl: state.avatarImageUrl,
         customName: state.customName,
         currentStep: state.currentStep,
         unlockedStep: state.unlockedStep,
         activeMapZone: state.activeMapZone,
         updatedAt: serverTimestamp()
     };
+
+    if (state.avatarImagePath || state.avatarImageUrl) {
+        payload.avatarImagePath = state.avatarImagePath;
+        payload.avatarImageUrl = state.avatarImageUrl;
+    }
 
     if (!state.hasRemoteProgress) {
         payload.createdAt = serverTimestamp();
@@ -152,6 +157,16 @@ export function setProfileAvatarImage(imageUrl, imagePath) {
     // Mục đích: Cập nhật URL và đường dẫn ảnh đại diện mà người dùng đã tải lên.
     state.avatarImageUrl = imageUrl || "";
     state.avatarImagePath = imagePath || "";
+}
+
+async function refreshAvatarDownloadUrl() {
+    if (!state.avatarImagePath || !storage) return;
+
+    try {
+        state.avatarImageUrl = await getDownloadURL(ref(storage, state.avatarImagePath));
+    } catch (error) {
+        console.warn("Avatar download URL refresh skipped:", error);
+    }
 }
 
 export function resetProgress() {
