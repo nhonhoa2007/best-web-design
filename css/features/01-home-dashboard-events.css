@@ -884,6 +884,7 @@
 .event-caption-wrapper textarea {
     width: 100%;
     min-height: 92px;
+    padding-left: 42px;
     resize: vertical;
     border: 0;
     color: var(--text-primary);
@@ -1029,12 +1030,16 @@
 
 #events-screen select {
     width: 100%;
-    border: 0;
+    min-height: 54px;
+    padding: 14px 42px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
     color: var(--text-primary);
-    background: transparent;
+    background: var(--paper);
     font: inherit;
     font-weight: 700;
     outline: none;
+    appearance: auto;
 }
 
 #events-screen option {

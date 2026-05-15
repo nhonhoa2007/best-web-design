@@ -75,6 +75,8 @@
 [data-theme="light"] .moment-field textarea,
 [data-theme="light"] .moment-field select,
 [data-theme="light"] .moment-field input[type="file"],
+[data-theme="light"] #events-screen select,
+[data-theme="light"] .event-caption-wrapper textarea,
 [data-theme="light"] .input-wrapper input {
     border-color: rgba(15, 23, 42, 0.12);
     background: #ffffff;
@@ -93,10 +95,13 @@
     color: #8a97ad;
 }
 
+[data-theme="light"] .event-caption-wrapper textarea::placeholder,
 [data-theme="light"] .input-wrapper input::placeholder {
     color: #94a3b8;
 }
 
+[data-theme="light"] #events-screen select:focus,
+[data-theme="light"] .event-caption-wrapper textarea:focus,
 [data-theme="light"] .input-wrapper input:focus {
     background: #ffffff;
     box-shadow: 0 0 0 3px rgba(244, 180, 0, 0.18);
