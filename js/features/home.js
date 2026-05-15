@@ -9,7 +9,8 @@ const TOTAL_STEPS = route.length;
 const NOTIFICATION_TYPES = {
     moment_created: { icon: "ph-note-pencil", titleKey: "notification.momentCreated" },
     moment_updated: { icon: "ph-pencil-simple", titleKey: "notification.momentUpdated" },
-    reaction_received: { icon: "ph-heart", titleKey: "notification.reactionReceived" }
+    reaction_received: { icon: "ph-heart", titleKey: "notification.reactionReceived" },
+    forum_reply_received: { icon: "ph-chat-circle-text", titleKey: "notification.forumReply" }
 };
 const DASHBOARD_CACHE_TTL = 45_000;
 const LEADERBOARD_PAGE_LIMIT = 4;

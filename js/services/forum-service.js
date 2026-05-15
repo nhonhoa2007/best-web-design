@@ -94,12 +94,24 @@ export async function createForumReply({ db, user, threadId, body }) {
 
     const threadRef = doc(db, "forumThreads", threadId);
     const threadSnapshot = await getDoc(threadRef);
-    const previousCount = threadSnapshot.exists() ? Number(threadSnapshot.data().replyCount) || 0 : 0;
+    const thread = threadSnapshot.exists() ? threadSnapshot.data() : {};
+    const previousCount = Number(thread.replyCount) || 0;
     await updateDoc(threadRef, {
         replyCount: previousCount + 1,
         lastActivityAt: serverTimestamp(),
         updatedAt: serverTimestamp()
     });
+
+    if (thread.uid && thread.uid !== user.uid) {
+        await createForumNotification({
+            db,
+            uid: thread.uid,
+            threadId,
+            title: translate("notification.forumReply"),
+            body: translate("events.replyNotificationBody", { title: thread.title || translate("events.fallbackTitle") }),
+            user
+        });
+    }
 
     return replyRef.id;
 }
@@ -125,6 +137,25 @@ async function fetchReplyCounts(db) {
     });
 
     return counts;
+}
+
+async function createForumNotification({ db, uid, threadId, title, body, user }) {
+    try {
+        const notificationRef = doc(collection(db, "notifications"));
+        await setDoc(notificationRef, {
+            uid,
+            type: "forum_reply_received",
+            title,
+            body,
+            threadId,
+            actorUid: user.uid,
+            actorName: state.customName || translate("fallback.explorer"),
+            read: false,
+            createdAt: serverTimestamp()
+        });
+    } catch (error) {
+        console.warn("Forum notification create skipped:", error);
+    }
 }
 
 async function uploadForumImage(storage, uid, threadId, file) {

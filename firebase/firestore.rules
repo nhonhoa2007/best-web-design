@@ -65,17 +65,26 @@ service cloud.firestore {
       allow create: if signedIn()
                     && request.resource.data.actorUid == request.auth.uid
                     && request.resource.data.uid is string
-                    && request.resource.data.type in ["moment_created", "moment_updated", "reaction_received"]
+                    && request.resource.data.type in ["moment_created", "moment_updated", "reaction_received", "forum_reply_received"]
                     && request.resource.data.title is string
                     && request.resource.data.body is string
                     && (
                       request.resource.data.uid == request.auth.uid
                       || (
-                        request.resource.data.type == "reaction_received"
-                        && request.resource.data.momentId is string
-                        && request.resource.data.uid != request.auth.uid
-                        && exists(/databases/$(database)/documents/moments/$(request.resource.data.momentId))
-                        && get(/databases/$(database)/documents/moments/$(request.resource.data.momentId)).data.uid == request.resource.data.uid
+                        (
+                          request.resource.data.type == "reaction_received"
+                          && request.resource.data.uid != request.auth.uid
+                          && request.resource.data.momentId is string
+                          && exists(/databases/$(database)/documents/moments/$(request.resource.data.momentId))
+                          && get(/databases/$(database)/documents/moments/$(request.resource.data.momentId)).data.uid == request.resource.data.uid
+                        )
+                        || (
+                          request.resource.data.type == "forum_reply_received"
+                          && request.resource.data.uid != request.auth.uid
+                          && request.resource.data.threadId is string
+                          && exists(/databases/$(database)/documents/forumThreads/$(request.resource.data.threadId))
+                          && get(/databases/$(database)/documents/forumThreads/$(request.resource.data.threadId)).data.uid == request.resource.data.uid
+                        )
                       )
                     );
       allow update: if isOwner(resource.data.uid)

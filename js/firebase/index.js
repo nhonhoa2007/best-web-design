@@ -42,7 +42,7 @@ const FIREBASE_AUTH_DOMAIN = "best-web-design.firebaseapp.com";
 
 const firebaseConfig = { 
   apiKey : "AIzaSyBDV2PqxXXvyIBsgDqpQsu2m4KrOOV6oPw" , 
-  authDomain : getAuthDomain() , 
+  authDomain : FIREBASE_AUTH_DOMAIN , 
   projectId : "best-web-design" , 
   storageBucket : "best-web-design.firebasestorage.app" , 
   messagingSenderId : "274842395049" , 
@@ -68,16 +68,6 @@ try {
     functions = getFunctions(app, "asia-southeast1");
 } catch (error) {
     console.error("Lỗi khởi tạo Firebase. Vui lòng kiểm tra firebaseConfig.", error);
-}
-
-function getAuthDomain() {
-    const hostname = window.location?.hostname || "";
-    const isIpAddress = /^(?:\d{1,3}\.){3}\d{1,3}$/.test(hostname);
-    const isLocalHost = ["", "localhost", "127.0.0.1", "::1"].includes(hostname)
-        || hostname.endsWith(".localhost")
-        || isIpAddress;
-
-    return isLocalHost ? FIREBASE_AUTH_DOMAIN : hostname;
 }
 
 export {
